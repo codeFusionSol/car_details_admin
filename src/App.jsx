@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import axios from "axios";
 import { url } from "../utils/url.js";
@@ -19,78 +19,78 @@ function App() {
   const [carDetails, setCarDetails] = useState({
     img: "",
     name: "",
-    overallRating: "",
-    mileage: "",
+    overallRating: 0,
+    mileage: 0,
     inspectionDate: "",
     engineNo: "",
     transmissionType: "",
-    cngInstall: "",
-    engineCapacity: "",
+    cngInstall: true,
+    engineCapacity: 0,
     chassisNo: "",
     registeredCity: "",
-    registeredYear: "",
+    registeredYear: 0,
     driveType: "",
     registrationNo: "",
     colour: "",
   });
   const [vehicleInspectionReport, setVehicleInspectionReport] = useState({
-    acHeater: "",
-    engineTransmissionClutch: "",
-    exterior: "",
-    skeleton: "",
-    accidentChecklist: "",
-    brakes: "",
-    suspensionSteering: "",
-    interior: "",
-    electricalElectronics: "",
-    tyres: "",
+    acHeater: 0,
+    engineTransmissionClutch: 0,
+    exterior: 0,
+    skeleton: 0,
+    accidentChecklist: 0,
+    brakes: 0,
+    suspensionSteering: 0,
+    interior: 0,
+    electricalElectronics: 0,
+    tyres: 0,
   });
   const [bodyFrameAccidentChecklist, setBodyFrameAccidentChecklist] = useState({
     radiatorCoreSupport: {
       img: "",
-      val: "",
+      val: true,
     },
     rightStrutTowerApon: {
       img: "",
-      val: "",
+      val: true,
     },
     leftStrutTowerApon: {
       img: "",
-      val: "",
+      val: true,
     },
     rightFrontRail: {
       img: "",
-      val: "",
+      val: true,
     },
     leftFrontRail: {
       img: "",
-      val: "",
+      val: true,
     },
     cowlPanelFirewall: {
       img: "",
-      val: "",
+      val: true,
     },
-    rightAPillar: "",
-    leftAPillar: "",
-    rightBPillar: "",
-    leftBPillar: "",
-    rightCPillar: "",
-    leftCPillar: "",
+    rightAPillar: true,
+    leftAPillar: true,
+    rightBPillar: true,
+    leftBPillar: true,
+    rightCPillar: true,
+    leftCPillar: true,
     bootFloor: {
       img: "",
-      val: "",
+      val: true,
     },
     bootLockPillar: {
       img: "",
-      val: "",
+      val: true,
     },
     rearSubFrame: {
       img: "",
-      val: "",
+      val: true,
     },
     frontSubFrame: {
       img: "",
-      val: "",
+      val: true,
     },
   });
   const [engineTransmissionClutch, setEngineTransmissionClutch] = useState({
@@ -115,26 +115,26 @@ function App() {
     mechanicalCheck: {
       wires: {
         img: "",
-        val: "",
+        val: true,
       },
       engineBlow: "",
       engineNoise: "",
       engineVibration: "",
-      engineMounts: "",
+      engineMounts: true,
       hoses: {
         img: "",
-        val: "",
+        val: true,
       },
     },
     exhaustCheck: {
-      exhaustSound: "",
+      exhaustSound: true,
     },
     engineCoolingSystem: {
-      radiator: "",
+      radiator: true,
       suctionFan: "",
     },
     transmissionCheck: {
-      starterOperation: "",
+      starterOperation: true,
     },
   });
   const [brakes, setBrakes] = useState({
@@ -229,39 +229,39 @@ function App() {
     },
     mirrors: {
       rightSideMirror: true,
-      leftSideMirror: "",
+      leftSideMirror: true,
       rearViewMirrorDimmer: "",
     },
     seats: {
-      rightSeatAdjusterRecliner: "",
-      leftSeatAdjusterRecliner: "",
-      rightSeatAdjusterLearTrack: "",
-      leftSeatAdjusterLearTrack: "",
-      rightSeatBelt: "",
-      leftSeatBelt: "",
-      rearSeatBelt: "",
+      rightSeatAdjusterRecliner: true,
+      leftSeatAdjusterRecliner: true,
+      rightSeatAdjusterLearTrack: true,
+      leftSeatAdjusterLearTrack: true,
+      rightSeatBelt: true,
+      leftSeatBelt: true,
+      rearSeatBelt: true,
       gloveBox: {
         img: "",
-        val: "",
+        val: true,
       },
     },
     powerAndCentralLocking: {
-      frontRightPowerWindowLever: "",
-      frontLeftPowerWindowLever: "",
-      rearRightPowerWindowLever: "",
-      rearLeftPowerWindowLever: "",
-      autoLockButton: "",
-      windowSafetyLock: "",
+      frontRightPowerWindowLever: true,
+      frontLeftPowerWindowLever: true,
+      rearRightPowerWindowLever: true,
+      rearLeftPowerWindowLever: true,
+      autoLockButton: true,
+      windowSafetyLock: true,
     },
     dashRoofControls: {
-      interiorLightings: "",
-      dashControlsAC: "",
-      dashControlsDeFog: "",
-      dashontrolsHazzardLights: "",
-      audioVideo: "",
-      trunkReleaseLever: "",
-      fuelCapReleaseLever: "",
-      bonnetReleaseLever: "",
+      interiorLightings: true,
+      dashControlsAC: true,
+      dashControlsDeFog: true,
+      dashontrolsHazzardLights: true,
+      audioVideo: true,
+      trunkReleaseLever: true,
+      fuelCapReleaseLever: true,
+      bonnetReleaseLever: true,
     },
     poshish: {
       roofPoshish: {
@@ -292,19 +292,19 @@ function App() {
     equipment: {
       spareTire: {
         img: "",
-        val: "",
+        val: true,
       },
       jack: "",
       tools: {
         img: "",
-        val: "",
+        val: true,
       },
     },
   });
   const [acHeater, setAcHeater] = useState({
     acHeaterCheckUp: {
-      acFitted: "",
-      acOperational: "",
+      acFitted: true,
+      acOperational: true,
       blower: "",
       cooling: "",
       heating: "",
@@ -314,46 +314,46 @@ function App() {
     computerCheckUp: {
       malfunctionCheck: {
         img: "",
-        val: "",
+        val: true,
       },
       rearViewCamera: {
         img: "",
-        val: "",
+        val: true,
       },
-      batteryWarningLight: "",
-      oilPressureLowWarningLight: "",
-      temperatureWarningLight: "",
+      batteryWarningLight: true,
+      oilPressureLowWarningLight: true,
+      temperatureWarningLight: true,
       gauges: {
         img: "",
-        val: "",
+        val: true,
       },
-      airBagWarningLight: "",
-      powerSteeringWarningLight: "",
-      absWarningLight: "",
-      keyFobBatteryLowLight: "",
+      airBagWarningLight: true,
+      powerSteeringWarningLight: true,
+      absWarningLight: true,
+      keyFobBatteryLowLight: true,
     },
     battery: {
-      battery: "",
-      terminalCondition: "",
-      charging: "",
-      alternatorOperation: "",
+      battery: 0,
+      terminalCondition: true,
+      charging: true,
+      alternatorOperation: true,
     },
   });
   const [exteriorBody, setExteriorBody] = useState({
     carFrame: {
-      trunkLock: "",
+      trunkLock: true,
       frontWindshieldCondition: {
         img: "",
         val: "",
       },
       rearWindshieldCondition: {
         img: "",
-        val: "",
+        val: true,
       },
-      frontRightDoorWindow: "",
-      frontLeftDoorWindow: "",
-      rearRightDoorWindow: "",
-      rearLeftDoorWindow: "",
+      frontRightDoorWindow: true,
+      frontLeftDoorWindow: true,
+      rearRightDoorWindow: true,
+      rearLeftDoorWindow: true,
       windscreenWiper: {
         img: "",
         val: "",
@@ -362,11 +362,11 @@ function App() {
     exteriorLights: {
       rightHeadlightWorking: {
         img: "",
-        val: "",
+        val: true,
       },
       leftHeadlightWorking: {
         img: "",
-        val: "",
+        val: true,
       },
       rightHeadlightCondition: {
         img: "",
@@ -376,9 +376,12 @@ function App() {
         img: "",
         val: "",
       },
-      rightTaillightWorking: "",
-      leftTaillightWorking: "",
-      rightTaillightCondition: "",
+      rightTaillightWorking: true,
+      leftTaillightWorking: true,
+      rightTaillightCondition: {
+        img: "",
+        val: "",
+      },
       leftTaillightCondition: {
         img: "",
         val: "",
@@ -387,34 +390,42 @@ function App() {
   });
   const [tyres, setTyres] = useState({
     tyres: {
-      frontRightTyreBrand: "",
+      frontRightTyreBrand: true,
       frontRightTyre: {
         img: "",
-        val: "",
+        val: 0,
       },
-      frontLeftTyreBrand: "",
+      frontLeftTyreBrand: true,
       frontLeftTyre: {
         img: "",
-        val: "",
+        val: 0,
       },
-      rearRightTyreBrand: "",
+      rearRightTyreBrand: true,
       rearRightTyre: {
         img: "",
-        val: "",
+        val: 0,
       },
-      rearLeftTyreBrand: "",
+      rearLeftTyreBrand: true,
       rearLeftTyre: {
         img: "",
-        val: "",
+        val: 0,
       },
       tyreSize: "",
       rims: "",
       wheelsCaps: {
         img: "",
-        val: "",
+        val: true,
       },
     },
   });
+
+  const [pictureName, setPictureName] = useState("");
+  const [pictureFile, setPictureFile] = useState();
+  const fileInputRef = useRef(null);
+  const [pictures, setPictures] = useState([]);
+
+  const [comments, setComments] = useState("");
+  const [disclaimer, setDisclaimer] = useState("");
 
   // const handleClick = (e) => {
   //   e.preventDefault();
@@ -460,13 +471,14 @@ function App() {
   //   );
   // };
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(3);
   const [formData, setFormData] = useState([
     {
       heading: "carDetails",
       img: { type: "file", label: "upload image" },
       name: { type: "text", label: "car name" },
       overallRating: { type: "number", label: "overall rating" },
+      inspectionDate: { type: "date", label: "inspection date" },
       mileage: { type: "number", label: "mileage" },
       engineNo: { type: "text", label: "engine no" },
       transmissionType: { type: "text", label: "transmission type" },
@@ -548,12 +560,13 @@ function App() {
         val: { type: "boolean", label: "frontSubFrame value" },
       },
     },
+
     {
       heading: "engineTransmissionClutch",
       fluidsFiltersCheck: {
-        fluidsFiltersCheck: {
-          img: { type: "file", label: "fluidsFiltersCheck image" },
-          val: { type: "text", label: "fluidsFiltersCheck value" },
+        engineOilLevel: {
+          img: { type: "file", label: "engineOilLevel image" },
+          val: { type: "text", label: "engineOilLevel value" },
         },
         engineOilLeakage: {
           img: { type: "file", label: "engineOilLeakage image" },
@@ -789,6 +802,7 @@ function App() {
         },
       },
     },
+
     {
       heading: "acHeater",
       acHeaterCheckUp: {
@@ -799,7 +813,6 @@ function App() {
         heating: { type: "text", label: "heating" },
       },
     },
-
     {
       heading: "electricalElectronics",
       computerCheckUp: {
@@ -968,72 +981,180 @@ function App() {
         },
       },
     },
+    {
+      heading: "Pictures",
+      picsWithText: [],
+    },
+    {
+      heading: "Comments",
+      comments: "",
+    },
+    {
+      heading: "disclaimer",
+      disclaimer: "",
+    },
   ]);
 
   useEffect(() => {
-    console.log(tyres);
-  }, [tyres]);
+    console.log(
+      carDetails,
+      vehicleInspectionReport,
+      bodyFrameAccidentChecklist,
+      engineTransmissionClutch,
+      brakes,
+      suspensionSteering,
+      interior,
+      acHeater,
+      electricalElectronics,
+      exteriorBody,
+      tyres,
+      pictures,
+      comments,
+      disclaimer
+    );
+  }, [
+    carDetails,
+    vehicleInspectionReport,
+    bodyFrameAccidentChecklist,
+    engineTransmissionClutch,
+    brakes,
+    suspensionSteering,
+    interior,
+    acHeater,
+    electricalElectronics,
+    exteriorBody,
+    tyres,
+    pictures,
+    comments,
+    disclaimer,
+  ]);
+
+  const uploadImage = async (file) => {
+    const storage = getStorage(app);
+    if (!file) return null;
+    const fileName = new Date().getTime() + file.name;
+    const storageRef = ref(storage, fileName);
+    await uploadBytesResumable(storageRef, file);
+    return await getDownloadURL(storageRef);
+  };
+
+  const uploadImagesAndSetURLs = async (state, setState) => {
+    // Recursive function to process the state object
+    const processState = async (obj) => {
+      const newObj = { ...obj };
+      for (const key in obj) {
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+          // Recursively process nested objects
+          newObj[key] = await processState(obj[key]);
+        } else if (key === "img" && obj[key]) {
+          // Upload image and replace with URL
+          const file = obj[key];
+          const url = await uploadImage(file);
+          newObj[key] = url;
+        }
+      }
+      return newObj;
+    };
+
+    // Process the current state
+    const updatedState = await processState(state);
+    // Update the state with the processed data
+    setState(updatedState);
+  };
+
+  const handleImageUpload = async () => {
+    await uploadImagesAndSetURLs(carDetails, setCarDetails);
+    await uploadImagesAndSetURLs(
+      vehicleInspectionReport,
+      setVehicleInspectionReport
+    );
+    await uploadImagesAndSetURLs(
+      bodyFrameAccidentChecklist,
+      setBodyFrameAccidentChecklist
+    );
+    await uploadImagesAndSetURLs(
+      engineTransmissionClutch,
+      setEngineTransmissionClutch
+    );
+    await uploadImagesAndSetURLs(brakes, setBrakes);
+    await uploadImagesAndSetURLs(suspensionSteering, setSuspensionSteering);
+    await uploadImagesAndSetURLs(interior, setInterior);
+    await uploadImagesAndSetURLs(acHeater, setAcHeater);
+    await uploadImagesAndSetURLs(
+      electricalElectronics,
+      setElectricalElectronics
+    );
+    await uploadImagesAndSetURLs(exteriorBody, setExteriorBody);
+    await uploadImagesAndSetURLs(tyres, setTyres);
+  };
 
   const handleClick = async (e) => {
     e.preventDefault();
 
-    const storage = getStorage(app);
-
     // Helper function to upload an image and get the URL
-    const uploadImage = async (file) => {
-      if (!file) return null;
-      const fileName = new Date().getTime() + file.name;
-      const storageRef = ref(storage, fileName);
-      await uploadBytesResumable(storageRef, file);
-      return await getDownloadURL(storageRef);
-    };
 
     // Recursive function to process formData
-    const processData = async (data) => {
-      const result = {};
+    // const processData = async (data) => {
+    //   const result = {};
 
-      for (const key in data) {
-        const field = data[key];
+    //   for (const key in data) {
+    //     const field = data[key];
 
-        if (field?.img && field?.val) {
-          const fileInput = document.querySelector(
-            `input[type="file"][data-key="${key}-img"]`
-          );
-          const file = fileInput?.files[0];
-          result[key] = {
-            img: file ? await uploadImage(file) : null,
-            val:
-              document.querySelector(`input[data-key="${key}-val"]`)?.value ||
-              "",
-          };
-        } else if (field?.type === "file") {
-          const fileInput = document.querySelector(
-            `input[type="file"][data-key="${key}"]`
-          );
-          const file = fileInput?.files[0];
-          result[key] = file ? await uploadImage(file) : null;
-        } else if (typeof field === "object" && !field.type) {
-          result[key] = await processData(field);
-        } else if (field?.type) {
-          result[key] =
-            document.querySelector(`input[data-key="${key}"]`)?.value || "";
-        }
-      }
+    //     if (field?.img && field?.val) {
+    //       const fileInput = document.querySelector(
+    //         `input[type="file"][data-key="${key}-img"]`
+    //       );
+    //       const file = fileInput?.files[0];
+    //       result[key] = {
+    //         img: file ? await uploadImage(file) : null,
+    //         val:
+    //           document.querySelector(`input[data-key="${key}-val"]`)?.value ||
+    //           "",
+    //       };
+    //     } else if (field?.type === "file") {
+    //       const fileInput = document.querySelector(
+    //         `input[type="file"][data-key="${key}"]`
+    //       );
+    //       const file = fileInput?.files[0];
+    //       result[key] = file ? await uploadImage(file) : null;
+    //     } else if (typeof field === "object" && !field.type) {
+    //       result[key] = await processData(field);
+    //     } else if (field?.type) {
+    //       result[key] =
+    //         document.querySelector(`input[data-key="${key}"]`)?.value || "";
+    //     }
+    //   }
 
-      return result;
-    };
+    //   return result;
+    // };
 
     try {
-      const apiPayload = {};
+      const uploadImg = await handleImageUpload();
 
-      // Process each step in formData and add it to apiPayload
-      for (const step of formData) {
-        const stepData = await processData(step);
-        apiPayload[step.heading] = stepData;
-      }
+      // const apiPayload = {};
+
+      // // Process each step in formData and add it to apiPayload
+      // for (const step of formData) {
+      //   const stepData = await processData(step);
+      //   apiPayload[step.heading] = stepData;
+      // }
 
       // Make the API call
-      await api.post("/car/add", apiPayload);
+      await api.post("/car/add", {
+        carDetails,
+        vehicleInspectionReport,
+        bodyFrameAccidentChecklist,
+        engineTransmissionClutch,
+        brakes,
+        suspensionSteering,
+        interior,
+        acHeater,
+        electricalElectronics,
+        exteriorBody,
+        tyres,
+        comments,
+        disclaimer,
+      });
       alert("Car data uploaded successfully!");
     } catch (error) {
       console.error("Error uploading data: ", error);
@@ -1151,7 +1272,7 @@ function App() {
                   onChange={(e) =>
                     setCarDetails({
                       ...carDetails,
-                      overallRating: e.target.value,
+                      overallRating: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1164,7 +1285,7 @@ function App() {
                   placeholder="15000"
                   className="form-control"
                   onChange={(e) =>
-                    setCarDetails({ ...carDetails, mileage: e.target.value })
+                    setCarDetails({ ...carDetails, mileage: +e.target.value })
                   }
                   data-key="val"
                 />
@@ -1226,7 +1347,7 @@ function App() {
                   onChange={(e) =>
                     setCarDetails({
                       ...carDetails,
-                      engineCapacity: e.target.value,
+                      engineCapacity: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1268,7 +1389,7 @@ function App() {
                   onChange={(e) =>
                     setCarDetails({
                       ...carDetails,
-                      registeredYear: e.target.value,
+                      registeredYear: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1312,6 +1433,21 @@ function App() {
                   }
                   data-key="val"
                 />
+
+                {/* 15 */}
+                <label>{formData[currentStep]?.inspectionDate?.label}</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  placeholder="color"
+                  onChange={(e) =>
+                    setCarDetails({
+                      ...carDetails,
+                      inspectionDate: e.target.value,
+                    })
+                  }
+                  data-key="val"
+                />
               </div>
             </>
           ) : currentStep === 1 ? (
@@ -1331,7 +1467,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      acHeater: e.target.value,
+                      acHeater: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1348,7 +1484,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      engineTransmissionClutch: e.target.value,
+                      engineTransmissionClutch: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1363,7 +1499,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      exterior: e.target.value,
+                      exterior: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1378,7 +1514,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      skeleton: e.target.value,
+                      skeleton: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1393,7 +1529,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      accidentChecklist: e.target.value,
+                      accidentChecklist: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1408,7 +1544,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      brakes: e.target.value,
+                      brakes: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1425,7 +1561,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      suspensionSteering: e.target.value,
+                      suspensionSteering: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1440,7 +1576,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      interior: e.target.value,
+                      interior: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1457,7 +1593,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      electricalElectronics: e.target.value,
+                      electricalElectronics: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -1472,7 +1608,7 @@ function App() {
                   onChange={(e) =>
                     setVehicleInspectionReport({
                       ...vehicleInspectionReport,
-                      tyres: e.target.value,
+                      tyres: +e.target.value,
                     })
                   }
                   data-key="val"
@@ -2020,25 +2156,29 @@ function App() {
                 {/* 01 */}
                 <label>
                   {
-                    formData[currentStep]?.fluidsFiltersCheck
-                      ?.fluidsFiltersCheck?.img?.label
+                    formData[currentStep]?.fluidsFiltersCheck?.engineOilLevel
+                      ?.img?.label
                   }
                 </label>
                 <input
                   type="file"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch.fluidsFiltersCheck,
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
                         fluidsFiltersCheck: {
-                          ...engineTransmissionClutch.fluidsFiltersCheck
+                          ...prevState.engineTransmissionClutch
                             .fluidsFiltersCheck,
-                          img: e.target.files[0],
+                          engineOilLevel: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.engineOilLevel,
+                            img: e.target.files[0],
+                          },
                         },
                       },
-                    })
+                    }))
                   }
                   data-key="val"
                 />
@@ -2046,8 +2186,8 @@ function App() {
                 {/* 02 */}
                 <label>
                   {
-                    formData[currentStep]?.fluidsFiltersCheck
-                      ?.fluidsFiltersCheck?.val?.label
+                    formData[currentStep]?.fluidsFiltersCheck?.engineOilLevel
+                      ?.val?.label
                   }
                 </label>
                 <br />
@@ -2056,17 +2196,21 @@ function App() {
                   placeholder="Enter Value"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch.fluidsFiltersCheck,
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
                         fluidsFiltersCheck: {
-                          ...engineTransmissionClutch.fluidsFiltersCheck
+                          ...prevState.engineTransmissionClutch
                             .fluidsFiltersCheck,
-                          val: e.target.value,
+                          engineOilLevel: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.engineOilLevel,
+                            val: e.target.value,
+                          },
                         },
                       },
-                    })
+                    }))
                   }
                 />
 
@@ -2081,17 +2225,21 @@ function App() {
                   type="file"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch?.fluidsFiltersCheck,
-                        engineOilLeakage: {
-                          ...engineTransmissionClutch?.fluidsFiltersCheck
-                            ?.engineOilLeakage,
-                          img: e.target.files[0],
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
+                        fluidsFiltersCheck: {
+                          ...prevState.engineTransmissionClutch
+                            .fluidsFiltersCheck,
+                          engineOilLeakage: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.engineOilLeakage,
+                            img: e.target.files[0],
+                          },
                         },
                       },
-                    })
+                    }))
                   }
                   data-key="val"
                 />
@@ -2109,17 +2257,21 @@ function App() {
                   placeholder="Enter Value"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch.fluidsFiltersCheck,
-                        engineOilLeakage: {
-                          ...engineTransmissionClutch.fluidsFiltersCheck
-                            .engineOilLeakage,
-                          val: e.target.value,
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
+                        fluidsFiltersCheck: {
+                          ...prevState.engineTransmissionClutch
+                            .fluidsFiltersCheck,
+                          engineOilLeakage: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.engineOilLeakage,
+                            val: e.target.value,
+                          },
                         },
                       },
-                    })
+                    }))
                   }
                 />
 
@@ -2134,17 +2286,21 @@ function App() {
                   type="file"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch?.fluidsFiltersCheck,
-                        transmissionOilLeakage: {
-                          ...engineTransmissionClutch?.fluidsFiltersCheck
-                            ?.transmissionOilLeakage,
-                          img: e.target.files[0],
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
+                        fluidsFiltersCheck: {
+                          ...prevState.engineTransmissionClutch
+                            .fluidsFiltersCheck,
+                          transmissionOilLeakage: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.transmissionOilLeakage,
+                            img: e.target.files[0],
+                          },
                         },
                       },
-                    })
+                    }))
                   }
                   data-key="val"
                 />
@@ -2162,18 +2318,21 @@ function App() {
                   placeholder="Enter Value"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch.fluidsFiltersCheck,
-                        transmissionOilLeakage: {
-                          ...engineTransmissionClutch.fluidsFiltersCheck
-                            .transmissionOilLeakage,
-
-                          val: e.target.value,
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
+                        fluidsFiltersCheck: {
+                          ...prevState.engineTransmissionClutch
+                            .fluidsFiltersCheck,
+                          transmissionOilLeakage: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.transmissionOilLeakage,
+                            val: e.target.value,
+                          },
                         },
                       },
-                    })
+                    }))
                   }
                 />
 
@@ -2190,13 +2349,21 @@ function App() {
                   placeholder="Enter Value"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch.fluidsFiltersCheck,
-                        coolantLeakage: e.target.value,
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
+                        fluidsFiltersCheck: {
+                          ...prevState.engineTransmissionClutch
+                            .fluidsFiltersCheck,
+                          coolantLeakage: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.coolantLeakage,
+                            val: e.target.value,
+                          },
+                        },
                       },
-                    })
+                    }))
                   }
                 />
 
@@ -2213,13 +2380,21 @@ function App() {
                   placeholder="Enter Value"
                   className="form-control"
                   onChange={(e) =>
-                    setEngineTransmissionClutch({
-                      ...engineTransmissionClutch,
-                      fluidsFiltersCheck: {
-                        ...engineTransmissionClutch.fluidsFiltersCheck,
-                        brakeOilLeakage: e.target.value,
+                    setEngineTransmissionClutch((prevState) => ({
+                      ...prevState,
+                      engineTransmissionClutch: {
+                        ...prevState.engineTransmissionClutch,
+                        fluidsFiltersCheck: {
+                          ...prevState.engineTransmissionClutch
+                            .fluidsFiltersCheck,
+                          brakeOilLeakage: {
+                            ...prevState.engineTransmissionClutch
+                              .fluidsFiltersCheck.brakeOilLeakage,
+                            val: e.target.value,
+                          },
+                        },
                       },
-                    })
+                    }))
                   }
                 />
 
@@ -2236,7 +2411,10 @@ function App() {
                       ...engineTransmissionClutch,
                       mechanicalCheck: {
                         ...engineTransmissionClutch.mechanicalCheck,
-                        wires: { img: e.target.files[0] },
+                        wires: {
+                          ...engineTransmissionClutch.mechanicalCheck.wires,
+                          img: e.target.files[0],
+                        },
                       },
                     })
                   }
@@ -2256,7 +2434,10 @@ function App() {
                       ...engineTransmissionClutch,
                       mechanicalCheck: {
                         ...engineTransmissionClutch.mechanicalCheck,
-                        wires: { val: e.target.value === "true" },
+                        wires: {
+                          ...engineTransmissionClutch.mechanicalCheck.wires,
+                          val: e.target.value === "true",
+                        },
                       },
                     })
                   }
@@ -2340,7 +2521,7 @@ function App() {
                       ...engineTransmissionClutch,
                       mechanicalCheck: {
                         ...engineTransmissionClutch.mechanicalCheck,
-                        engineVibration: e.target.value === "true",
+                        engineMounts: e.target.value === "true",
                       },
                     })
                   }
@@ -2363,6 +2544,7 @@ function App() {
                       mechanicalCheck: {
                         ...engineTransmissionClutch.mechanicalCheck,
                         hoses: {
+                          ...engineTransmissionClutch.mechanicalCheck.hoses,
                           img: e.target.files[0],
                         },
                       },
@@ -2385,7 +2567,10 @@ function App() {
                       ...engineTransmissionClutch,
                       mechanicalCheck: {
                         ...engineTransmissionClutch.mechanicalCheck,
-                        hoses: { val: e.target.value === "true" },
+                        hoses: {
+                          ...engineTransmissionClutch.mechanicalCheck.hoses,
+                          val: e.target.value === "true",
+                        },
                       },
                     })
                   }
@@ -2425,7 +2610,7 @@ function App() {
                   onChange={(e) =>
                     setEngineTransmissionClutch({
                       ...engineTransmissionClutch,
-                      exhaustCheck: {
+                      engineCoolingSystem: {
                         ...engineTransmissionClutch.engineCoolingSystem,
                         radiator: e.target.value === "true",
                       },
@@ -2472,10 +2657,7 @@ function App() {
                   onChange={(e) =>
                     setEngineTransmissionClutch({
                       ...engineTransmissionClutch,
-                      transmissionCheck: {
-                        ...engineTransmissionClutch.engineCoolingSystem,
-                        starterOperation: e.target.value,
-                      },
+                      transmissionCheck: e.target.value,
                     })
                   }
                 />
@@ -6083,6 +6265,76 @@ function App() {
                     })
                   }
                 />
+              </div>
+            </>
+          ) : currentStep === 11 ? (
+            <>
+              <h2 className="text-center mt-4">Add Pictures</h2>
+
+              <p>Total Pictures: {pictures?.length}</p>
+
+              <div className="input-group">
+                <input
+                  type="text"
+                  value={pictureName}
+                  placeholder="Enter Name"
+                  className="form-control"
+                  onChange={(e) => setPictureName(e.target.value)}
+                />
+                <input
+                  type="file"
+                  className="form-control"
+                  ref={fileInputRef}
+                  onChange={(e) => setPictureFile(e.target.files[0])}
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    if (pictureName && pictureFile) {
+                      setPictures([
+                        ...pictures,
+                        { text: pictureName, img: pictureFile },
+                      ]);
+                      setPictureName("");
+                      setPictureFile(null);
+                      fileInputRef.current.value = "";
+                    } else {
+                      alert("Please enter name and select file");
+                    }
+                  }}
+                >
+                  ADD
+                </button>
+              </div>
+            </>
+          ) : currentStep === 12 ? (
+            <>
+              <h2 className="text-center mt-4">
+                {formData[currentStep]?.heading}
+              </h2>
+              <div className="col-12 mt-2">
+                <textarea
+                  placeholder="write here........."
+                  type="text"
+                  className="form-control"
+                  onChange={(e) => setComments(e.target.value)}
+                ></textarea>
+              </div>
+            </>
+          ) : currentStep === 13 ? (
+            <>
+              <h2 className="text-center mt-4">
+                {formData[currentStep]?.heading}
+              </h2>
+              <div className="col-12 mt-2">
+                <textarea
+                  placeholder="write here........."
+                  type="text"
+                  className="form-control"
+                  onChange={(e) => setDisclaimer(e.target.value)}
+                ></textarea>
               </div>
             </>
           ) : (
