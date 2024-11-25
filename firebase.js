@@ -1,12 +1,13 @@
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB2wollOFBtiFA2OvcMYoFVyhL95G5I2bk",
-  authDomain: "facebook-4a76a.firebaseapp.com",
-  projectId: "facebook-4a76a",
-  storageBucket: "facebook-4a76a.appspot.com",
-  messagingSenderId: "909723182256",
-  appId: "1:909723182256:web:4c689450de9742a6f40775",
+  apiKey: "AIzaSyBpJI3hOrggbToTbphT_nVUW7sepiiU1EQ",
+  authDomain: "socail-media-images.firebaseapp.com",
+  projectId: "socail-media-images",
+  storageBucket: "socail-media-images.appspot.com",
+  messagingSenderId: "212646702500",
+  appId: "1:212646702500:web:f3c09881657124d3972531",
+  measurementId: "G-EQ30ZRENXE"
 };
 
 const app = initializeApp(firebaseConfig);
