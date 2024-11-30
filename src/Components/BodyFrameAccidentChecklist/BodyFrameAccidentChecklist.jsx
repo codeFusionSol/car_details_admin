@@ -1,4 +1,13 @@
+import { useDispatch } from "react-redux";
+import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+
 const BodyFrameAccidentChecklist = ({ formData, setFormData }) => {
+  const dispatch = useDispatch();
+
+  const changeStep = () => {
+    dispatch(changeStepSuccess(3));
+  };
+
   const getBase64 = (file) => {
     return new Promise((resolve) => {
       let reader = new FileReader();
@@ -229,7 +238,7 @@ const BodyFrameAccidentChecklist = ({ formData, setFormData }) => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <>
       <section className="bg-white rounded-lg shadow-lg p-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
           Body Frame & Accident Checklist
@@ -334,7 +343,10 @@ const BodyFrameAccidentChecklist = ({ formData, setFormData }) => {
               "rightCPillar",
               "leftCPillar",
             ].map((item, index) => (
-              <div key={index} className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg">
+              <div
+                key={index}
+                className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg"
+              >
                 <input
                   type="checkbox"
                   checked={
@@ -376,7 +388,8 @@ const BodyFrameAccidentChecklist = ({ formData, setFormData }) => {
           </div>
         </div>
       </section>
-    </div>
+      <button onClick={() => changeStep()}>Next</button>
+    </>
   );
 };
 

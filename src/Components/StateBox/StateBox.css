@@ -1,0 +1,56 @@
+.card-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 360px !important;
+  height: 100px;
+  padding: 20px 45px;
+  background-color: #e0e0e0; /* Matches the light gray background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.label {
+  text-align: left;
+  font-size: 20px;
+  font-weight: 500;
+  color: #666; /* Gray color for the label text */
+}
+
+.value {
+  font-size: 55px;
+  font-weight: bold;
+  color: #545454; /* Darker gray for the number */
+}
+
+@media (max-width: 768px) {
+  .card-container {
+    width: 300px !important;
+    padding: 10px 20px;
+  }
+}
+
+.subtile {
+  font-size: 14px;
+  color: #888;
+}
+
+@media (max-width: 376px) {
+  .card-container {
+    width: 250px !important;
+    padding: 10px 25px;
+  }
+  .label {
+    font-size: 16px;
+  }
+  .value {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 325px) {
+  .card-container {
+    width: 200px !important;
+  }
+  
+}

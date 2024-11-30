@@ -1,4 +1,13 @@
+import { useDispatch } from "react-redux";
+import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+
 const ACHeaterCheckup = ({ formData, setFormData }) => {
+  const dispatch = useDispatch();
+
+  const changeStep = () => {
+    dispatch(changeStepSuccess(8));
+  };
+
   const getBase64 = (file) => {
     return new Promise((resolve) => {
       let reader = new FileReader();
@@ -493,6 +502,7 @@ const ACHeaterCheckup = ({ formData, setFormData }) => {
           }
         `}</style>
       </section>
+      <button onClick={() => changeStep()}>Next</button>
     </>
   );
 };

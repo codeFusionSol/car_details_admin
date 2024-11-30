@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import "./Form.css";
 import axios from "axios";
 import { url } from "../../../utils/url";
 import CarDetails from "../../Components/CarDetails/CarDetails.jsx";
@@ -13,14 +15,20 @@ import ElectricalElectronics from "../../Components/ElectricalElectronics/Electr
 import ExteriorBody from "../../Components/ExteriorBody/ExteriorBody.jsx";
 import Tyres from "../../Components/Tyres/Tyres.jsx";
 import AdditionalPictures from "../../Components/AdditionalPictures/AdditionalPictures.jsx";
+import { useSelector } from "react-redux";
+import { useFetcher } from "react-router-dom";
 
 const api = axios.create({
   baseURL: url,
 });
 
 const Form = () => {
-  const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 12;
+  const { steps } = useSelector((state) => state.formsSteps);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    console.log(steps);
+  }, [steps]);
 
   const [formData, setFormData] = useState({
     carDetails: {
@@ -241,46 +249,49 @@ const Form = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validatedPictures = formData.pictures.map(pic => ({
+    const validatedPictures = formData.pictures.map((pic) => ({
       ...pic,
-      public_id: pic.public_id || `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      public_id:
+        pic.public_id ||
+        `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     }));
-
 
     // Add public_id to any pics in formData that don't have one
     const addPublicIds = (obj) => {
       if (!obj) return obj;
-      
+
       // Handle arrays
       if (Array.isArray(obj)) {
-        return obj.map(item => addPublicIds(item));
+        return obj.map((item) => addPublicIds(item));
       }
 
       // Handle objects
-      if (typeof obj === 'object') {
-        const newObj = {...obj};
-        
+      if (typeof obj === "object") {
+        const newObj = { ...obj };
+
         // Add public_id to image objects that don't have one
         if (newObj.image && !newObj.image.public_id) {
-          newObj.image.public_id = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          newObj.image.public_id = `temp_${Date.now()}_${Math.random()
+            .toString(36)
+            .substr(2, 9)}`;
         }
-        
+
         // Recursively process all object properties
-        Object.keys(newObj).forEach(key => {
+        Object.keys(newObj).forEach((key) => {
           newObj[key] = addPublicIds(newObj[key]);
         });
-        
+
         return newObj;
       }
 
       return obj;
     };
 
-    const formDataWithIds = addPublicIds({...formData});
+    const formDataWithIds = addPublicIds({ ...formData });
 
     const dataToSubmit = {
       ...formData,
-      pictures: validatedPictures
+      pictures: validatedPictures,
     };
     console.log(formData);
     try {
@@ -299,82 +310,93 @@ const Form = () => {
   }, [formData]);
 
   return (
-    <form className="car-inspection-form" onSubmit={(e) => e.preventDefault()}>
-      {currentStep === 0 && (
-        <CarDetails formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 1 && (
-        <VehicleInspectionReport
-          formData={formData}
-          setFormData={setFormData}
-        />
-      )}
-
-      {currentStep === 2 && (
-        <BodyFrameAccidentChecklist
-          formData={formData}
-          setFormData={setFormData}
-        />
-      )}
-
-      {currentStep === 3 && (
-        <EngineTransmissionClutch
-          formData={formData}
-          setFormData={setFormData}
-        />
-      )}
-
-      {currentStep === 4 && (
-        <Brakes formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 5 && (
-        <SuspensionSteering formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 6 && (
-        <Interior formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 7 && (
-        <ACHeaterCheckup formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 8 && (
-        <ElectricalElectronics formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 9 && (
-        <ExteriorBody formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 10 && (
-        <Tyres formData={formData} setFormData={setFormData} />
-      )}
-
-      {currentStep === 11 && (
-        <AdditionalPictures formData={formData} setFormData={setFormData} />
-      )}
-
-      <div className="navigation-buttons">
-        {currentStep > 0 && (
-          <button type="button" onClick={() => setCurrentStep(currentStep - 1)}>
-            Previous
-          </button>
+    <>
+      <div className="form-container">
+        {steps === 0 && (
+          <div className="fade-in">
+            <CarDetails formData={formData} setFormData={setFormData} />
+          </div>
         )}
 
-        {currentStep < totalSteps - 1 ? (
-          <button type="button" onClick={() => setCurrentStep(currentStep + 1)}>
-            Next
-          </button>
-        ) : (
-          <button type="button" onClick={handleSubmit}>
-            Submit Inspection Report
-          </button>
+        {steps === 1 && (
+          <div className="fade-in">
+            <VehicleInspectionReport
+              formData={formData}
+              setFormData={setFormData}
+            />
+          </div>
+        )}
+
+        {steps === 2 && (
+          <div className="fade-in">
+            <BodyFrameAccidentChecklist
+              formData={formData}
+              setFormData={setFormData}
+            />
+          </div>
+        )}
+
+        {steps === 3 && (
+          <div className="fade-in">
+            <EngineTransmissionClutch
+              formData={formData}
+              setFormData={setFormData}
+            />
+          </div>
+        )}
+
+        {steps === 4 && (
+          <div className="fade-in">
+            <Brakes formData={formData} setFormData={setFormData} />
+          </div>
+        )}
+
+        {steps === 5 && (
+          <div className="fade-in">
+            <SuspensionSteering formData={formData} setFormData={setFormData} />
+          </div>
+        )}
+
+        {steps === 6 && (
+          <div className="fade-in">
+            <Interior formData={formData} setFormData={setFormData} />
+          </div>
+        )}
+
+        {steps === 7 && (
+          <div className="fade-in">
+            <ACHeaterCheckup formData={formData} setFormData={setFormData} />
+          </div>
+        )}
+
+        {steps === 8 && (
+          <div className="fade-in">
+            <ElectricalElectronics
+              formData={formData}
+              setFormData={setFormData}
+            />
+          </div>
+        )}
+
+        {steps === 9 && (
+          <div className="fade-in">
+            <ExteriorBody formData={formData} setFormData={setFormData} />
+          </div>
+        )}
+
+        {steps === 10 && (
+          <div className="fade-in">
+            <Tyres formData={formData} setFormData={setFormData} />
+          </div>
+        )}
+
+        {steps === 11 && (
+          <div className="fade-in">
+            <AdditionalPictures formData={formData} setFormData={setFormData} />
+          </div>
         )}
       </div>
-    </form>
+    </>
   );
 };
 

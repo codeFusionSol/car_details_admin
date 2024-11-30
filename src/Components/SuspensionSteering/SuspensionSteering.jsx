@@ -1,6 +1,15 @@
+import { useDispatch } from "react-redux";
+import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+
 const SuspensionSteering = ({ formData, setFormData }) => {
-    const getBase64 = (file) => {
-        return new Promise((resolve) => {
+  const dispatch = useDispatch();
+
+  const changeStep = () => {
+    dispatch(changeStepSuccess(6));
+  };
+
+  const getBase64 = (file) => {
+    return new Promise((resolve) => {
           let reader = new FileReader();
           reader.readAsDataURL(file);
           reader.onload = () => {
@@ -390,7 +399,8 @@ const SuspensionSteering = ({ formData, setFormData }) => {
               />
             </div>
           ))}
-        </section>
+      </section>
+      <button onClick={() => changeStep()}>Next</button>
     </>
   );
     };

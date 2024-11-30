@@ -1,6 +1,15 @@
+import { useDispatch } from "react-redux";
+import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+
 const ElectricalElectronics = ({ formData, setFormData }) => {
-    const getBase64 = (file) => {
-        return new Promise((resolve) => {
+  const dispatch = useDispatch();
+
+  const changeStep = () => {
+    dispatch(changeStepSuccess(9));
+  };
+
+  const getBase64 = (file) => {
+    return new Promise((resolve) => {
           let reader = new FileReader();
           reader.readAsDataURL(file);
           reader.onload = () => {
@@ -794,7 +803,8 @@ const ElectricalElectronics = ({ formData, setFormData }) => {
               />
             </div>
           </div>
-        </section>
+      </section>
+      <button onClick={() => changeStep()}>Next</button>
     </>
   );
     };

@@ -1,4 +1,17 @@
+import { useDispatch } from "react-redux";
+import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import { useNavigate } from "react-router-dom";
+import { changeFormStateSuccess } from "../../redux/Slices/Sidebar.jsx";
+
 const AdditionalPictures = ({ formData, setFormData }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const changeStep = () => {
+    dispatch(changeStepSuccess(0));
+    dispatch(changeFormStateSuccess());
+    navigate("/");
+  };
+
   const getBase64 = (file) => {
     return new Promise((resolve) => {
       let reader = new FileReader();
@@ -39,7 +52,7 @@ const AdditionalPictures = ({ formData, setFormData }) => {
   };
 
   return (
-    <div className="additional-pictures-container">
+    <>
       <section className="additional-pictures-section">
         <h2 className="section-title">Additional Pictures</h2>
         <div className="form-section">
@@ -120,6 +133,7 @@ const AdditionalPictures = ({ formData, setFormData }) => {
           )}
         </div>
       </section>
+      <button onClick={() => changeStep()}>Submit</button>
 
       <style jsx>{`
         .additional-pictures-container {
@@ -251,7 +265,8 @@ const AdditionalPictures = ({ formData, setFormData }) => {
           font-size: 0.9rem;
         }
       `}</style>
-    </div>
+    </>
+
   );
 };
 

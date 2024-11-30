@@ -9,6 +9,7 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  overflow-x: hidden !important;
 }
 
 h1,
@@ -45,13 +46,8 @@ body {
   background-color: #f8f9fa;
 }
 
-.container-fluid {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-  background: #ffffff;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+input:focus {
+  outline: none;
 }
 
 form {

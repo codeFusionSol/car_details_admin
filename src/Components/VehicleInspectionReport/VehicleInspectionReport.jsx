@@ -1,4 +1,13 @@
+import { useDispatch } from "react-redux";
+import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+
 const VehicleInspectionReport = ({ formData, setFormData }) => {
+  const dispatch = useDispatch();
+
+  const changeStep = () => {
+    dispatch(changeStepSuccess(2));
+  };
+
   return (
     <>
       <section>
@@ -51,6 +60,7 @@ const VehicleInspectionReport = ({ formData, setFormData }) => {
           </div>
         ))}
       </section>
+      <button onClick={() => changeStep()}>Next</button>
     </>
   );
 };
