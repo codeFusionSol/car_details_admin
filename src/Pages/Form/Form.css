@@ -11,3 +11,15 @@
         margin-left: 100px;
     }
 }
+
+@media (max-width: 576px) {
+    .form-container {
+        width: 100%;
+        margin-left: 75px;
+        padding: 0px;
+    }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}

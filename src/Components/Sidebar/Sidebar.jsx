@@ -56,7 +56,7 @@ const Sidebar = () => {
                 <div className="timeline-circle"></div>
                 <span
                   className="timeline-label"
-                  style={{ display: isOpen ? "block" : "none" }}
+                  style={{ display: isOpen ? "block !important" : "none" }}
                 >
                   {step}
                 </span>

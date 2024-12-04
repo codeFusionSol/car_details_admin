@@ -1,8 +1,20 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { url } from "../../../utils/url";
+import { Toaster, toast } from "sonner";
+const api = axios.create({
+  baseURL: url,
+});
 
-const BodyFrameAccidentChecklist = ({ formData, setFormData }) => {
+const BodyFrameAccidentChecklist = () => {
   const dispatch = useDispatch();
+  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+
+  const [formData, setFormData] = useState({
+    imageValueChecks: [],
+  });
 
   const changeStep = () => {
     dispatch(changeStepSuccess(3));
@@ -18,377 +30,209 @@ const BodyFrameAccidentChecklist = ({ formData, setFormData }) => {
     });
   };
 
-  const handleImageChange = async (e, section, field, item) => {
+  const handleImageChange = async (e, item) => {
     const file = e.target.files[0];
     if (file) {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
       setFormData((prev) => {
-        const newData = { ...prev };
+        const newChecks = [...prev.imageValueChecks];
+        const existingIndex = newChecks.findIndex(
+          (check) => check.name === item
+        );
 
-        // Handle interior section specifically
-        if (section === "interior") {
-          // For steering controls
-          if (field === "steeringControls") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For seats
-          else if (field === "seats") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For equipment
-          else if (field === "equipment") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For poshish
-          else if (field === "poshish") {
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle electrical electronics section
-        else if (section === "electricalElectronics") {
-          // Handle battery section specifically
-          if (field === "battery") {
-            if (item === "alternatorOperation") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                };
-              } else {
-                newData[section][field][item].image.url = base64WithPrefix;
-              }
-            }
-          }
-          // Handle computerCheckUp and other subsections
-          else {
-            if (!newData[section][field]) {
-              newData[section][field] = {};
-            }
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle other sections
-        else {
-          // Handle imageValueChecks array case
-          if (field === "imageValueChecks") {
-            if (!newData[section][field]) {
-              newData[section][field] = [];
-            }
-
-            const checks = [...newData[section][field]];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field] = checks;
-          }
-          // Handle nested field case (like fluidsFiltersCheck, mechanicalCheck)
-          else if (field && item) {
-            // Special case for parkingHandBrake
-            if (item === "parkingHandBrake") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: "", public_id: "" },
-                  value: "",
-                };
-              }
-              newData[section][field][item].image.url = base64WithPrefix;
-            } else {
-              // Initialize nested structure if it doesn't exist
-              if (!newData[section][field]) {
-                newData[section][field] = {};
-              }
-              if (!newData[section][field].imageValueChecks) {
-                newData[section][field].imageValueChecks = [];
-              }
-
-              const checks = [...newData[section][field].imageValueChecks];
-              const existingIndex = checks.findIndex(
-                (check) => check.name === item
-              );
-
-              if (existingIndex >= 0) {
-                checks[existingIndex].data.image.url = base64WithPrefix;
-              } else {
-                checks.push({
-                  name: item,
-                  data: {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  },
-                });
-              }
-              newData[section][field].imageValueChecks = checks;
-            }
-          }
-          // Handle regular image field case
-          else if (field) {
-            if (!newData[section][field]) {
-              newData[section][field] = { image: { url: "", public_id: "" } };
-            }
-            newData[section][field].image.url = base64WithPrefix;
-          }
-          // Handle root level image
-          else {
-            if (!newData[section].image) {
-              newData[section].image = { url: "", public_id: "" };
-            }
-            newData[section].image.url = base64WithPrefix;
-          }
+        if (existingIndex >= 0) {
+          newChecks[existingIndex].data.image.url = base64WithPrefix;
+        } else {
+          newChecks.push({
+            name: item,
+            data: {
+              image: { url: base64WithPrefix, public_id: "" },
+              value: false,
+            },
+          });
         }
 
-        return newData;
+        return {
+          ...prev,
+          imageValueChecks: newChecks,
+        };
       });
     }
   };
 
-  const handleInputChange = (e, section, field, subfield) => {
-    let value;
-    console.log(e.target.type);
-    if (e.target.type === "number") {
-      value = e.target.type === "number" ? +e.target.value : e.target.value;
-    } else {
-      value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    }
+  const handleSubmit = async () => {
+    try {
+      // Validate all required fields are filled
+      const requiredFields = [
+        "radiatorCoreSupport",
+        "rightStrutTowerApon",
+        "leftStrutTowerApon",
+        "rightFrontRail",
+        "leftFrontRail",
+        "cowlPanelFirewall",
+        "bootFloor",
+        "bootLockPillar",
+        "rearSubFrame",
+        "frontSubFrame",
+        "rightAPillar",
+        "leftAPillar",
+        "rightBPillar",
+        "leftBPillar",
+        "rightCPillar",
+        "leftCPillar",
+      ];
 
-    setFormData((prev) => {
-      const newData = { ...prev };
-      if (subfield) {
-        newData[section][field][subfield] = value;
-      } else if (field) {
-        newData[section][field] = value;
-      } else {
-        newData[section] = value;
+      const missingFields = requiredFields.filter(
+        (field) =>
+          !formData.imageValueChecks.find((check) => check.name === field)
+      );
+
+      if (missingFields.length > 0) {
+        alert(`Please fill in all fields: ${missingFields.join(", ")}`);
+        return;
       }
-      return newData;
-    });
+
+      const response = await api.post("/bodyFrameAccidentChecklist/add", {
+        imageValueChecks: formData?.imageValueChecks,
+        carDetailsId: carDetailsId,
+      });
+
+      if (response.data.success) {
+        
+        toast("Body Frame Accident Checklist Added!", {
+          style: {
+            padding: "16px",
+          }})
+          setTimeout(() => {
+            changeStep();
+          }, 2000);
+      }
+    } catch (error) {
+      console.error("Error adding body frame accident checklist:", error);
+      alert("Error adding body frame accident checklist");
+    }
   };
 
-  return (
-    <>
-      <section className="bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Body Frame & Accident Checklist
-        </h2>
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
 
-        <div className="mb-10">
-          <h3 className="text-xl font-semibold text-gray-700 mb-6">
-            Image Value Checks
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              "radiatorCoreSupport",
-              "rightStrutTowerApon",
-              "leftStrutTowerApon",
-              "rightFrontRail",
-              "leftFrontRail",
-              "cowlPanelFirewall",
-              "bootFloor",
-              "bootLockPillar",
-              "rearSubFrame",
-              "frontSubFrame",
-            ].map((item, index) => (
-              <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {item.split(/(?=[A-Z])/).join(" ")}
-                </label>
-                <div className="flex flex-col space-y-3">
-                  <input
-                    type="file"
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        "bodyFrameAccidentChecklist",
-                        "imageValueChecks",
-                        item
-                      )
-                    }
-                    accept="image/*"
-                    required
-                    className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-blue-50 file:text-blue-700
-                      hover:file:bg-blue-100"
-                  />
-                  <input
-                    type="text"
-                    value={
-                      formData.bodyFrameAccidentChecklist.imageValueChecks.find(
-                        (check) => check.name === item
-                      )?.data?.value || ""
-                    }
-                    onChange={(e) => {
-                      const newChecks = [
-                        ...formData.bodyFrameAccidentChecklist.imageValueChecks,
-                      ];
-                      const existingIndex = newChecks.findIndex(
-                        (check) => check.name === item
-                      );
-                      if (existingIndex >= 0) {
-                        newChecks[existingIndex].data.value = e.target.value;
-                      } else {
-                        newChecks.push({
-                          name: item,
-                          data: {
-                            image: { url: "", public_id: "" },
-                            value: e.target.value,
-                          },
-                        });
-                      }
-                      setFormData((prev) => ({
-                        ...prev,
-                        bodyFrameAccidentChecklist: {
-                          ...prev.bodyFrameAccidentChecklist,
-                          imageValueChecks: newChecks,
-                        },
-                      }));
-                    }}
-                    required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                      focus:border-blue-500 focus:ring-blue-500 sm:text-sm
-                      p-2 border"
-                    placeholder="Enter value"
-                  />
+    return (
+      <>
+    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+      <div className="container p-0">
+        <div className="card shadow">
+          <div className="text-white p-4" style={{ backgroundColor: "red" }}>
+            <h2 className="display-4 form-title text-center fw-bold">
+              Body Frame & Accident Checklist
+            </h2>
+          </div>
+
+          <div className="card-body p-4">
+            <div className="row g-4">
+              <div className="col-12">
+                <div className="row">
+                  {[
+                    "radiatorCoreSupport",
+                    "rightStrutTowerApon",
+                    "leftStrutTowerApon",
+                    "rightFrontRail",
+                    "leftFrontRail",
+                    "cowlPanelFirewall",
+                    "bootFloor",
+                    "bootLockPillar",
+                    "rearSubFrame",
+                    "frontSubFrame",
+                    "rightAPillar",
+                    "leftAPillar",
+                    "rightBPillar",
+                    "leftBPillar",
+                    "rightCPillar",
+                    "leftCPillar",
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => {
+                              const newChecks = [...formData.imageValueChecks];
+                              const existingIndex = newChecks.findIndex(
+                                (check) => check.name === item
+                              );
+                              const value = e.target.value === "true";
+
+                              if (existingIndex >= 0) {
+                                newChecks[existingIndex].data.value = value;
+                              } else {
+                                newChecks.push({
+                                  name: item,
+                                  data: {
+                                    image: { url: "", public_id: "" },
+                                    value: value,
+                                  },
+                                });
+                              }
+                              setFormData((prev) => ({
+                                ...prev,
+                                imageValueChecks: newChecks,
+                              }));
+                            }}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Non Accidented</option>
+                            <option value="true">Accidented</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>
+                            Accident Status
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        <div className="mt-10">
-          <h3 className="text-xl font-semibold text-gray-700 mb-6">
-            Pillar Checks
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              "rightAPillar",
-              "leftAPillar",
-              "rightBPillar",
-              "leftBPillar",
-              "rightCPillar",
-              "leftCPillar",
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg"
-              >
-                <input
-                  type="checkbox"
-                  checked={
-                    formData.bodyFrameAccidentChecklist.booleanChecks.find(
-                      (check) => check.name === item
-                    )?.value || false
-                  }
-                  onChange={(e) => {
-                    const newChecks = [
-                      ...formData.bodyFrameAccidentChecklist.booleanChecks,
-                    ];
-                    const existingIndex = newChecks.findIndex(
-                      (check) => check.name === item
-                    );
-                    if (existingIndex >= 0) {
-                      newChecks[existingIndex].value = e.target.checked;
-                    } else {
-                      newChecks.push({
-                        name: item,
-                        value: e.target.checked,
-                      });
-                    }
-                    setFormData((prev) => ({
-                      ...prev,
-                      bodyFrameAccidentChecklist: {
-                        ...prev.bodyFrameAccidentChecklist,
-                        booleanChecks: newChecks,
-                      },
-                    }));
-                  }}
-                  required
-                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label className="text-sm font-medium text-gray-700">
-                  {item.split(/(?=[A-Z])/).join(" ")}
-                </label>
-              </div>
-            ))}
+            <div className="text-end mt-4">
+              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
+                Next Step
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  className="ms-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-      </section>
-      <button onClick={() => changeStep()}>Next</button>
+      </div>
+    </div>
+    <div>
+      <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+    </div>
     </>
   );
 };

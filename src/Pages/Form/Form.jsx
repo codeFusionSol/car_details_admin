@@ -26,9 +26,9 @@ const Form = () => {
   const totalSteps = 12;
   const { steps } = useSelector((state) => state.formsSteps);
   const dispatch = useDispatch();
-  useEffect(() => {
-    console.log(steps);
-  }, [steps]);
+  // useEffect(() => {
+  //   console.log(steps);
+  // }, [steps]);
 
   const [formData, setFormData] = useState({
     carDetails: {
@@ -305,9 +305,9 @@ const Form = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
+  // useEffect(() => {
+  //   console.log(formData);
+  // }, [formData]);
 
   return (
     <>

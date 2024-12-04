@@ -1,8 +1,22 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { url } from "../../../utils/url";
 
-const Tyres = ({ formData, setFormData }) => {
+const api = axios.create({
+  baseURL: url,
+});
+
+const Tyres = () => {
   const dispatch = useDispatch();
+  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+
+  const [tyresData, setTyresData] = useState({
+    tyres: {
+      imageValueChecks: []
+    }
+  });
 
   const changeStep = () => {
     dispatch(changeStepSuccess(11));
@@ -18,407 +32,174 @@ const Tyres = ({ formData, setFormData }) => {
     });
   };
 
-  const handleImageChange = async (e, section, field, item) => {
-    e.preventDefault();
+  const handleImageChange = async (e, item) => {
     const file = e.target.files[0];
     if (file) {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setFormData((prev) => {
+      setTyresData(prev => {
         const newData = { ...prev };
+        const checks = [...(newData.tyres.imageValueChecks || [])];
+        const existingIndex = checks.findIndex(check => check.name === item);
 
-        // Handle interior section specifically
-        if (section === "interior") {
-          // For steering controls
-          if (field === "steeringControls") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
+        if (existingIndex >= 0) {
+          checks[existingIndex] = {
+            ...checks[existingIndex],
+            data: {
+              ...checks[existingIndex].data,
+              image: { url: base64WithPrefix, public_id: "" }
             }
-          }
-          // For seats
-          else if (field === "seats") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
+          };
+        } else {
+          checks.push({
+            name: item,
+            data: {
+              image: { url: base64WithPrefix, public_id: "" },
+              value: ""
             }
-          }
-          // For equipment
-          else if (field === "equipment") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For poshish
-          else if (field === "poshish") {
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle electrical electronics section
-        else if (section === "electricalElectronics") {
-          // Handle battery section specifically
-          if (field === "battery") {
-            if (item === "alternatorOperation") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                };
-              } else {
-                newData[section][field][item].image.url = base64WithPrefix;
-              }
-            }
-          }
-          // Handle computerCheckUp and other subsections
-          else {
-            if (!newData[section][field]) {
-              newData[section][field] = {};
-            }
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle other sections
-        else {
-          // Handle imageValueChecks array case
-          if (field === "imageValueChecks") {
-            if (!newData[section][field]) {
-              newData[section][field] = [];
-            }
-
-            const checks = [...newData[section][field]];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field] = checks;
-          }
-          // Handle nested field case (like fluidsFiltersCheck, mechanicalCheck)
-          else if (field && item) {
-            // Special case for parkingHandBrake
-            if (item === "parkingHandBrake") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: "", public_id: "" },
-                  value: "",
-                };
-              }
-              newData[section][field][item].image.url = base64WithPrefix;
-            } else {
-              // Initialize nested structure if it doesn't exist
-              if (!newData[section][field]) {
-                newData[section][field] = {};
-              }
-              if (!newData[section][field].imageValueChecks) {
-                newData[section][field].imageValueChecks = [];
-              }
-
-              const checks = [...newData[section][field].imageValueChecks];
-              const existingIndex = checks.findIndex(
-                (check) => check.name === item
-              );
-
-              if (existingIndex >= 0) {
-                checks[existingIndex].data.image.url = base64WithPrefix;
-              } else {
-                checks.push({
-                  name: item,
-                  data: {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  },
-                });
-              }
-              newData[section][field].imageValueChecks = checks;
-            }
-          }
-          // Handle regular image field case
-          else if (field) {
-            if (!newData[section][field]) {
-              newData[section][field] = { image: { url: "", public_id: "" } };
-            }
-            newData[section][field].image.url = base64WithPrefix;
-          }
-          // Handle root level image
-          else {
-            if (!newData[section].image) {
-              newData[section].image = { url: "", public_id: "" };
-            }
-            newData[section].image.url = base64WithPrefix;
-          }
+          });
         }
 
+        newData.tyres.imageValueChecks = checks;
         return newData;
       });
     }
   };
 
-  const handleInputChange = (e, section, field, subfield) => {
-    let value;
-    console.log(e.target.type);
-    if (e.target.type === "number") {
-      value = e.target.type === "number" ? +e.target.value : e.target.value;
-    } else {
-      value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    }
-
-    setFormData((prev) => {
+  const handleValueChange = (item, value) => {
+    setTyresData(prev => {
       const newData = { ...prev };
-      if (subfield) {
-        newData[section][field][subfield] = value;
-      } else if (field) {
-        newData[section][field] = value;
+      const checks = [...(newData.tyres.imageValueChecks || [])];
+      const existingIndex = checks.findIndex(check => check.name === item);
+
+      if (existingIndex >= 0) {
+        checks[existingIndex] = {
+          ...checks[existingIndex],
+          data: {
+            ...checks[existingIndex].data,
+            value: value
+          }
+        };
       } else {
-        newData[section] = value;
+        checks.push({
+          name: item,
+          data: {
+            image: { url: "", public_id: "" },
+            value: value
+          }
+        });
       }
+
+      newData.tyres.imageValueChecks = checks;
       return newData;
     });
   };
 
+  const handleSubmit = async () => {
+    try {
+      const response = await api.post("/tyres/add", {
+        ...tyresData,
+        carDetailsId: carDetailsId || "674d962b622d3809925855fe"
+      });
+
+      if (response.data.success) {
+        alert("Tyres data added successfully!");
+        changeStep();
+      }
+    } catch (error) {
+      console.error("Error submitting tyres data:", error);
+      alert("Error adding tyres data");
+    }
+  };
+
+  useEffect(() => {
+    console.log(tyresData);
+  }, [tyresData]);
+
   return (
-    <>
-      <section className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Tyres Inspection
-        </h2>
+    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+      <div className="container p-0">
+        <div className="card shadow">
+          <div className="text-white p-4" style={{ backgroundColor: "#00a5e3" }}>
+            <h2 className="display-4 form-title text-center fw-bold">Tyres Inspection</h2>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Tyre Brand Checks */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">
-              Tyre Brand Verification
-            </h3>
-            <div className="space-y-3">
-              {[
-                "frontRightTyreBrand",
-                "frontLeftTyreBrand",
-                "rearRightTyreBrand",
-                "rearLeftTyreBrand",
-              ].map((item) => (
-                <div key={item} className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-blue-600"
-                    checked={
-                      formData.tyres.tyres.booleanChecks.find(
-                        (check) => check.name === item
-                      )?.value || false
-                    }
-                    onChange={(e) => {
-                      setFormData((prev) => {
-                        const newData = { ...prev };
-                        const checks = [
-                          ...(newData.tyres.tyres.booleanChecks || []),
-                        ];
-                        const existingIndex = checks.findIndex(
-                          (check) => check.name === item
-                        );
+          <div className="card-body p-4">
+            <div className="row g-4">
+              <div className="col-12">
+                <div className="row">
+                  {[
+                    "frontRightTyre",
+                    "frontLeftTyre", 
+                    "rearRightTyre",
+                    "rearLeftTyre",
+                    "wheelsCaps",
+                    "frontRightTyreBrand",
+                    "frontLeftTyreBrand",
+                    "rearRightTyreBrand",
+                    "rearLeftTyreBrand",
+                    "tyreSize",
+                    "rims"
+                  ].map((item) => (
+                    <div className="col-12 col-md-6 mb-3" key={item}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <input
+                            type="text"
+                            value={tyresData.tyres.imageValueChecks.find(
+                              (check) => check.name === item
+                            )?.data?.value || ""}
+                            onChange={(e) => handleValueChange(item, e.target.value)}
+                            required
+                            className="form-control"
+                            id={`tyres-${item}`}
+                            placeholder={item.split(/(?=[A-Z])/).join(" ")}
+                          />
+                          <label htmlFor={`tyres-${item}`}>
+                            {item.split(/(?=[A-Z])/).join(" ")}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
 
-                        if (existingIndex >= 0) {
-                          checks[existingIndex].value = e.target.checked;
-                        } else {
-                          checks.push({
-                            name: item,
-                            value: e.target.checked,
-                          });
-                        }
-
-                        newData.tyres.tyres.booleanChecks = checks;
-                        return newData;
-                      });
-                    }}
+            <div className="text-end mt-4">
+              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
+                Next Step
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  className="ms-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
                   />
-                  <label className="text-gray-700 capitalize">
-                    {item.replace(/([A-Z])/g, " $1").trim()}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Tyre Inspection Images */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">
-              Tyre Condition Images
-            </h3>
-            <div className="space-y-4">
-              {[
-                "frontRightTyre",
-                "frontLeftTyre",
-                "rearRightTyre",
-                "rearLeftTyre",
-                "wheelsCaps",
-              ].map((item) => (
-                <div key={item} className="space-y-2">
-                  <label className="block text-gray-700 capitalize">
-                    {item.replace(/([A-Z])/g, " $1").trim()}
-                  </label>
-                  <div className="flex gap-3">
-                    <input
-                      type="file"
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      onChange={(e) =>
-                        handleImageChange(e, "tyres", "tyres", item)
-                      }
-                    />
-                    <input
-                      type="text"
-                      className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      placeholder="Enter condition"
-                      value={
-                        formData.tyres.tyres.imageValueChecks.find(
-                          (check) => check.name === item
-                        )?.data?.value || ""
-                      }
-                      onChange={(e) => {
-                        setFormData((prev) => {
-                          const newData = { ...prev };
-                          const checks = [
-                            ...newData.tyres.tyres.imageValueChecks,
-                          ];
-                          const existingIndex = checks.findIndex(
-                            (check) => check.name === item
-                          );
-
-                          if (existingIndex >= 0) {
-                            checks[existingIndex].data.value = e.target.value;
-                          } else {
-                            checks.push({
-                              name: item,
-                              data: {
-                                image: { url: "", public_id: "" },
-                                value: e.target.value,
-                              },
-                            });
-                          }
-
-                          newData.tyres.tyres.imageValueChecks = checks;
-                          return newData;
-                        });
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Additional Details */}
-          <div className="bg-gray-50 p-4 rounded-lg md:col-span-2">
-            <h3 className="text-lg font-semibold mb-4">Additional Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 mb-2">Tyre Size</label>
-                <input
-                  type="text"
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Enter tyre size"
-                  value={formData.tyres.tyres.tyreSize}
-                  onChange={(e) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      tyres: {
-                        ...prev.tyres,
-                        tyres: {
-                          ...prev.tyres.tyres,
-                          tyreSize: e.target.value,
-                        },
-                      },
-                    }));
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2">Rims</label>
-                <input
-                  type="text"
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Enter rims details"
-                  value={formData.tyres.tyres.rims}
-                  onChange={(e) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      tyres: {
-                        ...prev.tyres,
-                        tyres: {
-                          ...prev.tyres.tyres,
-                          rims: e.target.value,
-                        },
-                      },
-                    }));
-                  }}
-                />
-              </div>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
-      </section>
-      <button onClick={() => changeStep()}>Next</button>
-    </>
+      </div>
+    </div>
   );
 };
 

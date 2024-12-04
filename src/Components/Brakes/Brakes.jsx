@@ -1,8 +1,18 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import api from "../../../utils/url.js";
 
-const Brakes = ({ formData, setFormData }) => {
+const Brakes = () => {
   const dispatch = useDispatch();
+  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+
+  const [brakesData, setBrakesData] = useState({
+    mechanicalCheck: {
+      imageValueChecks: []
+    }
+  });
 
   const getBase64 = (file) => {
     return new Promise((resolve) => {
@@ -14,430 +24,169 @@ const Brakes = ({ formData, setFormData }) => {
     });
   };
 
-  const changeStep = () => {
-    dispatch(changeStepSuccess(5));
+  const changeStep = async () => {
+    try {
+      const response = await api.post("/brakes/add", {
+        mechanicalCheck: brakesData.mechanicalCheck,
+        carDetailsId: carDetailsId || "674d962b622d3809925855fe"
+      });
+
+      if (response.data.success) {
+        alert("Brakes data added successfully!");
+        dispatch(changeStepSuccess(5));
+      }
+    } catch (error) {
+      console.error("Error adding brakes data:", error);
+      alert("Error adding brakes data");
+    }
   };
 
-  const handleImageChange = async (e, section, field, item) => {
+  const handleImageChange = async (e, item) => {
     const file = e.target.files[0];
     if (file) {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setFormData((prev) => {
-        const newData = { ...prev };
+      setBrakesData((prev) => {
+        const newChecks = [...prev.mechanicalCheck.imageValueChecks];
+        const existingIndex = newChecks.findIndex(
+          (check) => check.name === item
+        );
 
-        // Handle interior section specifically
-        if (section === "interior") {
-          // For steering controls
-          if (field === "steeringControls") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For seats
-          else if (field === "seats") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For equipment
-          else if (field === "equipment") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For poshish
-          else if (field === "poshish") {
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle electrical electronics section
-        else if (section === "electricalElectronics") {
-          // Handle battery section specifically
-          if (field === "battery") {
-            if (item === "alternatorOperation") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                };
-              } else {
-                newData[section][field][item].image.url = base64WithPrefix;
-              }
-            }
-          }
-          // Handle computerCheckUp and other subsections
-          else {
-            if (!newData[section][field]) {
-              newData[section][field] = {};
-            }
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle other sections
-        else {
-          // Handle imageValueChecks array case
-          if (field === "imageValueChecks") {
-            if (!newData[section][field]) {
-              newData[section][field] = [];
-            }
-
-            const checks = [...newData[section][field]];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field] = checks;
-          }
-          // Handle nested field case (like fluidsFiltersCheck, mechanicalCheck)
-          else if (field && item) {
-            // Special case for parkingHandBrake
-            if (item === "parkingHandBrake") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: "", public_id: "" },
-                  value: "",
-                };
-              }
-              newData[section][field][item].image.url = base64WithPrefix;
-            } else {
-              // Initialize nested structure if it doesn't exist
-              if (!newData[section][field]) {
-                newData[section][field] = {};
-              }
-              if (!newData[section][field].imageValueChecks) {
-                newData[section][field].imageValueChecks = [];
-              }
-
-              const checks = [...newData[section][field].imageValueChecks];
-              const existingIndex = checks.findIndex(
-                (check) => check.name === item
-              );
-
-              if (existingIndex >= 0) {
-                checks[existingIndex].data.image.url = base64WithPrefix;
-              } else {
-                checks.push({
-                  name: item,
-                  data: {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  },
-                });
-              }
-              newData[section][field].imageValueChecks = checks;
-            }
-          }
-          // Handle regular image field case
-          else if (field) {
-            if (!newData[section][field]) {
-              newData[section][field] = { image: { url: "", public_id: "" } };
-            }
-            newData[section][field].image.url = base64WithPrefix;
-          }
-          // Handle root level image
-          else {
-            if (!newData[section].image) {
-              newData[section].image = { url: "", public_id: "" };
-            }
-            newData[section].image.url = base64WithPrefix;
-          }
+        if (existingIndex >= 0) {
+          newChecks[existingIndex].data.image.url = base64WithPrefix;
+        } else {
+          newChecks.push({
+            name: item,
+            data: {
+              image: { url: base64WithPrefix, public_id: "" },
+              value: false,
+            },
+          });
         }
 
-        return newData;
+        return {
+          ...prev,
+          mechanicalCheck: {
+            ...prev.mechanicalCheck,
+            imageValueChecks: newChecks
+          }
+        };
       });
     }
   };
 
-  const handleInputChange = (e, section, field, subfield) => {
-    let value;
-    console.log(e.target.type);
-    if (e.target.type === "number") {
-      value = e.target.type === "number" ? +e.target.value : e.target.value;
-    } else {
-      value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    }
-
-    setFormData((prev) => {
-      const newData = { ...prev };
-      if (subfield) {
-        newData[section][field][subfield] = value;
-      } else if (field) {
-        newData[section][field] = value;
-      } else {
-        newData[section] = value;
-      }
-      return newData;
-    });
-  };
+  useEffect(() => {
+    console.log(brakesData);
+  }, [brakesData]);
 
   return (
-    <>
-      <section className="brakes-section">
-        <h2 className="section-title">Brakes Inspection</h2>
-
-        <div className="mechanical-check-section">
-          <h3 className="subsection-title">Mechanical Check</h3>
-          <div className="mechanical-checks-grid">
-            {[
-              { display: "Front Right Disc", field: "frontRightDisc" },
-              { display: "Front Left Disc", field: "frontLeftDisc" },
-              { display: "Front Right Brake Pad", field: "frontRightBrakePad" },
-              { display: "Front Left Brake Pad", field: "frontLeftBrakePad" },
-            ].map((item, index) => (
-              <div key={index} className="input-group">
-                <label className="input-label">{item.display}</label>
-                <input
-                  type="text"
-                  className="text-input"
-                  value={
-                    formData.brakes.mechanicalCheck.stringChecks.find(
-                      (check) => check.name === item.field
-                    )?.value || ""
-                  }
-                  onChange={(e) => {
-                    const newChecks = [
-                      ...formData.brakes.mechanicalCheck.stringChecks,
-                    ];
-                    const existingIndex = newChecks.findIndex(
-                      (check) => check.name === item.field
-                    );
-                    if (existingIndex >= 0) {
-                      newChecks[existingIndex].value = e.target.value;
-                    } else {
-                      newChecks.push({
-                        name: item.field,
-                        value: e.target.value,
-                      });
-                    }
-                    setFormData((prev) => ({
-                      ...prev,
-                      brakes: {
-                        ...prev.brakes,
-                        mechanicalCheck: {
-                          ...prev.brakes.mechanicalCheck,
-                          stringChecks: newChecks,
-                        },
-                      },
-                    }));
-                  }}
-                  required
-                  placeholder={`Enter ${item.display} details`}
-                />
-              </div>
-            ))}
+    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+      <div className="container p-0">
+        <div className="card shadow">
+          <div className="text-white p-4" style={{ backgroundColor: "red" }}>
+            <h2 className="display-4 form-title text-center fw-bold">Brakes Inspection</h2>
           </div>
-        </div>
 
-        <div className="parking-brake-section">
-          <h3 className="subsection-title">Parking Hand Brake</h3>
-          <div className="parking-brake-container">
-            <div className="input-group">
-              <label className="input-label">Upload Image</label>
-              <input
-                type="file"
-                className="file-input"
-                onChange={(e) =>
-                  handleImageChange(
-                    e,
-                    "brakes",
-                    "mechanicalCheck",
+          <div className="card-body p-4">
+            <div className="row g-4">
+              <div className="col-12">
+                <div className="row">
+                  {[
+                    "frontRightDisc",
+                    "frontLeftDisc", 
+                    "frontRightBrakePad",
+                    "frontLeftBrakePad",
                     "parkingHandBrake"
-                  )
-                }
-                accept="image/*"
-                required
-              />
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        {brakesData.mechanicalCheck.imageValueChecks.find(check => check.name === item)?.data?.image?.url && (
+                          <img
+                            src={brakesData.mechanicalCheck.imageValueChecks.find(check => check.name === item).data.image.url}
+                            alt={`${item} Preview`}
+                            className="mt-2"
+                            style={{maxWidth: '200px'}}
+                          />
+                        )}
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => {
+                              const newChecks = [...brakesData.mechanicalCheck.imageValueChecks];
+                              const existingIndex = newChecks.findIndex(
+                                (check) => check.name === item
+                              );
+                              const value = e.target.value === "true";
+                              
+                              if (existingIndex >= 0) {
+                                newChecks[existingIndex].data.value = value;
+                              } else {
+                                newChecks.push({
+                                  name: item,
+                                  data: {
+                                    image: { url: "", public_id: "" },
+                                    value: value,
+                                  },
+                                });
+                              }
+                              setBrakesData(prev => ({
+                                ...prev,
+                                mechanicalCheck: {
+                                  ...prev.mechanicalCheck,
+                                  imageValueChecks: newChecks
+                                }
+                              }));
+                            }}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="">Select condition</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="input-group">
-              <label className="input-label">Condition</label>
-              <input
-                type="text"
-                className="text-input"
-                value={
-                  formData.brakes.mechanicalCheck.parkingHandBrake?.value || ""
-                }
-                onChange={(e) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    brakes: {
-                      ...prev.brakes,
-                      mechanicalCheck: {
-                        ...prev.brakes.mechanicalCheck,
-                        parkingHandBrake: {
-                          ...prev.brakes.mechanicalCheck.parkingHandBrake,
-                          value: e.target.value,
-                        },
-                      },
-                    },
-                  }));
-                }}
-                required
-                placeholder="Enter parking brake condition"
-              />
+
+            <div className="text-end mt-4">
+              <button onClick={changeStep} className="btn btn-primary btn-lg">
+                Next Step
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  className="ms-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
-      </section>
-      <button onClick={() => changeStep()}>Next</button>
-
-      <style jsx>{`
-        .brakes-container {
-          padding: 2rem;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-
-        .brakes-section {
-          background: white;
-          border-radius: 10px;
-          padding: 2rem;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .section-title {
-          color: #2c3e50;
-          font-size: 2rem;
-          margin-bottom: 2rem;
-          text-align: center;
-          border-bottom: 2px solid #3498db;
-          padding-bottom: 1rem;
-        }
-
-        .subsection-title {
-          color: #34495e;
-          font-size: 1.5rem;
-          margin: 1.5rem 0;
-        }
-
-        .mechanical-checks-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-        }
-
-        .input-group {
-          margin-bottom: 1.5rem;
-        }
-
-        .input-label {
-          display: block;
-          margin-bottom: 0.5rem;
-          color: #7f8c8d;
-          font-weight: 500;
-        }
-
-        .text-input {
-          width: 100%;
-          padding: 0.8rem;
-          border: 1px solid #bdc3c7;
-          border-radius: 5px;
-          font-size: 1rem;
-          transition: border-color 0.3s ease;
-        }
-
-        .text-input:focus {
-          border-color: #3498db;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-
-        .file-input {
-          width: 100%;
-          padding: 0.5rem;
-          border: 1px dashed #bdc3c7;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-
-        .file-input:hover {
-          border-color: #3498db;
-        }
-
-        .parking-brake-container {
-          background: #f8f9fa;
-          padding: 1.5rem;
-          border-radius: 8px;
-        }
-
-        @media (max-width: 768px) {
-          .brakes-container {
-            padding: 1rem;
-          }
-
-          .mechanical-checks-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-    </>
+      </div>
+    </div>
   );
 };
 

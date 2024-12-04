@@ -5,16 +5,88 @@ import {
   changeStepSuccess,
   changeStepFailure,
 } from "../../redux/Slices/FormsSteps";
+import {
+  changeCarDetailsIdStart,
+  changeCarDetailsIdSuccess,
+  changeCarDetailsIdFailure,
+} from "../../redux/Slices/CarDetail_id";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { url } from "../../../utils/url";
+import "./CarDetails.css";
+import { Toaster, toast } from "sonner";
 
-const CarDetails = ({ formData, setFormData }) => {
+// ...
+
+const api = axios.create({
+  baseURL: url,
+});
+
+const CarDetails = () => {
   const dispatch = useDispatch();
 
-  const changeStep = () => {
+  const [carDetails, setCarDetails] = useState({
+    image: { url: "", public_id: "" },
+    name: "",
+    overallRating: 0,
+    mileage: 0,
+    inspectionDate: "",
+    engineNo: "",
+    transmissionType: "Manual",
+    cngInstall: false,
+    engineCapacity: 0,
+    chassisNo: "",
+    registeredCity: "",
+    registeredYear: 0,
+    driveType: "FWD",
+    registrationNo: "",
+    colour: "",
+  });
+
+  const changeStep = async () => {
     try {
+      // Validate required fields
+      if (
+        !carDetails.image.url ||
+        !carDetails.name ||
+        !carDetails.overallRating ||
+        !carDetails.mileage ||
+        !carDetails.inspectionDate ||
+        !carDetails.engineNo ||
+        !carDetails.transmissionType ||
+        carDetails.cngInstall === undefined ||
+        !carDetails.engineCapacity ||
+        !carDetails.chassisNo ||
+        !carDetails.registeredCity ||
+        !carDetails.registeredYear ||
+        !carDetails.registrationNo ||
+        !carDetails.colour
+      ) {
+        throw new Error("Please fill in all required fields");
+      }
+
       dispatch(changeStepStart());
-      dispatch(changeStepSuccess(1));
+      dispatch(changeCarDetailsIdStart());
+
+      const response = await api.post("/carDetails/add", carDetails);
+
+      if (response.data.success) {
+        toast("Car Details Added!", {
+          style: {
+            padding: "16px",
+             // Set desired padding here
+          }})
+          setTimeout(() => {
+            dispatch(changeStepSuccess(1));
+            dispatch(changeCarDetailsIdSuccess(response.data.data._id));
+          }, 2000);
+      } else {
+        throw new Error(response.data.message);
+      }
     } catch (error) {
       dispatch(changeStepFailure(error.message));
+      dispatch(changeCarDetailsIdFailure(error.message));
+      alert(error.message);
     }
   };
 
@@ -28,457 +100,341 @@ const CarDetails = ({ formData, setFormData }) => {
     });
   };
 
-  const handleImageChange = async (e, section, field, item) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setFormData((prev) => {
-        const newData = { ...prev };
-
-        // Handle interior section specifically
-        if (section === "interior") {
-          // For steering controls
-          if (field === "steeringControls") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For seats
-          else if (field === "seats") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For equipment
-          else if (field === "equipment") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For poshish
-          else if (field === "poshish") {
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle electrical electronics section
-        else if (section === "electricalElectronics") {
-          // Handle battery section specifically
-          if (field === "battery") {
-            if (item === "alternatorOperation") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                };
-              } else {
-                newData[section][field][item].image.url = base64WithPrefix;
-              }
-            }
-          }
-          // Handle computerCheckUp and other subsections
-          else {
-            if (!newData[section][field]) {
-              newData[section][field] = {};
-            }
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle other sections
-        else {
-          // Handle imageValueChecks array case
-          if (field === "imageValueChecks") {
-            if (!newData[section][field]) {
-              newData[section][field] = [];
-            }
-
-            const checks = [...newData[section][field]];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field] = checks;
-          }
-          // Handle nested field case (like fluidsFiltersCheck, mechanicalCheck)
-          else if (field && item) {
-            // Special case for parkingHandBrake
-            if (item === "parkingHandBrake") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: "", public_id: "" },
-                  value: "",
-                };
-              }
-              newData[section][field][item].image.url = base64WithPrefix;
-            } else {
-              // Initialize nested structure if it doesn't exist
-              if (!newData[section][field]) {
-                newData[section][field] = {};
-              }
-              if (!newData[section][field].imageValueChecks) {
-                newData[section][field].imageValueChecks = [];
-              }
-
-              const checks = [...newData[section][field].imageValueChecks];
-              const existingIndex = checks.findIndex(
-                (check) => check.name === item
-              );
-
-              if (existingIndex >= 0) {
-                checks[existingIndex].data.image.url = base64WithPrefix;
-              } else {
-                checks.push({
-                  name: item,
-                  data: {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  },
-                });
-              }
-              newData[section][field].imageValueChecks = checks;
-            }
-          }
-          // Handle regular image field case
-          else if (field) {
-            if (!newData[section][field]) {
-              newData[section][field] = { image: { url: "", public_id: "" } };
-            }
-            newData[section][field].image.url = base64WithPrefix;
-          }
-          // Handle root level image
-          else {
-            if (!newData[section].image) {
-              newData[section].image = { url: "", public_id: "" };
-            }
-            newData[section].image.url = base64WithPrefix;
-          }
-        }
-
-        return newData;
-      });
+      setCarDetails((prev) => ({
+        ...prev,
+        image: {
+          url: base64WithPrefix,
+          public_id: "",
+        },
+      }));
     }
   };
 
-  const handleInputChange = (e, section, field, subfield) => {
-    let value;
-    console.log(e.target.type);
-    if (e.target.type === "number") {
-      value = e.target.type === "number" ? +e.target.value : e.target.value;
+  const handleInputChange = (e) => {
+    const { name, type, value, checked } = e.target;
+    let inputValue;
+
+    if (type === "number") {
+      inputValue = Number(value);
+    } else if (type === "checkbox") {
+      inputValue = checked;
     } else {
-      value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+      inputValue = value;
     }
 
-    setFormData((prev) => {
-      const newData = { ...prev };
-      if (subfield) {
-        newData[section][field][subfield] = value;
-      } else if (field) {
-        newData[section][field] = value;
-      } else {
-        newData[section] = value;
-      }
-      return newData;
-    });
+    setCarDetails((prev) => ({
+      ...prev,
+      [name]: inputValue,
+    }));
   };
 
   return (
     <>
-      <section className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Car Details
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="col-span-2">
-            <label className="block text-gray-700 font-semibold mb-2">
-              Car Image
-            </label>
-            <input
-              type="file"
-              onChange={(e) => handleImageChange(e, "carDetails")}
-              accept="image/*"
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Name
-            </label>
-            <input
-              type="text"
-              value={formData?.carDetails?.name}
-              onChange={(e) => handleInputChange(e, "carDetails", "name")}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Overall Rating
-            </label>
-            <input
-              type="number"
-              min="0"
-              max="10"
-              value={formData?.carDetails?.overallRating}
-              onChange={(e) =>
-                handleInputChange(e, "carDetails", "overallRating")
-              }
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Mileage
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={formData?.carDetails?.mileage}
-              onChange={(e) => handleInputChange(e, "carDetails", "mileage")}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Inspection Date
-            </label>
-            <input
-              type="date"
-              value={formData?.carDetails?.inspectionDate}
-              onChange={(e) =>
-                handleInputChange(e, "carDetails", "inspectionDate")
-              }
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Engine Number
-            </label>
-            <input
-              type="text"
-              value={formData?.carDetails?.engineNo}
-              onChange={(e) => handleInputChange(e, "carDetails", "engineNo")}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Transmission Type
-            </label>
-            <select
-              value={formData?.carDetails?.transmissionType}
-              onChange={(e) =>
-                handleInputChange(e, "carDetails", "transmissionType")
-              }
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
+      <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+        <div className="container p-0">
+          <div className="card shadow">
+            <div
+              className="text-white p-4"
+              style={{ backgroundColor: "#00a5e3" }}
             >
-              <option value="Manual">Manual</option>
-              <option value="Automatic">Automatic</option>
-              <option value="CVT">CVT</option>
-            </select>
-          </div>
+              <h2 className="display-4 form-title text-center fw-bold">
+                Car Details
+              </h2>
+            </div>
 
-          <div className="flex items-center">
-            <label className="flex items-center text-gray-700 font-semibold cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData?.carDetails?.cngInstall}
-                onChange={(e) =>
-                  handleInputChange(e, "carDetails", "cngInstall")
-                }
-                className="mr-2 w-4 h-4 text-blue-600 focus:ring-blue-400"
-              />
-              CNG Installed
-            </label>
-          </div>
+            <div className="card-body p-4">
+              <div className="row g-4">
+                {/* Input fields */}
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Engine Capacity (CC)
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={formData?.carDetails?.engineCapacity}
-              onChange={(e) =>
-                handleInputChange(e, "carDetails", "engineCapacity")
-              }
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+                <div className="col-12">
+                  <div className="mb-3">
+                    <label className="form-label">Car Image</label>
+                    <input
+                      type="file"
+                      onChange={handleImageChange}
+                      className="form-control"
+                      accept="image/*"
+                      required
+                    />
+                    
+                  </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Chassis Number
-            </label>
-            <input
-              type="text"
-              value={formData?.carDetails?.chassisNo}
-              onChange={(e) => handleInputChange(e, "carDetails", "chassisNo")}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+                  <div className="row">
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          name="name"
+                          value={carDetails.name}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="name"
+                          placeholder="Your venue public name"
+                          required
+                        />
+                        <label htmlFor="name">Car Name</label>
+                      </div>
+                    </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Registered City
-            </label>
-            <input
-              type="text"
-              value={formData?.carDetails?.registeredCity}
-              onChange={(e) =>
-                handleInputChange(e, "carDetails", "registeredCity")
-              }
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          name="overallRating"
+                          value={carDetails.overallRating}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="overallRating"
+                          placeholder="Overall Rating"
+                          min="0"
+                          max="10"
+                          required
+                        />
+                        <label htmlFor="overallRating">Overall Rating</label>
+                      </div>
+                    </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Registered Year
-            </label>
-            <input
-              type="number"
-              value={formData?.carDetails?.registeredYear}
-              onChange={(e) =>
-                handleInputChange(e, "carDetails", "registeredYear")
-              }
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          name="mileage"
+                          value={carDetails.mileage}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="mileage"
+                          placeholder="Mileage"
+                          required
+                        />
+                        <label htmlFor="mileage">Mileage</label>
+                      </div>
+                    </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Drive Type
-            </label>
-            <select
-              value={formData?.carDetails?.driveType}
-              onChange={(e) => handleInputChange(e, "carDetails", "driveType")}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            >
-              <option value="FWD">FWD</option>
-              <option value="RWD">RWD</option>
-              <option value="AWD">AWD</option>
-              <option value="4WD">4WD</option>
-            </select>
-          </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="date"
+                          name="inspectionDate"
+                          value={carDetails.inspectionDate}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="inspectionDate"
+                          required
+                        />
+                        <label htmlFor="inspectionDate">Inspection Date</label>
+                      </div>
+                    </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Registration Number
-            </label>
-            <input
-              type="text"
-              value={formData?.carDetails?.registrationNo}
-              onChange={(e) =>
-                handleInputChange(e, "carDetails", "registrationNo")
-              }
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          name="engineNo"
+                          value={carDetails.engineNo}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="engineNo"
+                          placeholder="Engine Number"
+                          required
+                        />
+                        <label htmlFor="engineNo">Engine Number</label>
+                      </div>
+                    </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Color
-            </label>
-            <input
-              type="text"
-              value={formData?.carDetails?.colour}
-              onChange={(e) => handleInputChange(e, "carDetails", "colour")}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <select
+                          name="transmissionType"
+                          value={carDetails.transmissionType}
+                          onChange={handleInputChange}
+                          className="form-select"
+                          id="transmissionType"
+                          required
+                        >
+                          <option value="Manual">Manual</option>
+                          <option value="Automatic">Automatic</option>
+                          <option value="CVT">CVT</option>
+                        </select>
+                        <label htmlFor="transmissionType">
+                          Transmission Type
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          name="engineCapacity"
+                          value={carDetails.engineCapacity}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="engineCapacity"
+                          placeholder="Engine Capacity"
+                          required
+                        />
+                        <label htmlFor="engineCapacity">Engine Capacity</label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          name="chassisNo"
+                          value={carDetails.chassisNo}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="chassisNo"
+                          placeholder="Chassis Number"
+                          required
+                        />
+                        <label htmlFor="chassisNo">Chassis Number</label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          name="registeredCity"
+                          value={carDetails.registeredCity}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="registeredCity"
+                          placeholder="Registered City"
+                          required
+                        />
+                        <label htmlFor="registeredCity">Registered City</label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          name="registeredYear"
+                          value={carDetails.registeredYear}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="registeredYear"
+                          placeholder="Registered Year"
+                          required
+                        />
+                        <label htmlFor="registeredYear">Registered Year</label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <select
+                          name="driveType"
+                          value={carDetails.driveType}
+                          onChange={handleInputChange}
+                          className="form-select"
+                          id="driveType"
+                          required
+                        >
+                          <option value="FWD">FWD</option>
+                          <option value="RWD">RWD</option>
+                          <option value="AWD">AWD</option>
+                          <option value="4WD">4WD</option>
+                        </select>
+                        <label htmlFor="driveType">Drive Type</label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          name="registrationNo"
+                          value={carDetails.registrationNo}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="registrationNo"
+                          placeholder="Registration Number"
+                          required
+                        />
+                        <label htmlFor="registrationNo">
+                          Registration Number
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          name="colour"
+                          value={carDetails.colour}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          id="colour"
+                          placeholder="Color"
+                          required
+                        />
+                        <label htmlFor="colour">Color</label>
+                      </div>
+                    </div>
+
+                    <div className="col-12 mb-3">
+                      <div className="form-check">
+                        <input
+                          type="checkbox"
+                          name="cngInstall"
+                          checked={carDetails.cngInstall}
+                          onChange={handleInputChange}
+                          className="form-check-input"
+                          id="cngInstall"
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="cngInstall"
+                        >
+                          CNG Installed
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-end mt-4">
+                  <button
+                    onClick={changeStep}
+                    className="btn btn-primary btn-lg"
+                  >
+                    Next Step
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      className="ms-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
-
-      <button onClick={() => changeStep()}>Next</button>
+      </div>
+      <div className="p-4">
+        <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+      </div>
     </>
   );
 };

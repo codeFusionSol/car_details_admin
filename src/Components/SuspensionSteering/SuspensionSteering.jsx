@@ -1,408 +1,233 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import { useEffect, useState } from "react";
+import api from "../../../utils/url.js";
 
-const SuspensionSteering = ({ formData, setFormData }) => {
+const SuspensionSteering = () => {
   const dispatch = useDispatch();
+  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
 
-  const changeStep = () => {
-    dispatch(changeStepSuccess(6));
-  };
+  const [suspensionData, setSuspensionData] = useState({
+    frontSuspension: {
+      imageValueChecks: []
+    },
+    rearSuspension: {
+      imageValueChecks: []
+    }
+  });
 
   const getBase64 = (file) => {
     return new Promise((resolve) => {
-          let reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => {
-            resolve(reader.result);
-          };
-        });
+      let reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        resolve(reader.result);
       };
-    
-      const handleImageChange = async (e, section, field, item) => {
-        const file = e.target.files[0];
-        if (file) {
-          const base64 = await getBase64(file);
-          const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
-    
-          setFormData((prev) => {
-            const newData = { ...prev };
-    
-            // Handle interior section specifically
-            if (section === "interior") {
-              // For steering controls
-              if (field === "steeringControls") {
-                if (!newData[section][field][item]) {
-                  newData[section][field][item] = {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  };
-                } else {
-                  newData[section][field][item].image.url = base64WithPrefix;
-                }
-              }
-              // For seats
-              else if (field === "seats") {
-                if (!newData[section][field][item]) {
-                  newData[section][field][item] = {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  };
-                } else {
-                  newData[section][field][item].image.url = base64WithPrefix;
-                }
-              }
-              // For equipment
-              else if (field === "equipment") {
-                if (!newData[section][field][item]) {
-                  newData[section][field][item] = {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  };
-                } else {
-                  newData[section][field][item].image.url = base64WithPrefix;
-                }
-              }
-              // For poshish
-              else if (field === "poshish") {
-                if (!newData[section][field].imageValueChecks) {
-                  newData[section][field].imageValueChecks = [];
-                }
-                const checks = [...newData[section][field].imageValueChecks];
-                const existingIndex = checks.findIndex(
-                  (check) => check.name === item
-                );
-    
-                if (existingIndex >= 0) {
-                  checks[existingIndex].data.image.url = base64WithPrefix;
-                } else {
-                  checks.push({
-                    name: item,
-                    data: {
-                      image: { url: base64WithPrefix, public_id: "" },
-                      value: "",
-                    },
-                  });
-                }
-                newData[section][field].imageValueChecks = checks;
-              }
+    });
+  };
+
+  const changeStep = async () => {
+    try {
+      if (!suspensionData.frontSuspension?.imageValueChecks?.length || 
+          !suspensionData.rearSuspension?.imageValueChecks?.length) {
+        alert("Please fill in all required fields");
+        return;
+      }
+
+      const response = await api.post(`/suspensionSteering/add`, {
+        frontSuspension: suspensionData.frontSuspension,
+        rearSuspension: suspensionData.rearSuspension,
+        carDetailsId: carDetailsId || '674d962b622d3809925855fe'
+      });
+
+      if (response.data.success) {
+        alert("Suspension & steering data added successfully!");
+        dispatch(changeStepSuccess(6));
+      }
+    } catch (error) {
+      console.error("Error submitting suspension data:", error);
+      alert(error.response?.data?.message || "Error submitting data");
+    }
+  };
+
+  const handleImageChange = async (e, section, item) => {
+    const file = e.target.files[0];
+    if (file) {
+      const base64 = await getBase64(file);
+      const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
+
+      setSuspensionData(prev => {
+        const newData = { ...prev };
+        const checks = [...newData[section].imageValueChecks];
+        const existingIndex = checks.findIndex(check => check.name === item);
+
+        if (existingIndex >= 0) {
+          checks[existingIndex].data.image.url = base64WithPrefix;
+        } else {
+          checks.push({
+            name: item,
+            data: {
+              image: { url: base64WithPrefix, public_id: "" },
+              value: false
             }
-            // Handle electrical electronics section
-            else if (section === "electricalElectronics") {
-              // Handle battery section specifically
-              if (field === "battery") {
-                if (item === "alternatorOperation") {
-                  if (!newData[section][field][item]) {
-                    newData[section][field][item] = {
-                      image: { url: base64WithPrefix, public_id: "" },
-                      value: "",
-                    };
-                  } else {
-                    newData[section][field][item].image.url = base64WithPrefix;
-                  }
-                }
-              }
-              // Handle computerCheckUp and other subsections
-              else {
-                if (!newData[section][field]) {
-                  newData[section][field] = {};
-                }
-                if (!newData[section][field].imageValueChecks) {
-                  newData[section][field].imageValueChecks = [];
-                }
-    
-                const checks = [...newData[section][field].imageValueChecks];
-                const existingIndex = checks.findIndex(
-                  (check) => check.name === item
-                );
-    
-                if (existingIndex >= 0) {
-                  checks[existingIndex].data.image.url = base64WithPrefix;
-                } else {
-                  checks.push({
-                    name: item,
-                    data: {
-                      image: { url: base64WithPrefix, public_id: "" },
-                      value: "",
-                    },
-                  });
-                }
-                newData[section][field].imageValueChecks = checks;
-              }
-            }
-            // Handle other sections
-            else {
-              // Handle imageValueChecks array case
-              if (field === "imageValueChecks") {
-                if (!newData[section][field]) {
-                  newData[section][field] = [];
-                }
-    
-                const checks = [...newData[section][field]];
-                const existingIndex = checks.findIndex(
-                  (check) => check.name === item
-                );
-    
-                if (existingIndex >= 0) {
-                  checks[existingIndex].data.image.url = base64WithPrefix;
-                } else {
-                  checks.push({
-                    name: item,
-                    data: {
-                      image: { url: base64WithPrefix, public_id: "" },
-                      value: "",
-                    },
-                  });
-                }
-                newData[section][field] = checks;
-              }
-              // Handle nested field case (like fluidsFiltersCheck, mechanicalCheck)
-              else if (field && item) {
-                // Special case for parkingHandBrake
-                if (item === "parkingHandBrake") {
-                  if (!newData[section][field][item]) {
-                    newData[section][field][item] = {
-                      image: { url: "", public_id: "" },
-                      value: "",
-                    };
-                  }
-                  newData[section][field][item].image.url = base64WithPrefix;
-                } else {
-                  // Initialize nested structure if it doesn't exist
-                  if (!newData[section][field]) {
-                    newData[section][field] = {};
-                  }
-                  if (!newData[section][field].imageValueChecks) {
-                    newData[section][field].imageValueChecks = [];
-                  }
-    
-                  const checks = [...newData[section][field].imageValueChecks];
-                  const existingIndex = checks.findIndex(
-                    (check) => check.name === item
-                  );
-    
-                  if (existingIndex >= 0) {
-                    checks[existingIndex].data.image.url = base64WithPrefix;
-                  } else {
-                    checks.push({
-                      name: item,
-                      data: {
-                        image: { url: base64WithPrefix, public_id: "" },
-                        value: "",
-                      },
-                    });
-                  }
-                  newData[section][field].imageValueChecks = checks;
-                }
-              }
-              // Handle regular image field case
-              else if (field) {
-                if (!newData[section][field]) {
-                  newData[section][field] = { image: { url: "", public_id: "" } };
-                }
-                newData[section][field].image.url = base64WithPrefix;
-              }
-              // Handle root level image
-              else {
-                if (!newData[section].image) {
-                  newData[section].image = { url: "", public_id: "" };
-                }
-                newData[section].image.url = base64WithPrefix;
-              }
-            }
-    
-            return newData;
           });
         }
-      };
-    
-      const handleInputChange = (e, section, field, subfield) => {
-        let value;
-        console.log(e.target.type);
-        if (e.target.type === "number") {
-          value = e.target.type === "number" ? +e.target.value : e.target.value;
-        } else {
-          value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-        }
-    
-        setFormData((prev) => {
-          const newData = { ...prev };
-          if (subfield) {
-            newData[section][field][subfield] = value;
-          } else if (field) {
-            newData[section][field] = value;
-          } else {
-            newData[section] = value;
-          }
-          return newData;
-        });
-      };
-  return (
-    <>
-       <section>
-          <h2>Suspension & Steering</h2>
 
-          <h3>Front Suspension</h3>
-          <div>
-            <label>Steering Wheel Play</label>
-            <input
-              type="text"
-              value={
-                formData.suspensionSteering.frontSuspension.steeringWheelPlay
-              }
-              onChange={(e) =>
-                handleInputChange(
-                  e,
-                  "suspensionSteering",
-                  "frontSuspension",
-                  "steeringWheelPlay"
-                )
-              }
-              required
-            />
+        newData[section].imageValueChecks = checks;
+        return newData;
+      });
+    }
+  };
+
+  const handleValueChange = (section, item, value) => {
+    setSuspensionData(prev => {
+      const newData = { ...prev };
+      const checks = [...newData[section].imageValueChecks];
+      const existingIndex = checks.findIndex(check => check.name === item);
+
+      if (existingIndex >= 0) {
+        checks[existingIndex].data.value = value === "true";
+      } else {
+        checks.push({
+          name: item,
+          data: {
+            image: { url: "", public_id: "" },
+            value: value === "true"
+          }
+        });
+      }
+
+      newData[section].imageValueChecks = checks;
+      return newData;
+    });
+  };
+
+  useEffect(() => {
+    console.log(suspensionData);
+  }, [suspensionData]);
+
+  return (
+    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+      <div className="container p-0">
+        <div className="card shadow">
+          <div className="text-white p-4" style={{ backgroundColor: "red" }}>
+            <h2 className="display-4 form-title text-center fw-bold">Suspension & Steering</h2>
           </div>
 
-          {[
-            "rightBallJoint",
-            "leftBallJoint",
-            "rightZLinks",
-            "leftZLinks",
-            "rightTieRodEnd",
-            "leftTieRodEnd",
-            "frontRightBoots",
-            "frontLeftBoots",
-            "frontRightBushes",
-            "frontLeftBushes",
-            "frontRightShock",
-            "frontLeftShock",
-          ].map((item) => (
-            <div key={item}>
-              <h4>{item}</h4>
-              <label>Image</label>
-              <input
-                type="file"
-                onChange={(e) =>
-                  handleImageChange(
-                    e,
-                    "suspensionSteering",
-                    "frontSuspension",
-                    item
-                  )
-                }
-                accept="image/*"
-                required
-              />
-              <label>Value</label>
-              <input
-                type="text"
-                value={
-                  formData.suspensionSteering.frontSuspension.imageValueChecks.find(
-                    (check) => check.name === item
-                  )?.data?.value || ""
-                }
-                onChange={(e) => {
-                  const newChecks = [
-                    ...formData.suspensionSteering.frontSuspension
-                      .imageValueChecks,
-                  ];
-                  const existingIndex = newChecks.findIndex(
-                    (check) => check.name === item
-                  );
-                  if (existingIndex >= 0) {
-                    newChecks[existingIndex].data.value = e.target.value;
-                  } else {
-                    newChecks.push({
-                      name: item,
-                      data: {
-                        image: { url: "", public_id: "" },
-                        value: e.target.value,
-                      },
-                    });
-                  }
-                  setFormData((prev) => ({
-                    ...prev,
-                    suspensionSteering: {
-                      ...prev.suspensionSteering,
-                      frontSuspension: {
-                        ...prev.suspensionSteering.frontSuspension,
-                        imageValueChecks: newChecks,
-                      },
-                    },
-                  }));
-                }}
-                required
-              />
-            </div>
-          ))}
+          <div className="card-body p-4">
+            <div className="row g-4">
+              <div className="col-12">
+                <h3 className="fw-bold mb-3">Front Suspension</h3>
+                <div className="row">
+                  {[
+                    "steeringWheelPlay",
+                    "rightBallJoint",
+                    "leftBallJoint", 
+                    "rightZLinks",
+                    "leftZLinks",
+                    "rightTieRodEnd",
+                    "leftTieRodEnd",
+                    "frontRightBoots",
+                    "frontLeftBoots",
+                    "frontRightBushes",
+                    "frontLeftBushes",
+                    "frontRightShock",
+                    "frontLeftShock"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "frontSuspension", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleValueChange("frontSuspension", item, e.target.value)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          <h3>Rear Suspension</h3>
-          {[
-            "rearRightBushes",
-            "rearLeftBushes",
-            "rearRightShock",
-            "rearLeftShock",
-          ].map((item) => (
-            <div key={item}>
-              <h4>{item}</h4>
-              <label>Image</label>
-              <input
-                type="file"
-                onChange={(e) =>
-                  handleImageChange(
-                    e,
-                    "suspensionSteering",
-                    "rearSuspension",
-                    item
-                  )
-                }
-                accept="image/*"
-                required
-              />
-              <label>Value</label>
-              <input
-                type="text"
-                value={
-                  formData.suspensionSteering.rearSuspension.imageValueChecks.find(
-                    (check) => check.name === item
-                  )?.data?.value || ""
-                }
-                onChange={(e) => {
-                  const newChecks = [
-                    ...formData.suspensionSteering.rearSuspension
-                      .imageValueChecks,
-                  ];
-                  const existingIndex = newChecks.findIndex(
-                    (check) => check.name === item
-                  );
-                  if (existingIndex >= 0) {
-                    newChecks[existingIndex].data.value = e.target.value;
-                  } else {
-                    newChecks.push({
-                      name: item,
-                      data: {
-                        image: { url: "", public_id: "" },
-                        value: e.target.value,
-                      },
-                    });
-                  }
-                  setFormData((prev) => ({
-                    ...prev,
-                    suspensionSteering: {
-                      ...prev.suspensionSteering,
-                      rearSuspension: {
-                        ...prev.suspensionSteering.rearSuspension,
-                        imageValueChecks: newChecks,
-                      },
-                    },
-                  }));
-                }}
-                required
-              />
+              <div className="col-12">
+                <h3 className="fw-bold mb-3">Rear Suspension</h3>
+                <div className="row">
+                  {[
+                    "rearRightBushes",
+                    "rearLeftBushes", 
+                    "rearRightShock",
+                    "rearLeftShock"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "rearSuspension", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleValueChange("rearSuspension", item, e.target.value)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          ))}
-      </section>
-      <button onClick={() => changeStep()}>Next</button>
-    </>
+
+            <div className="text-end mt-4">
+              <button onClick={changeStep} className="btn btn-primary btn-lg">
+                Next Step
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  className="ms-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-    };
+};
 
 export default SuspensionSteering;

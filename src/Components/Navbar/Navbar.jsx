@@ -23,7 +23,7 @@ const Navbar = () => {
                   <input
                     type="text"
                     placeholder="Search your car"
-                    className="navbar__search-input p-0 m-0 "
+                    className="navbar__search-input  p-0 m-0 "
                   />
                   <button className="navbar__search-button ">
                     <span role="img" aria-label="search">

@@ -1,8 +1,35 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import api from "../../../utils/url.js";
 
-const Interior = ({ formData, setFormData }) => {
+const Interior = () => {
   const dispatch = useDispatch();
+  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+
+  const [interiorData, setInteriorData] = useState({
+    steeringControls: {
+      imageValueChecks: [],
+    },
+    mirrors: {
+      imageValueChecks: [], 
+    },
+    seats: {
+      imageValueChecks: [],
+    },
+    powerAndCentralLocking: {
+      imageValueChecks: [],
+    },
+    dashRoofControls: {
+      imageValueChecks: [],
+    },
+    poshish: {
+      imageValueChecks: [],
+    },
+    equipment: {
+      imageValueChecks: [],
+    },
+  });
 
   const changeStep = () => {
     dispatch(changeStepSuccess(7));
@@ -21,723 +48,410 @@ const Interior = ({ formData, setFormData }) => {
   const handleImageChange = async (e, section, field, item) => {
     const file = e.target.files[0];
     if (file) {
-      const base64 = await getBase64(file);
-      const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
+      try {
+        const base64 = await getBase64(file);
+        const base64String = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setFormData((prev) => {
-        const newData = { ...prev };
+        setInteriorData((prev) => {
+          const newData = { ...prev };
+          const checks = [...newData[field].imageValueChecks];
+          const existingIndex = checks.findIndex((check) => check.name === item);
 
-        // Handle interior section specifically
-        if (section === "interior") {
-          // For steering controls
-          if (field === "steeringControls") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For seats
-          else if (field === "seats") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For equipment
-          else if (field === "equipment") {
-            if (!newData[section][field][item]) {
-              newData[section][field][item] = {
-                image: { url: base64WithPrefix, public_id: "" },
-                value: "",
-              };
-            } else {
-              newData[section][field][item].image.url = base64WithPrefix;
-            }
-          }
-          // For poshish
-          else if (field === "poshish") {
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
+          if (existingIndex >= 0) {
+            checks[existingIndex].data.image = {
+              public_id: "",
+              url: base64String
+            };
+          } else {
+            checks.push({
+              name: item,
+              data: {
+                image: {
+                  public_id: "",
+                  url: base64String
                 },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
+                value: "",
+              },
+            });
           }
-        }
-        // Handle electrical electronics section
-        else if (section === "electricalElectronics") {
-          // Handle battery section specifically
-          if (field === "battery") {
-            if (item === "alternatorOperation") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                };
-              } else {
-                newData[section][field][item].image.url = base64WithPrefix;
-              }
-            }
-          }
-          // Handle computerCheckUp and other subsections
-          else {
-            if (!newData[section][field]) {
-              newData[section][field] = {};
-            }
-            if (!newData[section][field].imageValueChecks) {
-              newData[section][field].imageValueChecks = [];
-            }
-
-            const checks = [...newData[section][field].imageValueChecks];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field].imageValueChecks = checks;
-          }
-        }
-        // Handle other sections
-        else {
-          // Handle imageValueChecks array case
-          if (field === "imageValueChecks") {
-            if (!newData[section][field]) {
-              newData[section][field] = [];
-            }
-
-            const checks = [...newData[section][field]];
-            const existingIndex = checks.findIndex(
-              (check) => check.name === item
-            );
-
-            if (existingIndex >= 0) {
-              checks[existingIndex].data.image.url = base64WithPrefix;
-            } else {
-              checks.push({
-                name: item,
-                data: {
-                  image: { url: base64WithPrefix, public_id: "" },
-                  value: "",
-                },
-              });
-            }
-            newData[section][field] = checks;
-          }
-          // Handle nested field case (like fluidsFiltersCheck, mechanicalCheck)
-          else if (field && item) {
-            // Special case for parkingHandBrake
-            if (item === "parkingHandBrake") {
-              if (!newData[section][field][item]) {
-                newData[section][field][item] = {
-                  image: { url: "", public_id: "" },
-                  value: "",
-                };
-              }
-              newData[section][field][item].image.url = base64WithPrefix;
-            } else {
-              // Initialize nested structure if it doesn't exist
-              if (!newData[section][field]) {
-                newData[section][field] = {};
-              }
-              if (!newData[section][field].imageValueChecks) {
-                newData[section][field].imageValueChecks = [];
-              }
-
-              const checks = [...newData[section][field].imageValueChecks];
-              const existingIndex = checks.findIndex(
-                (check) => check.name === item
-              );
-
-              if (existingIndex >= 0) {
-                checks[existingIndex].data.image.url = base64WithPrefix;
-              } else {
-                checks.push({
-                  name: item,
-                  data: {
-                    image: { url: base64WithPrefix, public_id: "" },
-                    value: "",
-                  },
-                });
-              }
-              newData[section][field].imageValueChecks = checks;
-            }
-          }
-          // Handle regular image field case
-          else if (field) {
-            if (!newData[section][field]) {
-              newData[section][field] = { image: { url: "", public_id: "" } };
-            }
-            newData[section][field].image.url = base64WithPrefix;
-          }
-          // Handle root level image
-          else {
-            if (!newData[section].image) {
-              newData[section].image = { url: "", public_id: "" };
-            }
-            newData[section].image.url = base64WithPrefix;
-          }
-        }
-
-        return newData;
-      });
+          newData[field].imageValueChecks = checks;
+          return newData;
+        });
+      } catch (error) {
+        console.error("Error processing image:", error);
+      }
     }
   };
 
-  const handleInputChange = (e, section, field, subfield) => {
-    let value;
-    console.log(e.target.type);
-    if (e.target.type === "number") {
-      value = e.target.type === "number" ? +e.target.value : e.target.value;
-    } else {
-      value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    }
+  const handleInputChange = (e, section, field, item) => {
+    const value =
+      e.target.type === "checkbox" ? e.target.checked : e.target.value;
 
-    setFormData((prev) => {
+    setInteriorData((prev) => {
       const newData = { ...prev };
-      if (subfield) {
-        newData[section][field][subfield] = value;
-      } else if (field) {
-        newData[section][field] = value;
+      const checks = [...newData[field].imageValueChecks];
+      const existingIndex = checks.findIndex((check) => check.name === item);
+
+      if (existingIndex >= 0) {
+        checks[existingIndex].data.value = value;
       } else {
-        newData[section] = value;
+        checks.push({
+          name: item,
+          data: {
+            image: {
+              public_id: "",
+              url: ""
+            },
+            value: value,
+          },
+        });
       }
+      newData[field].imageValueChecks = checks;
       return newData;
     });
   };
+
+  const handleSubmit = async () => {
+    try {
+      await api.post("/interior/add", {
+        ...interiorData,
+        carDetailsId: carDetailsId,
+      });
+      changeStep();
+    } catch (error) {
+      console.error("Error submitting interior data:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log(interiorData);
+  }, [interiorData]);
+
   return (
-    <>
-      <section>
-        <h2>Interior</h2>
-
-        <h3>Steering Controls</h3>
-        <div>
-          <label>Steering Wheel Condition</label>
-          <input
-            type="file"
-            onChange={(e) =>
-              handleImageChange(
-                e,
-                "interior",
-                "steeringControls",
-                "steeringWheelCondition"
-              )
-            }
-            accept="image/*"
-            required
-          />
-          <input
-            type="text"
-            value={
-              formData.interior.steeringControls.steeringWheelCondition
-                ?.value || ""
-            }
-            onChange={(e) => {
-              setFormData((prev) => ({
-                ...prev,
-                interior: {
-                  ...prev.interior,
-                  steeringControls: {
-                    ...prev.interior.steeringControls,
-                    steeringWheelCondition: {
-                      ...prev.interior.steeringControls.steeringWheelCondition,
-                      value: e.target.value,
-                    },
-                  },
-                },
-              }));
-            }}
-            required
-          />
-        </div>
-
-        <div>
-          <label>Wiper Washer Lever</label>
-          <input
-            type="file"
-            onChange={(e) =>
-              handleImageChange(
-                e,
-                "interior",
-                "steeringControls",
-                "wiperWasherLever"
-              )
-            }
-            accept="image/*"
-            required
-          />
-          <input
-            type="text"
-            value={
-              formData.interior.steeringControls.wiperWasherLever?.value || ""
-            }
-            onChange={(e) => {
-              setFormData((prev) => ({
-                ...prev,
-                interior: {
-                  ...prev.interior,
-                  steeringControls: {
-                    ...prev.interior.steeringControls,
-                    wiperWasherLever: {
-                      ...prev.interior.steeringControls.wiperWasherLever,
-                      value: e.target.value,
-                    },
-                  },
-                },
-              }));
-            }}
-            required
-          />
-        </div>
-
-        {["horn", "lightsLeverSwitch"].map((item) => (
-          <div key={item}>
-            <label>{item}</label>
-            <input
-              type="checkbox"
-              checked={
-                formData.interior.steeringControls.booleanChecks.find(
-                  (check) => check.name === item
-                )?.value || false
-              }
-              onChange={(e) => {
-                const newChecks = [
-                  ...formData.interior.steeringControls.booleanChecks,
-                ];
-                const existingIndex = newChecks.findIndex(
-                  (check) => check.name === item
-                );
-                if (existingIndex >= 0) {
-                  newChecks[existingIndex].value = e.target.checked;
-                } else {
-                  newChecks.push({
-                    name: item,
-                    value: e.target.checked,
-                  });
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  interior: {
-                    ...prev.interior,
-                    steeringControls: {
-                      ...prev.interior.steeringControls,
-                      booleanChecks: newChecks,
-                    },
-                  },
-                }));
-              }}
-              required
-            />
+    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+      <div className="container p-0">
+        <div className="card shadow">
+          <div className="text-white p-4" style={{ backgroundColor: "red" }}>
+            <h2 className="display-4 form-title text-center fw-bold">Interior</h2>
           </div>
-        ))}
 
-        <h3>Mirrors</h3>
-        {["rightSideMirror", "leftSideMirror"].map((item) => (
-          <div key={item}>
-            <label>{item}</label>
-            <input
-              type="checkbox"
-              checked={
-                formData.interior.mirrors.booleanChecks.find(
-                  (check) => check.name === item
-                )?.value || false
-              }
-              onChange={(e) => {
-                const newChecks = [...formData.interior.mirrors.booleanChecks];
-                const existingIndex = newChecks.findIndex(
-                  (check) => check.name === item
-                );
-                if (existingIndex >= 0) {
-                  newChecks[existingIndex].value = e.target.checked;
-                } else {
-                  newChecks.push({
-                    name: item,
-                    value: e.target.checked,
-                  });
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  interior: {
-                    ...prev.interior,
-                    mirrors: {
-                      ...prev.interior.mirrors,
-                      booleanChecks: newChecks,
-                    },
-                  },
-                }));
-              }}
-              required
-            />
+          <div className="card-body p-4">
+            <div className="row g-4">
+              <div className="col-12">
+                <h3>Steering Controls</h3>
+                <br />
+                <div className="row">
+                  {[
+                    "steeringWheelCondition",
+                    "wiperWasherLever", 
+                    "horn",
+                    "lightsLeverSwitch"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "interior", "steeringControls", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleInputChange(e, "interior", "steeringControls", item)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-12">
+                <h3>Mirrors</h3>
+                <br />
+                <div className="row">
+                  {[
+                    "rightSideMirror",
+                    "leftSideMirror",
+                    "rearViewMirrorDimmer"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "interior", "mirrors", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleInputChange(e, "interior", "mirrors", item)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-12">
+                <h3>Seats</h3>
+                <br />
+                <div className="row">
+                  {[
+                    "rightSeatAdjusterRecliner",
+                    "leftSeatAdjusterRecliner", 
+                    "rightSeatAdjusterLearTrack",
+                    "leftSeatAdjusterLearTrack",
+                    "rightSeatBelt",
+                    "leftSeatBelt",
+                    "rearSeatBelt",
+                    "gloveBox"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "interior", "seats", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleInputChange(e, "interior", "seats", item)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-12">
+                <h3>Power and Central Locking</h3>
+                <br />
+                <div className="row">
+                  {[
+                    "frontRightPowerWindowLever",
+                    "frontLeftPowerWindowLever",
+                    "rearRightPowerWindowLever", 
+                    "rearLeftPowerWindowLever",
+                    "autoLockButton",
+                    "windowSafetyLock"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "interior", "powerAndCentralLocking", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleInputChange(e, "interior", "powerAndCentralLocking", item)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-12">
+                <h3>Dash & Roof Controls</h3>
+                <br />
+                <div className="row">
+                  {[
+                    "interiorLightings",
+                    "dashControlsAC",
+                    "dashControlsDeFog",
+                    "dashontrolsHazzardLights",
+                    "audioVideo",
+                    "trunkReleaseLever",
+                    "fuelCapReleaseLever",
+                    "bonnetReleaseLever"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "interior", "dashRoofControls", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleInputChange(e, "interior", "dashRoofControls", item)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-12">
+                <h3>Poshish</h3>
+                <br />
+                <div className="row">
+                  {[
+                    "roofPoshish",
+                    "floorMat",
+                    "frontRightSeatPoshish",
+                    "frontleftSeatPoshish", 
+                    "rearSeatPoshish",
+                    "dashboardCondition"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "interior", "poshish", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleInputChange(e, "interior", "poshish", item)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="col-12">
+                <h3>Equipment</h3>
+                <br />
+                <div className="row">
+                  {[
+                    "spareTire",
+                    "jack",
+                    "tools"
+                  ].map((item, index) => (
+                    <div className="col-12 col-md-6 mb-3" key={index}>
+                      <div className="mb-3">
+                        <label className="form-label">
+                          {item.split(/(?=[A-Z])/).join(" ")}
+                        </label>
+                        <input
+                          type="file"
+                          onChange={(e) => handleImageChange(e, "interior", "equipment", item)}
+                          accept="image/*"
+                          required
+                          className="form-control mb-2"
+                        />
+                        <div className="form-floating">
+                          <select
+                            onChange={(e) => handleInputChange(e, "interior", "equipment", item)}
+                            className="form-select"
+                            id={`select-${item}`}
+                          >
+                            <option value="">Select the value</option>
+                            <option value="false">Good</option>
+                            <option value="true">Bad</option>
+                          </select>
+                          <label htmlFor={`select-${item}`}>Condition</label>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            <div className="text-end mt-4">
+              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
+                Next Step
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  className="ms-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
-        ))}
-
-        <div>
-          <label>Rear View Mirror Dimmer</label>
-          <input
-            type="text"
-            value={formData.interior.mirrors.rearViewMirrorDimmer || ""}
-            onChange={(e) =>
-              handleInputChange(
-                e,
-                "interior",
-                "mirrors",
-                "rearViewMirrorDimmer"
-              )
-            }
-            required
-          />
         </div>
-
-        <h3>Seats</h3>
-        {[
-          "rightSeatAdjusterRecliner",
-          "leftSeatAdjusterRecliner",
-          "rightSeatAdjusterLearTrack",
-          "leftSeatAdjusterLearTrack",
-          "rightSeatBelt",
-          "leftSeatBelt",
-          "rearSeatBelt",
-        ].map((item) => (
-          <div key={item}>
-            <label>{item}</label>
-            <input
-              type="checkbox"
-              checked={
-                formData.interior.seats.booleanChecks.find(
-                  (check) => check.name === item
-                )?.value || false
-              }
-              onChange={(e) => {
-                const newChecks = [...formData.interior.seats.booleanChecks];
-                const existingIndex = newChecks.findIndex(
-                  (check) => check.name === item
-                );
-                if (existingIndex >= 0) {
-                  newChecks[existingIndex].value = e.target.checked;
-                } else {
-                  newChecks.push({
-                    name: item,
-                    value: e.target.checked,
-                  });
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  interior: {
-                    ...prev.interior,
-                    seats: {
-                      ...prev.interior.seats,
-                      booleanChecks: newChecks,
-                    },
-                  },
-                }));
-              }}
-              required
-            />
-          </div>
-        ))}
-
-        <div>
-          <label>Glove Box</label>
-          <input
-            type="file"
-            onChange={(e) =>
-              handleImageChange(e, "interior", "seats", "gloveBox")
-            }
-            accept="image/*"
-            required
-          />
-          <input
-            type="text"
-            value={formData.interior.seats.gloveBox?.value || ""}
-            onChange={(e) => {
-              setFormData((prev) => ({
-                ...prev,
-                interior: {
-                  ...prev.interior,
-                  seats: {
-                    ...prev.interior.seats,
-                    gloveBox: {
-                      ...prev.interior.seats.gloveBox,
-                      value: e.target.value,
-                    },
-                  },
-                },
-              }));
-            }}
-            required
-          />
-        </div>
-
-        <h3>Power and Central Locking</h3>
-        {[
-          "frontRightPowerWindowLever",
-          "frontLeftPowerWindowLever",
-          "rearRightPowerWindowLever",
-          "rearLeftPowerWindowLever",
-          "autoLockButton",
-          "windowSafetyLock",
-        ].map((item) => (
-          <div key={item}>
-            <label>{item}</label>
-            <input
-              type="checkbox"
-              checked={
-                formData.interior.powerAndCentralLocking.booleanChecks.find(
-                  (check) => check.name === item
-                )?.value || false
-              }
-              onChange={(e) => {
-                const newChecks = [
-                  ...formData.interior.powerAndCentralLocking.booleanChecks,
-                ];
-                const existingIndex = newChecks.findIndex(
-                  (check) => check.name === item
-                );
-                if (existingIndex >= 0) {
-                  newChecks[existingIndex].value = e.target.checked;
-                } else {
-                  newChecks.push({
-                    name: item,
-                    value: e.target.checked,
-                  });
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  interior: {
-                    ...prev.interior,
-                    powerAndCentralLocking: {
-                      ...prev.interior.powerAndCentralLocking,
-                      booleanChecks: newChecks,
-                    },
-                  },
-                }));
-              }}
-              required
-            />
-          </div>
-        ))}
-
-        <h3>Dash & Roof Controls</h3>
-        {[
-          "interiorLightings",
-          "dashControlsAC",
-          "dashControlsDeFog",
-          "dashontrolsHazzardLights",
-          "audioVideo",
-          "trunkReleaseLever",
-          "fuelCapReleaseLever",
-          "bonnetReleaseLever",
-        ].map((item) => (
-          <div key={item}>
-            <label>{item}</label>
-            <input
-              type="checkbox"
-              checked={
-                formData.interior.dashRoofControls.booleanChecks.find(
-                  (check) => check.name === item
-                )?.value || false
-              }
-              onChange={(e) => {
-                const newChecks = [
-                  ...formData.interior.dashRoofControls.booleanChecks,
-                ];
-                const existingIndex = newChecks.findIndex(
-                  (check) => check.name === item
-                );
-                if (existingIndex >= 0) {
-                  newChecks[existingIndex].value = e.target.checked;
-                } else {
-                  newChecks.push({
-                    name: item,
-                    value: e.target.checked,
-                  });
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  interior: {
-                    ...prev.interior,
-                    dashRoofControls: {
-                      ...prev.interior.dashRoofControls,
-                      booleanChecks: newChecks,
-                    },
-                  },
-                }));
-              }}
-              required
-            />
-          </div>
-        ))}
-
-        <h3>Poshish</h3>
-        {[
-          "roofPoshish",
-          "floorMat",
-          "frontRightSeatPoshish",
-          "frontleftSeatPoshish",
-          "rearSeatPoshish",
-          "dashboardCondition",
-        ].map((item) => (
-          <div key={item}>
-            <label>{item}</label>
-            <input
-              type="file"
-              onChange={(e) =>
-                handleImageChange(e, "interior", "poshish", item)
-              }
-              accept="image/*"
-              required
-            />
-            <input
-              type="text"
-              value={
-                formData.interior.poshish.imageValueChecks.find(
-                  (check) => check.name === item
-                )?.data?.value || ""
-              }
-              onChange={(e) => {
-                const newChecks = [
-                  ...formData.interior.poshish.imageValueChecks,
-                ];
-                const existingIndex = newChecks.findIndex(
-                  (check) => check.name === item
-                );
-                if (existingIndex >= 0) {
-                  newChecks[existingIndex].data.value = e.target.value;
-                } else {
-                  newChecks.push({
-                    name: item,
-                    data: {
-                      image: { url: "", public_id: "" },
-                      value: e.target.value,
-                    },
-                  });
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  interior: {
-                    ...prev.interior,
-                    poshish: {
-                      ...prev.interior.poshish,
-                      imageValueChecks: newChecks,
-                    },
-                  },
-                }));
-              }}
-              required
-            />
-          </div>
-        ))}
-
-        <h3>Equipment</h3>
-        <div>
-          <label>Spare Tire</label>
-          <input
-            type="file"
-            onChange={(e) =>
-              handleImageChange(e, "interior", "equipment", "spareTire")
-            }
-            accept="image/*"
-            required
-          />
-          <input
-            type="text"
-            value={formData.interior.equipment.spareTire?.value || ""}
-            onChange={(e) => {
-              setFormData((prev) => ({
-                ...prev,
-                interior: {
-                  ...prev.interior,
-                  equipment: {
-                    ...prev.interior.equipment,
-                    spareTire: {
-                      ...prev.interior.equipment.spareTire,
-                      value: e.target.value,
-                    },
-                  },
-                },
-              }));
-            }}
-            required
-          />
-        </div>
-
-        <div>
-          <label>Jack</label>
-          <input
-            type="text"
-            value={formData.interior.equipment.jack || ""}
-            onChange={(e) =>
-              handleInputChange(e, "interior", "equipment", "jack")
-            }
-            required
-          />
-        </div>
-
-        <div>
-          <label>Tools</label>
-          <input
-            type="file"
-            onChange={(e) =>
-              handleImageChange(e, "interior", "equipment", "tools")
-            }
-            accept="image/*"
-            required
-          />
-          <input
-            type="text"
-            value={formData.interior.equipment.tools?.value || ""}
-            onChange={(e) => {
-              setFormData((prev) => ({
-                ...prev,
-                interior: {
-                  ...prev.interior,
-                  equipment: {
-                    ...prev.interior.equipment,
-                    tools: {
-                      ...prev.interior.equipment.tools,
-                      value: e.target.value,
-                    },
-                  },
-                },
-              }));
-            }}
-            required
-          />
-        </div>
-      </section>
-      <button onClick={() => changeStep()}>Next</button>
-    </>
+      </div>
+    </div>
   );
 };
 

@@ -1,67 +1,170 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { url } from "../../../utils/url";
+import { Toaster, toast } from "sonner";
 
-const VehicleInspectionReport = ({ formData, setFormData }) => {
+const api = axios.create({
+  baseURL: url,
+});
+
+const VehicleInspectionReport = () => {
+  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
   const dispatch = useDispatch();
 
-  const changeStep = () => {
-    dispatch(changeStepSuccess(2));
+  const [ratings, setRatings] = useState({
+    imageValueChecks: []
+  });
+
+  const handleSubmit = async () => {
+    try {
+      // Validate all required fields are filled
+      const requiredFields = [
+        "acHeater",
+        "engineTransmissionClutch", 
+        "exterior",
+        "skeleton",
+        "accidentChecklist",
+        "brakes",
+        "suspensionSteering",
+        "interior",
+        "electricalElectronics",
+        "tyres"
+      ];
+
+      const missingFields = requiredFields.filter(field => 
+        !ratings.imageValueChecks.find(check => check.name === field)
+      );
+
+      if (missingFields.length > 0) {
+        alert(`Please fill in ratings for: ${missingFields.join(", ")}`);
+        return;
+      }
+
+      // Validate all values are numbers between 0-100
+      const invalidValues = ratings.imageValueChecks.filter(check => 
+        typeof check.value !== 'number' || check.value < 0 || check.value > 100
+      );
+
+      if (invalidValues.length > 0) {
+        alert("All ratings must be numbers between 0 and 100");
+        return;
+      }
+
+      const response = await api.post("/vehicleInspectionReport/add", {
+        ratings,
+        carDetailsId: carDetailsId || "674d962b622d3809925855fe"
+      });
+
+      if (response.data.success) {
+        toast("Vehicle Inspection Report Added!", {
+          style: {
+            padding: "16px",
+             // Set desired padding here
+          }})
+          setTimeout(() => {
+            dispatch(changeStepSuccess(2));
+          }, 2000);
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error submitting vehicle inspection report:", error);
+      alert(error.response?.data?.message || "Error submitting report");
+    }
+  };
+
+  const handleRatingChange = (name, value) => {
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue < 0 || numValue > 100) {
+      return;
+    }
+
+    setRatings(prev => {
+      const newImageValueChecks = [...prev.imageValueChecks];
+      const existingIndex = newImageValueChecks.findIndex(check => check.name === name);
+      
+      if (existingIndex >= 0) {
+        newImageValueChecks[existingIndex] = { name, value: numValue };
+      } else {
+        newImageValueChecks.push({ name, value: numValue });
+      }
+
+      return { imageValueChecks: newImageValueChecks };
+    });
   };
 
   return (
     <>
-      <section>
-        <h2>Vehicle Inspection Report</h2>
-        {[
-          "acHeater",
-          "engineTransmissionClutch",
-          "exterior",
-          "skeleton",
-          "accidentChecklist",
-          "brakes",
-          "suspensionSteering",
-          "interior",
-          "electricalElectronics",
-          "tyres",
-        ].map((item, index) => (
-          <div key={index}>
-            <label>{item}</label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={
-                formData.vehicleInspectionReport.ratings.find(
-                  (r) => r.name === item
-                )?.value || 0
-              }
-              onChange={(e) => {
-                const newRatings = [
-                  ...formData.vehicleInspectionReport.ratings,
-                ];
-                const existingIndex = newRatings.findIndex(
-                  (r) => r.name === item
-                );
-                if (existingIndex >= 0) {
-                  newRatings[existingIndex].value = Number(e.target.value);
-                } else {
-                  newRatings.push({
-                    name: item,
-                    value: Number(e.target.value),
-                  });
-                }
-                setFormData((prev) => ({
-                  ...prev,
-                  vehicleInspectionReport: { ratings: newRatings },
-                }));
-              }}
-              required
-            />
+    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+      <div className="container p-0">
+        <div className="card shadow">
+          <div className="text-white p-4" style={{ backgroundColor: "#00a5e3" }}>
+            <h2 className="display-4 form-title text-center fw-bold">Vehicle Inspection Report</h2>
           </div>
-        ))}
-      </section>
-      <button onClick={() => changeStep()}>Next</button>
-    </>
+
+          <div className="card-body p-4">
+            <div className="row g-4">
+              {[
+                { display: "AC Heater", value: "acHeater" },
+                { display: "Engine Transmission ", value: "engineTransmissionClutch" },
+                { display: "Exterior", value: "exterior" },
+                { display: "Skeleton", value: "skeleton" },
+                { display: "Accident Checklist", value: "accidentChecklist" },
+                { display: "Brakes", value: "brakes" },
+                { display: "Suspension Steering", value: "suspensionSteering" },
+                { display: "Interior", value: "interior" },
+                { display: "Electrical Electronics", value: "electricalElectronics" },
+                { display: "Tyres", value: "tyres" }
+              ].map((item, index) => (
+                <div className="col-12 col-md-6 mb-3" key={index}>
+                  <div className="form-floating">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      className="form-control"
+                      id={item.value}
+                      value={ratings.imageValueChecks.find(r => r.name === item.value)?.value || ""}
+                      onChange={(e) => handleRatingChange(item.value, e.target.value)}
+                      required
+                      placeholder="Rate from 0-100"
+                    />
+                    <label htmlFor={item.value}>{item.display}</label>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-end mt-4">
+              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
+                Next Step
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  className="ms-2"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div className="p-4">
+<Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+</div>
+</>
   );
 };
 

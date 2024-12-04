@@ -5,6 +5,7 @@
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
   position: fixed;
+  z-index: 9 !important;
 }
 
 .sidebar__icon {

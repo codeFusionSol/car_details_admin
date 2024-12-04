@@ -1,0 +1,18 @@
+.imgDiv {
+  border: 3px solid red !important;
+}
+
+.addImgIcon {
+  color: red !important;
+}
+
+.addImgText {
+  color: red !important;
+}
+
+
+
+.nextBtn {
+  background-color: red !important;
+  color: white !important;
+}
