@@ -5,6 +5,7 @@ import { changeFormStateSuccess } from "../../redux/Slices/Sidebar.jsx";
 import { useState } from "react";
 import axios from "axios";
 import api from "../../../utils/url.js";
+import { Toaster, toast } from "sonner";
 
 const AdditionalPictures = () => {
   const dispatch = useDispatch();
@@ -91,7 +92,14 @@ const AdditionalPictures = () => {
       });
 
       if (picturesResponse.data.success && commentResponse.data.success && disclaimerResponse.data.success) {
-        changeStep(12);
+        toast("Form Submitted!", {
+          style: {
+            padding: "16px",
+             // Set desired padding here
+          }})
+          setTimeout(() => {
+            changeStep(12);
+          }, 2000);;
       }
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -99,16 +107,20 @@ const AdditionalPictures = () => {
   };
 
   return (
-    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+    <>
+    <div className="p-4">
+        <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+      </div>
+    <div className="container-fluid min-vh-100 bg-light pb-md-5   py-3 px-0">
       <div className="container p-0">
         <div className="card shadow">
-          <div className="text-white p-4" style={{ backgroundColor: "red" }}>
+          <div className="text-white p-4" style={{ backgroundColor: "var(--primary-color)" }}>
             <h2 className="display-4 form-title text-center fw-bold">Additional Pictures</h2>
           </div>
 
-          <div className="card-body p-4">
+          <div className="card-body p-4 d-flex flex-column -justify-content-center align-items-center">
             <div className="row g-4">
-              <div className="col-12">
+              <div className="col-12 px-0">
                 <div className="mb-4">
                   <label className="form-label fw-semibold">Upload Additional Car Photos</label>
                   <input
@@ -173,9 +185,9 @@ const AdditionalPictures = () => {
             </div>
 
             <div className="text-end mt-4">
-              <button onClick={handleSubmit} className="btn btn-lg nextBtn">
-                Next Step
-                <svg
+              <button onClick={handleSubmit} className="btn  btn-lg" style={{backgroundColor: "var(--primary-color)"}}>
+                Submit
+                {/* <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
                   height="24"
@@ -188,13 +200,14 @@ const AdditionalPictures = () => {
                     d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
                     clipRule="evenodd"
                   />
-                </svg>
+                </svg> */}
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    </>
   );
 };
 

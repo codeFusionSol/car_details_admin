@@ -3,6 +3,7 @@
   justify-content: space-between;
   align-items: center;
   width: 360px !important;
+  max-width: 360px !important;
   height: 100px;
   padding: 20px 45px;
   background-color: #e0e0e0; /* Matches the light gray background */
@@ -35,9 +36,15 @@
   color: #888;
 }
 
+@media (max-width: 426px) {
+  .card-container {
+    width: 350px !important;
+  }
+}
+
 @media (max-width: 376px) {
   .card-container {
-    width: 250px !important;
+    width: 300px !important;
     padding: 10px 25px;
   }
   .label {
@@ -50,7 +57,7 @@
 
 @media (max-width: 325px) {
   .card-container {
-    width: 200px !important;
+    width: 250px !important;
   }
   
 }

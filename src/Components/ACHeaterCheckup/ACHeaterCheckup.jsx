@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
+import { Toaster, toast } from "sonner";
 
 const ACHeaterCheckup = () => {
   const dispatch = useDispatch();
@@ -13,17 +14,25 @@ const ACHeaterCheckup = () => {
     },
   });
 
-  const changeStep = () => {
-    dispatch(changeStepSuccess(8));
+  const optionsMapping = {
+    acFitted: ["Yes", "No"],
+    acOperational: ["Yes", "AC Cooling Slow", "No"],
+    blower: ["Excellent Air Throw", "Less Throw"],
+    cooling: ["Excellent", "Less Cooling"],
+    heating: ["Excellent", "Less Heating"],
+  };
+
+  const calculatePercentage = (value, options) => {
+    const index = options.indexOf(value);
+    if (index === -1) return 0; // Default to 0 if no value is selected
+    return Math.round(((options.length - index) / options.length) * 100);
   };
 
   const getBase64 = (file) => {
     return new Promise((resolve) => {
       let reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => {
-        resolve(reader.result);
-      };
+      reader.onload = () => resolve(reader.result);
     });
   };
 
@@ -47,11 +56,9 @@ const ACHeaterCheckup = () => {
           checks.push({
             name: item,
             data: {
-              image: {
-                public_id: "",
-                url: base64WithPrefix,
-              },
+              image: { public_id: "", url: base64WithPrefix },
               value: "",
+              percentage: 0,
             },
           });
         }
@@ -63,7 +70,8 @@ const ACHeaterCheckup = () => {
   };
 
   const handleInputChange = (e, item) => {
-    const value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    const value = e.target.value;
+    const percentage = calculatePercentage(value, optionsMapping[item]);
 
     setAcHeaterData((prev) => {
       const newData = { ...prev };
@@ -72,15 +80,14 @@ const ACHeaterCheckup = () => {
 
       if (existingIndex >= 0) {
         checks[existingIndex].data.value = value;
+        checks[existingIndex].data.percentage = percentage;
       } else {
         checks.push({
           name: item,
           data: {
-            image: {
-              public_id: "",
-              url: "",
-            },
+            image: { public_id: "", url: "" },
             value: value,
+            percentage: percentage,
           },
         });
       }
@@ -88,6 +95,10 @@ const ACHeaterCheckup = () => {
       newData.acHeaterCheckUp.imageValueChecks = checks;
       return newData;
     });
+  };
+
+  const changeStep = () => {
+    dispatch(changeStepSuccess(8));
   };
 
   const handleSubmit = async () => {
@@ -103,8 +114,12 @@ const ACHeaterCheckup = () => {
       });
 
       if (response.data.success) {
-        alert("AC & Heater data added successfully!");
-        changeStep();
+        toast("AC & Heater Added!", {
+          style: { padding: "16px" },
+        });
+        setTimeout(() => {
+          changeStep();
+        }, 2000);
       }
     } catch (error) {
       console.error("Error submitting AC/Heater data:", error);
@@ -113,78 +128,56 @@ const ACHeaterCheckup = () => {
   };
 
   return (
-    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+    <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
       <div className="container p-0">
         <div className="card shadow">
-          <div className="text-white p-4" style={{ backgroundColor: "#00a5e3" }}>
-            <h2 className="display-4 form-title text-center fw-bold">AC & Heater Checkup</h2>
+          <div
+            className="text-white p-4"
+            style={{ backgroundColor: "var(--primary-color)" }}
+          >
+            <h2 className="display-4 form-title text-center fw-bold">
+              AC & Heater Checkup
+            </h2>
           </div>
 
           <div className="card-body p-4">
-            <div className="row g-4">
-              <div className="col-12">
-                <div className="row">
-                  {[
-                    "acFitted",
-                    "acOperational",
-                    "blower",
-                    "cooling", 
-                    "heating"
-                  ].map((item) => (
-                    <div className="col-12 col-md-6 mb-3" key={item}>
-                      <div className="mb-3">
-                        <label className="form-label">
-                          {item.split(/(?=[A-Z])/).join(" ")}
-                        </label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleImageChange(e, item)}
-                          accept="image/*"
-                          required
-                          className="form-control mb-2"
-                        />
-                        {item === "acFitted" || item === "acOperational" ? (
-                          <div className="form-check">
-                            <input
-                              type="checkbox"
-                              id={item}
-                              checked={acHeaterData.acHeaterCheckUp.imageValueChecks.find(
-                                (check) => check.name === item
-                              )?.data?.value || false}
-                              onChange={(e) => handleInputChange(e, item)}
-                              className="form-check-input"
-                            />
-                            <label className="form-check-label" htmlFor={item}>
-                              {item === "acFitted" ? "AC is Fitted" : "AC is Operational"}
-                            </label>
-                          </div>
-                        ) : (
-                          <div className="form-floating">
-                            <select
-                              value={acHeaterData.acHeaterCheckUp.imageValueChecks.find(
-                                (check) => check.name === item
-                              )?.data?.value || ""}
-                              onChange={(e) => handleInputChange(e, item)}
-                              required
-                              className="form-select"
-                              id={`select-${item}`}
-                            >
-                              <option value="">Select Status</option>
-                              <option value="Working">Working</option>
-                              <option value="Not Working">Not Working</option>
-                            </select>
-                            <label htmlFor={`select-${item}`}>Status</label>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+            <div className="row">
+              {Object.keys(optionsMapping).map((item) => (
+                <div className="col-12 col-md-6 mb-3" key={item}>
+                  <label className="form-label">
+                    {item.split(/(?=[A-Z])/).join(" ")}
+                  </label>
+                  <input
+                    type="file"
+                    onChange={(e) => handleImageChange(e, item)}
+                    accept="image/*"
+                    className="form-control mb-2"
+                  />
+                  <select
+                    className="form-select"
+                    value={
+                      acHeaterData.acHeaterCheckUp.imageValueChecks.find(
+                        (check) => check.name === item
+                      )?.data?.value || ""
+                    }
+                    onChange={(e) => handleInputChange(e, item)}
+                  >
+                    <option value="">Select Status</option>
+                    {optionsMapping[item].map((option, index) => (
+                      <option key={index} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
+              ))}
             </div>
-
             <div className="text-end mt-4">
-              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
+              <button
+                onClick={handleSubmit}
+                className="btn btn-lg"
+                style={{ backgroundColor: "var(--primary-color)" }}
+              >
                 Next Step
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -205,6 +198,7 @@ const ACHeaterCheckup = () => {
           </div>
         </div>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 };

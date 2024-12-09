@@ -17,6 +17,8 @@ import Tyres from "../../Components/Tyres/Tyres.jsx";
 import AdditionalPictures from "../../Components/AdditionalPictures/AdditionalPictures.jsx";
 import { useSelector } from "react-redux";
 import { useFetcher } from "react-router-dom";
+import Navbar from "../../Components/Navbar/Navbar.jsx";
+import Sidebar from "../../Components/Sidebar/Sidebar.jsx";
 
 const api = axios.create({
   baseURL: url,
@@ -311,6 +313,14 @@ const Form = () => {
 
   return (
     <>
+      <div className="main-container">
+        <Navbar />
+        <div
+            className="container-fluid d-flex m-0 p-0"
+            style={{ overflowX: "hidden !important" }}
+          >
+            <Sidebar />
+          </div>
       <div className="form-container">
         {steps === 0 && (
           <div className="fade-in">
@@ -395,6 +405,7 @@ const Form = () => {
             <AdditionalPictures formData={formData} setFormData={setFormData} />
           </div>
         )}
+      </div>
       </div>
     </>
   );

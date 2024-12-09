@@ -121,18 +121,18 @@ const BodyFrameAccidentChecklist = () => {
 
     return (
       <>
-    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+    <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
       <div className="container p-0">
         <div className="card shadow">
-          <div className="text-white p-4" style={{ backgroundColor: "red" }}>
+          <div className="text-white p-4" style={{ backgroundColor: "var(--primary-color)" }}>
             <h2 className="display-4 form-title text-center fw-bold">
               Body Frame & Accident Checklist
             </h2>
           </div>
 
-          <div className="card-body p-4">
+          <div className="card-body p-4 d-flex flex-column -justify-content-center align-items-center">
             <div className="row g-4">
-              <div className="col-12">
+              <div className="col-12 px-0">
                 <div className="row">
                   {[
                     "radiatorCoreSupport",
@@ -152,7 +152,7 @@ const BodyFrameAccidentChecklist = () => {
                     "rightCPillar",
                     "leftCPillar",
                   ].map((item, index) => (
-                    <div className="col-12 col-md-6 mb-3" key={index}>
+                    <div className="col-12 col-md-6 mb-3 mx-0 px-0" key={index}>
                       <div className="mb-3">
                         <label className="form-label">
                           {item.split(/(?=[A-Z])/).join(" ")}
@@ -208,7 +208,7 @@ const BodyFrameAccidentChecklist = () => {
             </div>
 
             <div className="text-end mt-4">
-              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
+              <button onClick={handleSubmit} className="btn  btn-lg" style={{backgroundColor: "var(--primary-color)"}}>
                 Next Step
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

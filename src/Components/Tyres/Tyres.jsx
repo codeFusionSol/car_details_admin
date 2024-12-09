@@ -3,6 +3,7 @@ import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { url } from "../../../utils/url";
+import { Toaster , toast} from "sonner";
 
 const api = axios.create({
   baseURL: url,
@@ -104,8 +105,14 @@ const Tyres = () => {
       });
 
       if (response.data.success) {
-        alert("Tyres data added successfully!");
-        changeStep();
+        toast("Tyres Added!", {
+          style: {
+            padding: "16px",
+             // Set desired padding here
+          }})
+          setTimeout(() => {
+            changeStep();
+          }, 2000);;
       }
     } catch (error) {
       console.error("Error submitting tyres data:", error);
@@ -118,14 +125,15 @@ const Tyres = () => {
   }, [tyresData]);
 
   return (
-    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+    <>
+    <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
       <div className="container p-0">
         <div className="card shadow">
-          <div className="text-white p-4" style={{ backgroundColor: "#00a5e3" }}>
+          <div className="text-white p-4" style={{ backgroundColor: "var(--primary-color)" }}>
             <h2 className="display-4 form-title text-center fw-bold">Tyres Inspection</h2>
           </div>
 
-          <div className="card-body p-4">
+          <div className="card-body p-4 d-flex flex-column -justify-content-center align-items-center">
             <div className="row g-4">
               <div className="col-12">
                 <div className="row">
@@ -142,7 +150,7 @@ const Tyres = () => {
                     "tyreSize",
                     "rims"
                   ].map((item) => (
-                    <div className="col-12 col-md-6 mb-3" key={item}>
+                    <div className="col-12 col-md-6 mb-3 mx-0 px-0" key={item}>
                       <div className="mb-3">
                         <label className="form-label">
                           {item.split(/(?=[A-Z])/).join(" ")}
@@ -178,7 +186,7 @@ const Tyres = () => {
             </div>
 
             <div className="text-end mt-4">
-              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
+              <button onClick={handleSubmit} className="btn  btn-lg" style={{backgroundColor: "var(--primary-color)"}}>
                 Next Step
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -200,6 +208,10 @@ const Tyres = () => {
         </div>
       </div>
     </div>
+       <div className="p-4">
+       <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+     </div>
+   </>
   );
 };
 

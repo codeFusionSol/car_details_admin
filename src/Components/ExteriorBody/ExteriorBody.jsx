@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
-import axios from "axios";
 import api from "../../../utils/url.js";
+import { Toaster, toast } from "sonner";
 
 const ExteriorBody = () => {
   const dispatch = useDispatch();
@@ -10,53 +10,105 @@ const ExteriorBody = () => {
 
   const [exteriorBodyData, setExteriorBodyData] = useState({
     carFrame: {
-      imageValueChecks: []
+      imageValueChecks: [],
     },
     exteriorLights: {
-      imageValueChecks: []
-    }
+      imageValueChecks: [],
+    },
   });
 
-  const changeStep = () => {
-    dispatch(changeStepSuccess(10));
+  const optionsMapping = {
+    carFrame: {
+      trunkLock: ["Working Properly", "Not Working"],
+      frontWindshieldCondition: ["Perfect", "Swirls", "Damaged"],
+      rearWindshieldCondition: ["Perfect", "Swirls", "Damaged"],
+      frontRightDoorWindow: ["Perfect", "Swirls", "Damaged"],
+      frontLeftDoorWindow: ["Perfect", "Swirls", "Damaged"],
+      rearRightDoorWindow: ["Perfect", "Swirls", "Damaged"],
+      rearLeftDoorWindow: ["Perfect", "Swirls", "Damaged"],
+      windscreenWiper: [
+        "Perfect",
+        "Rubber Not Proper",
+        "Wiper Motion Not Working",
+        "Damaged",
+      ],
+    },
+    exteriorLights: {
+      rightHeadlightWorking: ["Working Properly", "Not Working"],
+      leftHeadlightWorking: ["Working Properly", "Not Working"],
+      rightHeadlightCondition: ["Working Properly", "Not Working"],
+      leftHeadlightCondition: ["Working Properly", "Not Working"],
+      rightTaillightWorking: ["Working Properly", "Not Working"],
+      leftTaillightWorking: ["Working Properly", "Not Working"],
+      rightTaillightCondition: ["Working Properly", "Not Working"],
+      leftTaillightCondition: ["Working Properly", "Not Working"],
+    },
   };
 
-  const getBase64 = (file) => {
-    return new Promise((resolve) => {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        resolve(reader.result);
-      };
+  const calculatePercentage = (value, options) => {
+    const index = options.indexOf(value);
+    if (index === -1) return 0;
+    return Math.round(((options.length - index) / options.length) * 100);
+  };
+
+  const handleValueChange = (section, name, value) => {
+    const percentage = calculatePercentage(
+      value,
+      optionsMapping[section][name]
+    );
+
+    setExteriorBodyData((prev) => {
+      const newData = { ...prev };
+      const checks = [...(newData[section].imageValueChecks || [])];
+      const existingIndex = checks.findIndex((check) => check.name === name);
+
+      if (existingIndex >= 0) {
+        checks[existingIndex].data.value = value;
+        checks[existingIndex].data.percentage = percentage;
+      } else {
+        checks.push({
+          name,
+          data: {
+            image: { url: "", public_id: "" },
+            value,
+            percentage,
+          },
+        });
+      }
+
+      newData[section].imageValueChecks = checks;
+      return newData;
     });
   };
 
-  const handleImageChange = async (e, section, item) => {
+  const handleImageChange = async (e, section, name) => {
     const file = e.target.files[0];
     if (file) {
-      const base64 = await getBase64(file);
+      const base64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+      });
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setExteriorBodyData(prev => {
+      setExteriorBodyData((prev) => {
         const newData = { ...prev };
         const checks = [...(newData[section].imageValueChecks || [])];
-        const existingIndex = checks.findIndex(check => check.name === item);
+        const existingIndex = checks.findIndex((check) => check.name === name);
 
         if (existingIndex >= 0) {
-          checks[existingIndex] = {
-            ...checks[existingIndex],
-            data: {
-              ...checks[existingIndex].data,
-              image: { url: base64WithPrefix, public_id: "" }
-            }
+          checks[existingIndex].data.image = {
+            url: base64WithPrefix,
+            public_id: "",
           };
         } else {
           checks.push({
-            name: item,
+            name,
             data: {
               image: { url: base64WithPrefix, public_id: "" },
-              value: false
-            }
+              value: "",
+              percentage: 0,
+            },
           });
         }
 
@@ -66,16 +118,24 @@ const ExteriorBody = () => {
     }
   };
 
+  const changeStep = () => {
+    dispatch(changeStepSuccess(10));
+  };
+
   const handleSubmit = async () => {
     try {
       const response = await api.post("/exteriorBody/add", {
         ...exteriorBodyData,
-        carDetailsId: carDetailsId || "674d962b622d3809925855fe"
+        carDetailsId: carDetailsId || "674d962b622d3809925855fe",
       });
 
       if (response.data.success) {
-        alert("Exterior body data added successfully!");
-        changeStep();
+        toast("Exterior Body Added!", {
+          style: { padding: "16px" },
+        });
+        setTimeout(() => {
+          changeStep();
+        }, 2000);
       }
     } catch (error) {
       console.error("Error submitting exterior body data:", error);
@@ -83,179 +143,72 @@ const ExteriorBody = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(exteriorBodyData);
-  }, [exteriorBodyData]);
-
   return (
-    <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+    <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
       <div className="container p-0">
         <div className="card shadow">
-          <div className="text-white p-4" style={{ backgroundColor: "#00a5e3" }}>
-            <h2 className="display-4 form-title text-center fw-bold">Exterior Body</h2>
+          <div
+            className="text-white p-4"
+            style={{ backgroundColor: "var(--primary-color)" }}
+          >
+            <h2 className="display-4 form-title text-center fw-bold">
+              Exterior Body
+            </h2>
           </div>
 
           <div className="card-body p-4">
-            <div className="row g-4">
-              <div className="col-12">
-                <h3>Car Frame</h3>
-                <br />
+            {Object.entries(optionsMapping).map(([section, checks]) => (
+              <div key={section}>
+                <h3 className="mb-3">{section.split(/(?=[A-Z])/).join(" ")}</h3>
                 <div className="row">
-                  {[
-                    "frontWindshieldCondition",
-                    "rearWindshieldCondition", 
-                    "windscreenWiper",
-                    "frontRightDoorWindow",
-                    "frontLeftDoorWindow",
-                    "rearRightDoorWindow",
-                    "rearLeftDoorWindow",
-                    "trunkLock"
-                  ].map((item) => (
-                    <div className="col-12 col-md-6 mb-3" key={item}>
-                      <div className="mb-3">
-                        <label className="form-label">
-                          {item.split(/(?=[A-Z])/).join(" ")}
-                        </label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleImageChange(e, "carFrame", item)}
-                          accept="image/*"
-                          required
-                          className="form-control mb-2"
-                        />
-                        <div className="form-floating">
-                          <select
-                            value={exteriorBodyData.carFrame.imageValueChecks.find(
-                              (check) => check.name === item
-                            )?.data?.value ?? false}
-                            onChange={(e) => {
-                              const value = e.target.value === "true";
-                              setExteriorBodyData(prev => {
-                                const newData = { ...prev };
-                                const checks = [...(newData.carFrame.imageValueChecks || [])];
-                                const existingIndex = checks.findIndex(check => check.name === item);
-
-                                if (existingIndex >= 0) {
-                                  checks[existingIndex].data.value = value;
-                                } else {
-                                  checks.push({
-                                    name: item,
-                                    data: {
-                                      image: { url: "", public_id: "" },
-                                      value: value
-                                    }
-                                  });
-                                }
-
-                                newData.carFrame.imageValueChecks = checks;
-                                return newData;
-                              });
-                            }}
-                            className="form-select"
-                            id={`carFrame-${item}`}
-                          >
-                            <option value="false">Not Working</option>
-                            <option value="true">Working</option>
-                          </select>
-                          <label htmlFor={`carFrame-${item}`}>Status</label>
-                        </div>
-                      </div>
+                  {Object.entries(checks).map(([name, options]) => (
+                    <div className="col-12 col-md-6 mb-3" key={name}>
+                      <label className="form-label">
+                        {name.split(/(?=[A-Z])/).join(" ")}
+                      </label>
+                      <input
+                        type="file"
+                        onChange={(e) => handleImageChange(e, section, name)}
+                        accept="image/*"
+                        className="form-control mb-2"
+                      />
+                      <select
+                        className="form-select"
+                        value={
+                          exteriorBodyData[section].imageValueChecks.find(
+                            (check) => check.name === name
+                          )?.data?.value || ""
+                        }
+                        onChange={(e) =>
+                          handleValueChange(section, name, e.target.value)
+                        }
+                      >
+                        <option value="">Select Status</option>
+                        {options.map((option, idx) => (
+                          <option key={idx} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   ))}
                 </div>
               </div>
+            ))}
+          </div>
 
-              <div className="col-12">
-                <h3>Exterior Lights</h3>
-                <br />
-                <div className="row">
-                  {[
-                    "rightHeadlightWorking",
-                    "leftHeadlightWorking",
-                    "rightHeadlightCondition",
-                    "leftHeadlightCondition",
-                    "rightTaillightCondition",
-                    "leftTaillightCondition",
-                    "rightTaillightWorking",
-                    "leftTaillightWorking"
-                  ].map((item) => (
-                    <div className="col-12 col-md-6 mb-3" key={item}>
-                      <div className="mb-3">
-                        <label className="form-label">
-                          {item.split(/(?=[A-Z])/).join(" ")}
-                        </label>
-                        <input
-                          type="file"
-                          onChange={(e) => handleImageChange(e, "exteriorLights", item)}
-                          accept="image/*"
-                          required
-                          className="form-control mb-2"
-                        />
-                        <div className="form-floating">
-                          <select
-                            value={exteriorBodyData.exteriorLights.imageValueChecks.find(
-                              (check) => check.name === item
-                            )?.data?.value ?? false}
-                            onChange={(e) => {
-                              const value = e.target.value === "true";
-                              setExteriorBodyData(prev => {
-                                const newData = { ...prev };
-                                const checks = [...(newData.exteriorLights.imageValueChecks || [])];
-                                const existingIndex = checks.findIndex(check => check.name === item);
-
-                                if (existingIndex >= 0) {
-                                  checks[existingIndex].data.value = value;
-                                } else {
-                                  checks.push({
-                                    name: item,
-                                    data: {
-                                      image: { url: "", public_id: "" },
-                                      value: value
-                                    }
-                                  });
-                                }
-
-                                newData.exteriorLights.imageValueChecks = checks;
-                                return newData;
-                              });
-                            }}
-                            className="form-select"
-                            id={`exteriorLights-${item}`}
-                          >
-                            <option value="false">Not Working</option>
-                            <option value="true">Working</option>
-                          </select>
-                          <label htmlFor={`exteriorLights-${item}`}>Status</label>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="text-end mt-4">
-              <button onClick={handleSubmit} className="btn btn-primary btn-lg">
-                Next Step
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  className="ms-2"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
+          <div className="text-end mt-4">
+            <button
+              onClick={handleSubmit}
+              className="btn btn-lg"
+              style={{ backgroundColor: "var(--primary-color)" }}
+            >
+              Next Step
+            </button>
           </div>
         </div>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 };

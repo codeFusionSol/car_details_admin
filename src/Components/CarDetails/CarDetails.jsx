@@ -74,12 +74,13 @@ const CarDetails = () => {
         toast("Car Details Added!", {
           style: {
             padding: "16px",
-             // Set desired padding here
-          }})
-          setTimeout(() => {
-            dispatch(changeStepSuccess(1));
-            dispatch(changeCarDetailsIdSuccess(response.data.data._id));
-          }, 2000);
+            // Set desired padding here
+          },
+        });
+        setTimeout(() => {
+          dispatch(changeStepSuccess(1));
+          dispatch(changeCarDetailsIdSuccess(response?.data?.data?._id));
+        }, 2000);
       } else {
         throw new Error(response.data.message);
       }
@@ -136,23 +137,23 @@ const CarDetails = () => {
 
   return (
     <>
-      <div className="container-fluid min-vh-100 bg-light py-md-5 py-3 px-0">
+      <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
         <div className="container p-0">
           <div className="card shadow">
             <div
               className="text-white p-4"
-              style={{ backgroundColor: "#00a5e3" }}
+              style={{ backgroundColor: "var(--primary-color)" }}
             >
               <h2 className="display-4 form-title text-center fw-bold">
                 Car Details
               </h2>
             </div>
 
-            <div className="card-body p-4">
+            <div className="card-body p-4 d-flex flex-column -justify-content-center align-items-center">
               <div className="row g-4">
                 {/* Input fields */}
 
-                <div className="col-12">
+                <div className="col-12 px-0">
                   <div className="mb-3">
                     <label className="form-label">Car Image</label>
                     <input
@@ -162,10 +163,9 @@ const CarDetails = () => {
                       accept="image/*"
                       required
                     />
-                    
                   </div>
 
-                  <div className="row">
+                  <div className="row gx-4">
                     <div className="col-12 col-md-6 mb-3">
                       <div className="form-floating">
                         <input
@@ -393,9 +393,9 @@ const CarDetails = () => {
                           onChange={handleInputChange}
                           className="form-check-input"
                           id="cngInstall"
-                        />
+                        />&nbsp;
                         <label
-                          className="form-check-label"
+                          className="form-check-label mt-1"
                           htmlFor="cngInstall"
                         >
                           CNG Installed
@@ -408,7 +408,8 @@ const CarDetails = () => {
                 <div className="text-end mt-4">
                   <button
                     onClick={changeStep}
-                    className="btn btn-primary btn-lg"
+                    className="btn  btn-lg"
+                    style={{backgroundColor: "var(--primary-color)"}}
                   >
                     Next Step
                     <svg
@@ -433,7 +434,9 @@ const CarDetails = () => {
         </div>
       </div>
       <div className="p-4">
-        <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+        <Toaster
+          position={window.innerWidth <= 768 ? "bottom-right" : "top-right"}
+        />
       </div>
     </>
   );

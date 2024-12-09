@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   formState: false,
+  isOpen: false,
   loading: false,
   error: "",
 };
@@ -21,6 +22,9 @@ const sidebarSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    changeSidebarState: (state) => {
+      state.isOpen = !state.isOpen;
+    },
   },
 });
 
@@ -30,6 +34,7 @@ export const {
   changeFormStateStart,
   changeFormStateSuccess,
   changeFormStateFailure,
+  changeSidebarState,
 } = actions;
 
 export default sidebarSlice.reducer;
