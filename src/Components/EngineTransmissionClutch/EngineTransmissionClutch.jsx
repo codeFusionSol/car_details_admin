@@ -3,10 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
+import {
+  addDataToCarDetailsSuccess,
+  updateDataToCarDetailsSuccess,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const EngineTransmissionClutch = () => {
+  const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-  const { carDetailsId } = useSelector((state) => state.carDetailsId);
+  const { carDetailsId, fullDetaills } = useSelector(
+    (state) => state.carDetailsId
+  );
 
   const [engineTransmissionData, setEngineTransmissionData] = useState({
     fluidsFiltersCheck: { imageValueChecks: [] },
@@ -49,7 +56,7 @@ const EngineTransmissionClutch = () => {
   };
 
   const changeStep = () => {
-    dispatch(changeStepSuccess(4));
+    dispatch(changeStepSuccess(5));
   };
 
   const calculatePercentage = (selectedValue, fieldOptions) => {
@@ -123,8 +130,11 @@ const EngineTransmissionClutch = () => {
             name: key,
             data: {
               image: { url: "", public_id: "" },
-              value: "",
-              percentage: "",
+              value: options.fluidsFiltersCheck[key][0],
+              percentage: calculatePercentage(
+                options.fluidsFiltersCheck[key][0],
+                options.fluidsFiltersCheck[key]
+              ),
             },
           })
         ),
@@ -134,8 +144,11 @@ const EngineTransmissionClutch = () => {
           name: key,
           data: {
             image: { url: "", public_id: "" },
-            value: "",
-            percentage: "",
+            value: options.mechanicalCheck[key][0],
+            percentage: calculatePercentage(
+              options.mechanicalCheck[key][0],
+              options.mechanicalCheck[key]
+            ),
           },
         })),
       },
@@ -144,8 +157,11 @@ const EngineTransmissionClutch = () => {
           name: key,
           data: {
             image: { url: "", public_id: "" },
-            value: "",
-            percentage: "",
+            value: options.exhaustCheck[key][0],
+            percentage: calculatePercentage(
+              options.exhaustCheck[key][0],
+              options.exhaustCheck[key]
+            ),
           },
         })),
       },
@@ -155,8 +171,11 @@ const EngineTransmissionClutch = () => {
             name: key,
             data: {
               image: { url: "", public_id: "" },
-              value: "",
-              percentage: "",
+              value: options.engineCoolingSystem[key][0],
+              percentage: calculatePercentage(
+                options.engineCoolingSystem[key][0],
+                options.engineCoolingSystem[key]
+              ),
             },
           })
         ),
@@ -166,18 +185,35 @@ const EngineTransmissionClutch = () => {
           name: key,
           data: {
             image: { url: "", public_id: "" },
-            value: "",
-            percentage: "",
+            value: options.transmissionCheck[key][0],
+            percentage: calculatePercentage(
+              options.transmissionCheck[key][0],
+              options.transmissionCheck[key]
+            ),
           },
         })),
       },
     });
   }, []);
 
+  useEffect(() => {
+    if (fullDetaills?.length > 5) {
+      setEngineTransmissionData(
+        fullDetaills[5]?.imageValueChecks || engineTransmissionData
+      );
+      console.log(engineTransmissionData);
+      setEditMode(true);
+    }
+  }, [fullDetaills]);
+
   const handleSubmit = async () => {
     try {
       const response = await api.post("/engineTransmissionClutch/add", {
-        ...engineTransmissionData,
+        fluidsFiltersCheck: engineTransmissionData.fluidsFiltersCheck,
+        mechanicalCheck: engineTransmissionData.mechanicalCheck,
+        exhaustCheck: engineTransmissionData.exhaustCheck,
+        engineCoolingSystem: engineTransmissionData.engineCoolingSystem,
+        transmissionCheck: engineTransmissionData.transmissionCheck,
         carDetailsId: carDetailsId || "674d962b622d3809925855fe",
       });
 
@@ -185,7 +221,10 @@ const EngineTransmissionClutch = () => {
         toast("Engine Transmission Clutch Added!", {
           style: { padding: "16px" },
         });
-        setTimeout(() => changeStep(), 2000);
+        setTimeout(() => {
+          dispatch(addDataToCarDetailsSuccess(response?.data?.data));
+          dispatch(changeStepSuccess(5));
+        }, 2000);
       }
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -193,78 +232,192 @@ const EngineTransmissionClutch = () => {
     }
   };
 
+  const editHandler = async () => {
+    try {
+      const response = await api.put(
+        `/engineTransmissionClutch/update/${fullDetaills[5]._id}`,
+        {
+          fluidsFiltersCheck: engineTransmissionData.fluidsFiltersCheck,
+          mechanicalCheck: engineTransmissionData.mechanicalCheck,
+          exhaustCheck: engineTransmissionData.exhaustCheck,
+          engineCoolingSystem: engineTransmissionData.engineCoolingSystem,
+          transmissionCheck: engineTransmissionData.transmissionCheck,
+          engineTransmissionClutchId: fullDetaills[4]._id,
+        }
+      );
+
+      if (response.data.success) {
+        toast("Engine Transmission Clutch Updated!", {
+          style: { padding: "16px" },
+        });
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.data));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating engine transmission clutch:", error);
+      alert("Error updating engine transmission clutch");
+    }
+  };
+
   return (
     <>
-      <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
+      <div className="container-fluid min-vh-100 pb-md-5 py-3 px-0">
         <div className="container p-0">
-          <div className="card shadow">
-            <div
-              className="text-white p-4"
-              style={{ backgroundColor: "var(--primary-color)" }}
-            >
-              <h2 className="display-4 form-title text-center fw-bold">
-                Engine, Transmission & Clutch
-              </h2>
+          <div className="card border-0">
+            <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
+              <h4 className="text-center mb-0 carDetailsHeading">
+                Engine Transmission & Clutch
+              </h4>
             </div>
-            <div className="card-body p-4">
-              {Object.entries(engineTransmissionData).map(([section, data]) => (
-                <div className="mb-4" key={section}>
-                  <h3>{section.replace(/([A-Z])/g, " $1").trim()}</h3>
-                  <div className="row">
-                    {data.imageValueChecks.map((item) => (
-                      <div className="col-md-6 mb-3" key={item.name}>
-                        <label className="form-label">
-                          {item.name.split(/(?=[A-Z])/).join(" ")}
-                        </label>
-                        <select
-                          className="form-select"
-                          onChange={(e) =>
-                            handleInputChange(e, section, item.name)
-                          }
-                        >
-                          <option value="">Select the value</option>
-                          {options[section][item.name].map((option, index) => (
-                            <option key={index} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                        <input
-                          type="file"
-                          className="form-control mt-2"
-                          accept="image/*"
-                          onChange={(e) =>
-                            handleImageChange(e, section, item.name)
-                          }
-                        />
-                      </div>
-                    ))}
+
+            <div
+              className="card-body d-flex flex-column justify-content-center align-items-center p-lg-4 p-1"
+              style={{ backgroundColor: "#f8f9fa" }}
+            >
+              <div className="row g-4 px-0">
+                <div className="col-12 px-0">
+                  <div className="row gx-4">
+                    {engineTransmissionData &&
+                      Object?.entries(engineTransmissionData)?.map(
+                        ([section, data]) =>
+                          data?.imageValueChecks?.map((item) => (
+                            <div
+                              className="col-12 col-md-4 px-md-2 px-0"
+                              key={item.name}
+                              style={{
+                                marginBottom: "30px",
+                              }}
+                            >
+                              <fieldset
+                                style={{
+                                  border: "1px dashed #ccc",
+                                  borderRadius: "8px",
+                                  padding: "15px",
+                                }}
+                              >
+                                <legend className="legend">
+                                  {item.name.split(/(?=[A-Z])/).join(" ")}
+                                </legend>
+
+                                <div
+                                  className="rounded p-3 text-center"
+                                  style={{
+                                    height: "80px",
+                                    backgroundColor: "#FFF6E0",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    border: "1px solid #FFCC00",
+                                    borderRadius: "6px",
+                                  }}
+                                >
+                                  <input
+                                    type="file"
+                                    onChange={(e) =>
+                                      handleImageChange(e, section, item.name)
+                                    }
+                                    className="d-none"
+                                    accept="image/*"
+                                    id={`image-${item.name}`}
+                                  />
+                                  {item.data?.image?.url ? (
+                                    <img
+                                      src={item.data.image.url}
+                                      alt={item.name}
+                                      style={{
+                                        maxHeight: "60px",
+                                        maxWidth: "100%",
+                                        objectFit: "contain",
+                                      }}
+                                    />
+                                  ) : (
+                                    <label
+                                      htmlFor={`image-${item.name}`}
+                                      className="d-flex align-items-center justify-content-center gap-2 mb-0 cursor-pointer"
+                                      style={{
+                                        color: "#FFCC00",
+                                        fontWeight: "600",
+                                        fontSize: "14px",
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        style={{ marginRight: "5px" }}
+                                      >
+                                        <rect
+                                          x="3"
+                                          y="3"
+                                          width="18"
+                                          height="18"
+                                          rx="2"
+                                          ry="2"
+                                        />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                        <polyline points="21 15 16 10 5 21" />
+                                      </svg>
+                                      <span className="d-none d-md-inline">
+                                        {window.innerWidth >= 1025 &&
+                                          "Click to upload image (optional)"}
+                                      </span>
+                                    </label>
+                                  )}
+                                </div>
+
+                                <select
+                                  style={{
+                                    height: "50px",
+                                    backgroundColor: "#fff",
+                                    marginTop: "15px",
+                                    border: "1px solid #ccc",
+                                    borderRadius: "6px",
+                                    padding: "0 10px",
+                                  }}
+                                  className="form-select"
+                                  onChange={(e) =>
+                                    handleInputChange(e, section, item.name)
+                                  }
+                                  value={
+                                    item.data?.value ||
+                                    options[section][item.name][0]
+                                  }
+                                >
+                                  <option value="">Select the value</option>
+                                  {options[section][item.name].map(
+                                    (option, index) => (
+                                      <option key={index} value={option}>
+                                        {option}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+                              </fieldset>
+                            </div>
+                          ))
+                      )}
                   </div>
                 </div>
-              ))}
 
-              <div className="text-end mt-4">
-                <button
-                  onClick={handleSubmit}
-                  className="btn  btn-lg"
-                  style={{ backgroundColor: "var(--primary-color)" }}
-                >
-                  Next Step
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    className="ms-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
+                <div className="col-12 ps-0">
+                  <div className="d-flex justify-content-center gap-3">
+                    <button className="backBtn">Back</button>
+                    <button
+                      onClick={!editMode ? handleSubmit : editHandler}
+                      className="nextBtn"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

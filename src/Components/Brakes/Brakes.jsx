@@ -3,6 +3,7 @@ import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useEffect, useState } from "react";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
+import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const Brakes = () => {
   const dispatch = useDispatch();
@@ -36,6 +37,7 @@ const Brakes = () => {
           style: { padding: "16px" }
         });
         setTimeout(() => {
+          dispatch(addDataToCarDetailsSuccess(response?.data?.data));
           dispatch(changeStepSuccess(5));
         }, 2000);
       }
@@ -131,74 +133,133 @@ const Brakes = () => {
 
   return (
     <>
-      <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
+      <div className="container-fluid min-vh-100 pb-md-5 py-3 px-0">
         <div className="container p-0">
-          <div className="card shadow">
-            <div className="text-white p-4" style={{ backgroundColor: "var(--primary-color)" }}>
-              <h2 className="display-4 form-title text-center fw-bold">Brakes Inspection</h2>
+          <div className="card border-0">
+            <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
+              <h4 className="text-center mb-0 carDetailsHeading">
+                Brakes Inspection
+              </h4>
             </div>
 
-            <div className="card-body p-4 d-flex flex-column -justify-content-center align-items-center">
-              <div className="row g-4">
+            <div
+              className="card-body d-flex flex-column justify-content-center align-items-center p-lg-4 p-1"
+              style={{ backgroundColor: "#f8f9fa" }}
+            >
+              <div className="row g-4 px-0">
                 <div className="col-12 px-0">
-                  <div className="row">
+                  <div className="row gx-4">
                     {Object.keys(dropdownOptions).map((item, index) => (
-                      <div className="col-12 col-md-6 mb-3 mx-0 px-0" key={index}>
-                        <div className="mb-3">
-                          <label className="form-label">
+                      <div
+                        className="col-12 col-md-4 px-md-2 px-0"
+                        key={index}
+                        style={{
+                          marginBottom: "30px",
+                        }}
+                      >
+                        <fieldset
+                          style={{
+                            border: "1px dashed #ccc",
+                            borderRadius: "8px",
+                            padding: "15px",
+                          }}
+                        >
+                          <legend className="legend">
                             {item.split(/(?=[A-Z])/).join(" ")}
-                          </label>
-                          <select
-                            onChange={(e) =>
-                              handleOptionChange(e, item, dropdownOptions[item])
-                            }
-                            className="form-select"
-                            id={`select-${item}`}
+                          </legend>
+
+                          <div
+                            className="rounded p-3 text-center"
+                            style={{
+                              height: "80px",
+                              backgroundColor: "#FFF6E0",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              border: "1px solid #FFCC00",
+                              borderRadius: "6px",
+                            }}
                           >
-                            <option value="">Select the value</option>
+                            <input
+                              type="file"
+                              onChange={(e) => handleImageChange(e, item)}
+                              className="d-none"
+                              accept="image/*"
+                              required
+                              id={`image-${item}`}
+                            />
+                            <label
+                              htmlFor={`image-${item}`}
+                              className="d-flex align-items-center justify-content-center gap-2 mb-0 cursor-pointer"
+                              style={{
+                                color: "#FFCC00",
+                                fontWeight: "600",
+                                fontSize: "14px",
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                style={{ marginRight: "5px" }}
+                              >
+                                <rect
+                                  x="3"
+                                  y="3"
+                                  width="18"
+                                  height="18"
+                                  rx="2"
+                                  ry="2"
+                                />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                              </svg>
+                              <span className="d-none d-md-inline">
+                                {window.innerWidth >= 1025 &&
+                                  "Click to upload image (optional)"}
+                              </span>
+                            </label>
+                          </div>
+
+                          <select
+                            style={{
+                              height: "50px",
+                              backgroundColor: "#fff",
+                              marginTop: "15px",
+                              border: "1px solid #ccc",
+                              borderRadius: "6px",
+                              padding: "0 10px",
+                            }}
+                            onChange={(e) => handleOptionChange(e, item, dropdownOptions[item])}
+                            className="form-select"
+                          >
+                            <option value="">Select</option>
                             {dropdownOptions[item].map((option, i) => (
                               <option key={i} value={option}>
                                 {option}
                               </option>
                             ))}
                           </select>
-
-                          <input
-                            type="file"
-                            onChange={(e) => handleImageChange(e, item)}
-                            accept="image/*"
-                            required
-                            className="form-control mt-2"
-                          />
-                        </div>
+                        </fieldset>
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              <div className="text-end mt-4">
-                <button
-                  onClick={changeStep}
-                  className="btn btn-lg"
-                  style={{ backgroundColor: "var(--primary-color)" }}
-                >
-                  Next Step
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    className="ms-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
+                <div className="col-12 ps-0">
+                  <div className="d-flex justify-content-center gap-3">
+                    <button className="backBtn">Back</button>
+                    <button onClick={changeStep} className="nextBtn">
+                      Next
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -1,18 +1,33 @@
-.imgDiv {
-  border: 3px solid red !important;
+input {
+  background-color: transparent !important;
 }
 
-.addImgIcon {
-  color: red !important;
+input:focus {
+  background-color: transparent !important;
 }
 
-.addImgText {
-  color: red !important;
+.carDetailsHeading {
+  padding: 25px 97px;
+  border-radius: 40px;
+  color: var(--black-color) !important  ;
+  background-color: var(--primary-light-color);
+  width: fit-content;
 }
 
+@media screen and (max-width: 768px) {
+  .carDetailsHeading {
+    padding: 30px 60px !important;
+  }
+}
 
+.form-check-input {
+  background-color: #fff !important;
+  border-color: var(--primary-color) !important;
+  cursor: pointer;
+}
 
-.nextBtn {
-  background-color: red !important;
-  color: white !important;
+.form-check-input:checked {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #fff !important;
 }

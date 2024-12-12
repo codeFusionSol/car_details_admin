@@ -4,25 +4,35 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { url } from "../../../utils/url";
 import { Toaster, toast } from "sonner";
+import {
+  addDataToCarDetailsSuccess,
+  updateDataToCarDetailsSuccess,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const api = axios.create({
   baseURL: url,
 });
 
 const VehicleInspectionReport = () => {
-  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+  const { carDetailsId, fullDetaills } = useSelector(
+    (state) => state.carDetailsId
+  );
   const dispatch = useDispatch();
+  const [editMode, setEditMode] = useState(false);
 
   const [ratings, setRatings] = useState({
-    imageValueChecks: []
+    imageValueChecks: [],
   });
+  useEffect(() => {
+    console.log(ratings);
+  }, [ratings]);
 
   const handleSubmit = async () => {
     try {
       // Validate all required fields are filled
       const requiredFields = [
         "acHeater",
-        "engineTransmissionClutch", 
+        "engineTransmissionClutch",
         "exterior",
         "skeleton",
         "accidentChecklist",
@@ -30,11 +40,12 @@ const VehicleInspectionReport = () => {
         "suspensionSteering",
         "interior",
         "electricalElectronics",
-        "tyres"
+        "tyres",
       ];
 
-      const missingFields = requiredFields.filter(field => 
-        !ratings.imageValueChecks.find(check => check.name === field)
+      const missingFields = requiredFields.filter(
+        (field) =>
+          !ratings.imageValueChecks.find((check) => check.name === field)
       );
 
       if (missingFields.length > 0) {
@@ -43,8 +54,11 @@ const VehicleInspectionReport = () => {
       }
 
       // Validate all values are numbers between 0-100
-      const invalidValues = ratings.imageValueChecks.filter(check => 
-        typeof check.value !== 'number' || check.value < 0 || check.value > 100
+      const invalidValues = ratings.imageValueChecks.filter(
+        (check) =>
+          typeof check.value !== "number" ||
+          check.value < 0 ||
+          check.value > 100
       );
 
       if (invalidValues.length > 0) {
@@ -54,18 +68,20 @@ const VehicleInspectionReport = () => {
 
       const response = await api.post("/vehicleInspectionReport/add", {
         ratings,
-        carDetailsId: carDetailsId || "674d962b622d3809925855fe"
+        carDetailsId: carDetailsId || "674d962b622d3809925855fe",
       });
 
       if (response.data.success) {
         toast("Vehicle Inspection Report Added!", {
           style: {
             padding: "16px",
-             // Set desired padding here
-          }})
-          setTimeout(() => {
-            dispatch(changeStepSuccess(2));
-          }, 2000);
+            // Set desired padding here
+          },
+        });
+        setTimeout(() => {
+          dispatch(addDataToCarDetailsSuccess(response?.data?.report));
+          dispatch(changeStepSuccess(3));
+        }, 2000);
       } else {
         throw new Error(response.data.message);
       }
@@ -81,10 +97,12 @@ const VehicleInspectionReport = () => {
       return;
     }
 
-    setRatings(prev => {
+    setRatings((prev) => {
       const newImageValueChecks = [...prev.imageValueChecks];
-      const existingIndex = newImageValueChecks.findIndex(check => check.name === name);
-      
+      const existingIndex = newImageValueChecks.findIndex(
+        (check) => check.name === name
+      );
+
       if (existingIndex >= 0) {
         newImageValueChecks[existingIndex] = { name, value: numValue };
       } else {
@@ -95,76 +113,155 @@ const VehicleInspectionReport = () => {
     });
   };
 
+  useEffect(() => {
+    if (fullDetaills.length > 2) {
+      console.log(fullDetaills[2]);
+      setRatings(fullDetaills[2]?.ratings || { imageValueChecks: [] });
+      setEditMode(true);
+    }
+  }, [fullDetaills]);
+
+  const editHandler = async () => {
+    try {
+      const response = await api.put(
+        `/vehicleInspectionReport/update/${fullDetaills[2]._id}`,
+        {
+          ratings,
+        }
+      );
+
+      if (response.data.success) {
+        toast("Vehicle Inspection Report Updated!", {
+          style: {
+            padding: "16px",
+            // Set desired padding here
+          },
+        });
+
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.report));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      } else {
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error editing vehicle inspection report:", error);
+    }
+  };
+
   return (
     <>
-    <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
-      <div className="container p-0">
-        <div className="card shadow">
-          <div className="text-white p-4" style={{ backgroundColor: "var(--primary-color)" }}>
-            <h2 className="display-4 form-title text-center fw-bold">Vehicle Inspection Report</h2>
-          </div>
-
-          <div className="card-body p-4 d-flex flex-column -justify-content-center align-items-center">
-            <div className="row g-4">
-              {[
-                { display: "AC Heater", value: "acHeater" },
-                { display: "Engine Transmission ", value: "engineTransmissionClutch" },
-                { display: "Exterior", value: "exterior" },
-                { display: "Skeleton", value: "skeleton" },
-                { display: "Accident Checklist", value: "accidentChecklist" },
-                { display: "Brakes", value: "brakes" },
-                { display: "Suspension Steering", value: "suspensionSteering" },
-                { display: "Interior", value: "interior" },
-                { display: "Electrical Electronics", value: "electricalElectronics" },
-                { display: "Tyres", value: "tyres" }
-              ].map((item, index) => (
-                <div className="col-12 px-0 col-md-6 mb-3 mx-0 px-0" key={index}>
-                  <div className="form-floating">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      className="form-control"
-                      id={item.value}
-                      value={ratings.imageValueChecks.find(r => r.name === item.value)?.value || ""}
-                      onChange={(e) => handleRatingChange(item.value, e.target.value)}
-                      required
-                      placeholder="Rate from 0-100"
-                    />
-                    <label htmlFor={item.value}>{item.display}</label>
-                  </div>
-                </div>
-              ))}
+      <div className="container-fluid min-vh-100 pb-md-5 py-3 px-0">
+        <div className="container p-0">
+          <div className="card border-0">
+            <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
+              <h4 className="text-center mb-0 carDetailsHeading">
+                Vehicle Inspection Report
+              </h4>
             </div>
 
-            <div className="text-end mt-4">
-              <button onClick={handleSubmit} className="btn  btn-lg" style={{backgroundColor: "var(--primary-color)"}}>
-                Next Step
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  className="ms-2"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
+            <div
+              className="card-body d-flex flex-column justify-content-center align-items-center p-md-4 p-1"
+              style={{ backgroundColor: "#f8f9fa" }}
+            >
+              <div className="row g-4 ps-0">
+                <div className="col-12 ps-0">
+                  <div className="row gx-4">
+                    {[
+                      { display: "AC Heater", value: "acHeater" },
+                      {
+                        display: "Engine Transmission ",
+                        value: "engineTransmissionClutch",
+                      },
+                      { display: "Exterior", value: "exterior" },
+                      { display: "Skeleton", value: "skeleton" },
+                      {
+                        display: "Accident Checklist",
+                        value: "accidentChecklist",
+                      },
+                      { display: "Brakes", value: "brakes" },
+                      {
+                        display: "Suspension Steering",
+                        value: "suspensionSteering",
+                      },
+                      { display: "Interior", value: "interior" },
+                      {
+                        display: "Electrical Electronics",
+                        value: "electricalElectronics",
+                      },
+                      { display: "Tyres", value: "tyres" },
+                    ].map((item, index) => (
+                      <div
+                        className="col-12 col-md-4 px-md-2 px-0"
+                        key={index}
+                        style={{
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <label htmlFor={item.value} className="form-label">
+                          {item.display}
+                        </label>
+                        <input
+                          style={{ height: "60px" }}
+                          type="number"
+                          min="0"
+                          max="100"
+                          className="form-control my-0"
+                          id={item.value}
+                          value={
+                            ratings?.imageValueChecks?.find(
+                              (r) => r.name === item.value
+                            )?.value || ""
+                          }
+                          onChange={(e) =>
+                            handleRatingChange(item.value, e.target.value)
+                          }
+                          required
+                          placeholder="Rate from 0-100"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="col-12 ps-0">
+                  <div className="d-flex justify-content-center gap-3">
+                    <button
+                      className="backBtn"
+                      style={{
+                        padding: "25px 7%",
+                        fontSize: "1.2rem",
+                        borderRadius: "40px",
+                      }}
+                    >
+                      Back
+                    </button>
+                    <button
+                      style={{
+                        padding: "25px 7%",
+                        fontSize: "1.2rem",
+                        borderRadius: "40px",
+                      }}
+                      onClick={!editMode ? handleSubmit : editHandler}
+                      className="nextBtn"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-<div className="p-4">
-<Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
-</div>
-</>
+      <div className="p-4">
+        <Toaster
+          position={window.innerWidth <= 768 ? "bottom-right" : "top-right"}
+        />
+      </div>
+    </>
   );
 };
 

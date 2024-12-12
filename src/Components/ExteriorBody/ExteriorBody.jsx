@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
+import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const ExteriorBody = () => {
   const dispatch = useDispatch();
@@ -134,6 +135,7 @@ const ExteriorBody = () => {
           style: { padding: "16px" },
         });
         setTimeout(() => {
+          dispatch(addDataToCarDetailsSuccess(response?.data?.data));
           changeStep();
         }, 2000);
       }
@@ -144,72 +146,141 @@ const ExteriorBody = () => {
   };
 
   return (
-    <div className="container-fluid min-vh-100 bg-light pb-md-5 py-3 px-0">
-      <div className="container p-0">
-        <div className="card shadow">
-          <div
-            className="text-white p-4"
-            style={{ backgroundColor: "var(--primary-color)" }}
-          >
-            <h2 className="display-4 form-title text-center fw-bold">
-              Exterior Body
-            </h2>
-          </div>
+    <>
+    <div className="container-fluid min-vh-100 pb-md-5 py-3 px-0">
+        <div className="container p-0">
+          <div className="card border-0">
+            <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
+              <h4 className="text-center mb-0 carDetailsHeading">
+                Exterior Body
+              </h4>
+            </div>
 
-          <div className="card-body p-4">
-            {Object.entries(optionsMapping).map(([section, checks]) => (
-              <div key={section}>
-                <h3 className="mb-3">{section.split(/(?=[A-Z])/).join(" ")}</h3>
-                <div className="row">
-                  {Object.entries(checks).map(([name, options]) => (
-                    <div className="col-12 col-md-6 mb-3" key={name}>
-                      <label className="form-label">
-                        {name.split(/(?=[A-Z])/).join(" ")}
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) => handleImageChange(e, section, name)}
-                        accept="image/*"
-                        className="form-control mb-2"
-                      />
-                      <select
-                        className="form-select"
-                        value={
-                          exteriorBodyData[section].imageValueChecks.find(
-                            (check) => check.name === name
-                          )?.data?.value || ""
-                        }
-                        onChange={(e) =>
-                          handleValueChange(section, name, e.target.value)
-                        }
-                      >
-                        <option value="">Select Status</option>
-                        {options.map((option, idx) => (
-                          <option key={idx} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
+            <div
+              className="card-body d-flex flex-column justify-content-center align-items-center p-lg-4 p-1"
+              style={{ backgroundColor: "#f8f9fa" }}
+            >
+              <div className="row g-4 px-0">
+                <div className="col-12 px-0">
+                  <div className="row gx-4">
+                    {Object.entries(optionsMapping).flatMap(([section, checks]) =>
+                      Object.entries(checks).map(([name, options], index) => (
+                        <div
+                          className="col-12 col-md-4 px-md-2 px-0"
+                          key={index}
+                          style={{
+                            marginBottom: "30px",
+                          }}
+                        >
+                          <fieldset
+                            style={{
+                              border: "1px dashed #ccc",
+                              borderRadius: "8px",
+                              padding: "15px",
+                            }}
+                          >
+                            <legend className="legend">
+                              {name.split(/(?=[A-Z])/).join(" ")}
+                            </legend>
+
+                            <div
+                              className="rounded p-3 text-center"
+                              style={{
+                                height: "80px",
+                                backgroundColor: "#FFF6E0",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                border: "1px solid #FFCC00",
+                                borderRadius: "6px",
+                              }}
+                            >
+                              <input
+                                type="file"
+                                onChange={(e) => handleImageChange(e, section, name)}
+                                className="d-none"
+                                accept="image/*"
+                                id={`image-${name}`}
+                              />
+                              <label
+                                htmlFor={`image-${name}`}
+                                className="d-flex align-items-center justify-content-center gap-2 mb-0 cursor-pointer"
+                                style={{
+                                  color: "#FFCC00",
+                                  fontWeight: "600",
+                                  fontSize: "14px",
+                                }}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  style={{ marginRight: "5px" }}
+                                >
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                  <circle cx="8.5" cy="8.5" r="1.5" />
+                                  <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                                <span className="d-none d-md-inline">
+                                  {window.innerWidth >= 1025 && "Click to upload image (optional)"}
+                                </span>
+                              </label>
+                            </div>
+
+                            <select
+                              style={{
+                                height: "50px",
+                                backgroundColor: "#fff",
+                                marginTop: "15px",
+                                border: "1px solid #ccc",
+                                borderRadius: "6px",
+                                padding: "0 10px",
+                              }}
+                              className="form-select"
+                              value={
+                                exteriorBodyData[section].imageValueChecks.find(
+                                  (check) => check.name === name
+                                )?.data?.value || ""
+                              }
+                              onChange={(e) =>
+                                handleValueChange(section, name, e.target.value)
+                              }
+                            >
+                              <option value="">Select Status</option>
+                              {options.map((option, idx) => (
+                                <option key={idx} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          </fieldset>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-12 ps-0">
+                  <div className="d-flex justify-content-center gap-3">
+                    <button className="backBtn">Back</button>
+                    <button onClick={handleSubmit} className="nextBtn">
+                      Next
+                    </button>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          <div className="text-end mt-4">
-            <button
-              onClick={handleSubmit}
-              className="btn btn-lg"
-              style={{ backgroundColor: "var(--primary-color)" }}
-            >
-              Next Step
-            </button>
+            </div>
           </div>
         </div>
       </div>
       <Toaster position="top-right" />
-    </div>
+    </>
   );
 };
 
