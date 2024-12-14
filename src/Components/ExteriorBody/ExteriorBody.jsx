@@ -3,20 +3,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const ExteriorBody = () => {
   const dispatch = useDispatch();
-  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+  const {carDetailsId, fullDetaills} = useSelector((state) => state.carDetailsId);
+  const [editMode, setEditMode] = useState(false);
 
   const [exteriorBodyData, setExteriorBodyData] = useState({
     carFrame: {
       imageValueChecks: [],
     },
     exteriorLights: {
-      imageValueChecks: [],
+      imageValueChecks: [], 
     },
   });
+
+  useEffect(() => {
+    if (fullDetaills.length > 9) {
+      // Create a deep copy of the data to avoid mutating read-only objects
+      const deepCopy = JSON.parse(JSON.stringify(fullDetaills[9]));
+      setExteriorBodyData(deepCopy);
+      setEditMode(true);
+    }
+  }, [fullDetaills]);
 
   const optionsMapping = {
     carFrame: {
@@ -59,13 +69,20 @@ const ExteriorBody = () => {
     );
 
     setExteriorBodyData((prev) => {
-      const newData = { ...prev };
+      // Create deep copies to avoid mutating state directly
+      const newData = JSON.parse(JSON.stringify(prev));
       const checks = [...(newData[section].imageValueChecks || [])];
       const existingIndex = checks.findIndex((check) => check.name === name);
 
       if (existingIndex >= 0) {
-        checks[existingIndex].data.value = value;
-        checks[existingIndex].data.percentage = percentage;
+        checks[existingIndex] = {
+          ...checks[existingIndex],
+          data: {
+            ...checks[existingIndex].data,
+            value,
+            percentage
+          }
+        };
       } else {
         checks.push({
           name,
@@ -77,8 +94,13 @@ const ExteriorBody = () => {
         });
       }
 
-      newData[section].imageValueChecks = checks;
-      return newData;
+      return {
+        ...newData,
+        [section]: {
+          ...newData[section],
+          imageValueChecks: checks
+        }
+      };
     });
   };
 
@@ -93,14 +115,21 @@ const ExteriorBody = () => {
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
       setExteriorBodyData((prev) => {
-        const newData = { ...prev };
+        // Create deep copies to avoid mutating state directly
+        const newData = JSON.parse(JSON.stringify(prev));
         const checks = [...(newData[section].imageValueChecks || [])];
         const existingIndex = checks.findIndex((check) => check.name === name);
 
         if (existingIndex >= 0) {
-          checks[existingIndex].data.image = {
-            url: base64WithPrefix,
-            public_id: "",
+          checks[existingIndex] = {
+            ...checks[existingIndex],
+            data: {
+              ...checks[existingIndex].data,
+              image: {
+                url: base64WithPrefix,
+                public_id: ""
+              }
+            }
           };
         } else {
           checks.push({
@@ -113,8 +142,13 @@ const ExteriorBody = () => {
           });
         }
 
-        newData[section].imageValueChecks = checks;
-        return newData;
+        return {
+          ...newData,
+          [section]: {
+            ...newData[section],
+            imageValueChecks: checks
+          }
+        };
       });
     }
   };
@@ -142,6 +176,22 @@ const ExteriorBody = () => {
     } catch (error) {
       console.error("Error submitting exterior body data:", error);
       alert("Error adding exterior body data");
+    }
+  };
+
+  const editHandler = async () => {
+    try {
+      const response = await api.put(`/exteriorBody/update/${fullDetaills[9]._id}`, exteriorBodyData);
+
+      if (response.data.success) {
+        toast("Exterior Body Updated!", { style: { padding: "16px" } });
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.data));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating Exterior Body data:", error);
     }
   };
 
@@ -227,8 +277,8 @@ const ExteriorBody = () => {
                                   <circle cx="8.5" cy="8.5" r="1.5" />
                                   <polyline points="21 15 16 10 5 21" />
                                 </svg>
-                                <span className="d-none d-md-inline">
-                                  {window.innerWidth >= 1025 && "Click to upload image (optional)"}
+                                <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
+                                  {window.innerWidth >= 1025 && "Click to upload image"}
                                 </span>
                               </label>
                             </div>
@@ -268,8 +318,14 @@ const ExteriorBody = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn">Back</button>
-                    <button onClick={handleSubmit} className="nextBtn">
+                    <button className="backBtn"
+                      onClick={() => {
+                        dispatch(changeStepSuccess(9));
+                      }}
+                    >
+                      Back
+                    </button>
+                    <button onClick={editMode ? editHandler : handleSubmit} className="nextBtn">
                       Next
                     </button>
                   </div>

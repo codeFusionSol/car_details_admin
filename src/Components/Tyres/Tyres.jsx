@@ -3,22 +3,32 @@ import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { url } from "../../../utils/url";
-import { Toaster , toast} from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import { Toaster, toast } from "sonner";
+import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const api = axios.create({
   baseURL: url,
 });
 
 const Tyres = () => {
+  const { carDetailsId, fullDetaills } = useSelector((state) => state.carDetailsId);
+  const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
 
   const [tyresData, setTyresData] = useState({
     tyres: {
       imageValueChecks: []
     }
   });
+
+  useEffect(() => {
+    if (fullDetaills.length > 10) {
+      // Create a deep copy of the data to avoid mutating read-only objects
+      const tyresDataCopy = JSON.parse(JSON.stringify(fullDetaills[10]));
+      setTyresData(tyresDataCopy);
+      setEditMode(true);
+    }
+  }, [fullDetaills]);
 
   const changeStep = () => {
     dispatch(changeStepSuccess(11));
@@ -41,8 +51,12 @@ const Tyres = () => {
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
       setTyresData(prev => {
-        const newData = { ...prev };
-        const checks = [...(newData.tyres.imageValueChecks || [])];
+        // Create deep copy of previous state
+        const newData = JSON.parse(JSON.stringify(prev));
+        if (!newData.tyres) {
+          newData.tyres = { imageValueChecks: [] };
+        }
+        const checks = newData.tyres.imageValueChecks;
         const existingIndex = checks.findIndex(check => check.name === item);
 
         if (existingIndex >= 0) {
@@ -62,8 +76,6 @@ const Tyres = () => {
             }
           });
         }
-
-        newData.tyres.imageValueChecks = checks;
         return newData;
       });
     }
@@ -71,8 +83,12 @@ const Tyres = () => {
 
   const handleValueChange = (item, value) => {
     setTyresData(prev => {
-      const newData = { ...prev };
-      const checks = [...(newData.tyres.imageValueChecks || [])];
+      // Create deep copy of previous state
+      const newData = JSON.parse(JSON.stringify(prev));
+      if (!newData.tyres) {
+        newData.tyres = { imageValueChecks: [] };
+      }
+      const checks = newData.tyres.imageValueChecks;
       const existingIndex = checks.findIndex(check => check.name === item);
 
       if (existingIndex >= 0) {
@@ -92,8 +108,6 @@ const Tyres = () => {
           }
         });
       }
-
-      newData.tyres.imageValueChecks = checks;
       return newData;
     });
   };
@@ -109,16 +123,32 @@ const Tyres = () => {
         toast("Tyres Added!", {
           style: {
             padding: "16px",
-             // Set desired padding here
-          }})
-          setTimeout(() => {
-            dispatch(addDataToCarDetailsSuccess(response?.data?.data));
-            changeStep();
-          }, 2000);;
+          }
+        });
+        setTimeout(() => {
+          dispatch(addDataToCarDetailsSuccess(response?.data?.tyres));
+          changeStep();
+        }, 2000);
       }
     } catch (error) {
       console.error("Error submitting tyres data:", error);
       alert("Error adding tyres data");
+    }
+  };
+
+  const editHandler = async () => {
+    try {
+      const response = await api.put(`/tyres/update/${fullDetaills[10]._id}`, tyresData);
+
+      if (response.data.success) {
+        toast("Tyres Updated!", { style: { padding: "16px" } });
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.tyres));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating tyres data:", error);
     }
   };
 
@@ -128,7 +158,7 @@ const Tyres = () => {
 
   return (
     <>
-    <div className="container-fluid min-vh-100 pb-md-5 py-3 px-0">
+      <div className="container-fluid min-vh-100 pb-md-5 py-3 px-0">
         <div className="container p-0">
           <div className="card border-0">
             <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
@@ -147,7 +177,7 @@ const Tyres = () => {
                     {[
                       "frontRightTyre",
                       "frontLeftTyre",
-                      "rearRightTyre", 
+                      "rearRightTyre",
                       "rearLeftTyre",
                       "wheelsCaps",
                       "frontRightTyreBrand",
@@ -220,8 +250,8 @@ const Tyres = () => {
                                 <circle cx="8.5" cy="8.5" r="1.5" />
                                 <polyline points="21 15 16 10 5 21" />
                               </svg>
-                              <span className="d-none d-md-inline">
-                                {window.innerWidth >= 1025 && "Click to upload image (optional)"}
+                              <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
+                                {window.innerWidth >= 1025 && "Click to upload image"}
                               </span>
                             </label>
                           </div>
@@ -237,7 +267,7 @@ const Tyres = () => {
                               padding: "0 10px",
                             }}
                             className="form-control"
-                            value={tyresData.tyres.imageValueChecks.find(
+                            value={tyresData?.tyres?.imageValueChecks?.find(
                               (check) => check.name === item
                             )?.data?.value || ""}
                             onChange={(e) => handleValueChange(item, e.target.value)}
@@ -251,8 +281,14 @@ const Tyres = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn">Back</button>
-                    <button onClick={handleSubmit} className="nextBtn">
+                    <button className="backBtn"
+                      onClick={() => {
+                        dispatch(changeStepSuccess(10));
+                      }}
+                    >
+                      Back
+                    </button>
+                    <button onClick={editMode ? editHandler : handleSubmit} className="nextBtn">
                       Next
                     </button>
                   </div>
@@ -262,10 +298,10 @@ const Tyres = () => {
           </div>
         </div>
       </div>
-       <div className="p-4">
-       <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
-     </div>
-   </>
+      <div className="p-4">
+        <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+      </div>
+    </>
   );
 };
 

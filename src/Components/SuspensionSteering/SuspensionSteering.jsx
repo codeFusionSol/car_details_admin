@@ -3,11 +3,14 @@ import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useEffect, useState } from "react";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const SuspensionSteering = () => {
+  const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+  const { carDetailsId, fullDetaills } = useSelector(
+    (state) => state.carDetailsId
+  );
 
   const [suspensionData, setSuspensionData] = useState({
     frontSuspension: {
@@ -40,55 +43,46 @@ const SuspensionSteering = () => {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setSuspensionData((prev) => {
-        const newData = { ...prev };
-        const checks = [...newData[section].imageValueChecks];
-        const existingIndex = checks.findIndex((check) => check.name === item);
-
-        if (existingIndex >= 0) {
-          checks[existingIndex].data.image.url = base64WithPrefix;
-        } else {
-          checks.push({
-            name: item,
-            data: {
-              image: { url: base64WithPrefix, public_id: "" },
-              value: "",
-              percentage: "",
-            },
-          });
+      setSuspensionData((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          imageValueChecks: [
+            ...prev[section].imageValueChecks.filter(check => check.name !== item),
+            {
+              name: item,
+              data: {
+                image: { url: base64WithPrefix, public_id: "" },
+                value: prev[section].imageValueChecks.find(check => check.name === item)?.data?.value || "",
+                percentage: prev[section].imageValueChecks.find(check => check.name === item)?.data?.percentage || "",
+              }
+            }
+          ]
         }
-
-        newData[section].imageValueChecks = checks;
-        return newData;
-      });
+      }));
     }
   };
 
   const handleValueChange = (section, item, value, options) => {
     const percentage = calculatePercentage(value, options);
 
-    setSuspensionData((prev) => {
-      const newData = { ...prev };
-      const checks = [...newData[section].imageValueChecks];
-      const existingIndex = checks.findIndex((check) => check.name === item);
-
-      if (existingIndex >= 0) {
-        checks[existingIndex].data.value = value;
-        checks[existingIndex].data.percentage = percentage;
-      } else {
-        checks.push({
-          name: item,
-          data: {
-            image: { url: "", public_id: "" },
-            value: value,
-            percentage: percentage,
-          },
-        });
+    setSuspensionData((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        imageValueChecks: [
+          ...prev[section].imageValueChecks.filter(check => check.name !== item),
+          {
+            name: item,
+            data: {
+              image: prev[section].imageValueChecks.find(check => check.name === item)?.data?.image || { url: "", public_id: "" },
+              value,
+              percentage
+            }
+          }
+        ]
       }
-
-      newData[section].imageValueChecks = checks;
-      return newData;
-    });
+    }));
   };
 
   const dropdownOptions = {
@@ -174,6 +168,37 @@ const SuspensionSteering = () => {
   };
 
   useEffect(() => {
+    if (fullDetaills.length > 5) {
+      setSuspensionData(fullDetaills[5]);
+      setEditMode(true);
+    }
+  }, [fullDetaills]);
+
+  const editHandler = async () => {
+    try {
+      console.log(suspensionData);
+      const response = await api.put(
+        `/suspensionSteering/update/${fullDetaills[5]._id}`,
+        {
+          frontSuspension: suspensionData.frontSuspension,
+          rearSuspension: suspensionData.rearSuspension,
+        }
+      );
+      if (response.data.success) {
+        toast("Suspension & Steering Updated!", {
+          style: { padding: "16px" },
+        });
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.data));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating suspension data:", error);
+    }
+  };
+
+  useEffect(() => {
     console.log(suspensionData);
   }, [suspensionData]);
 
@@ -195,106 +220,140 @@ const SuspensionSteering = () => {
               <div className="row g-4 px-0">
                 <div className="col-12 px-0">
                   <div className="row gx-4">
-                    {["frontSuspension", "rearSuspension"].map((section) => (
-                      Object.keys(dropdownOptions[section]).map((item, index) => (
-                        <div
-                          className="col-12 col-md-4 px-md-2 px-0"
-                          key={index}
-                          style={{
-                            marginBottom: "30px",
-                          }}
-                        >
-                          <fieldset
+                    {["frontSuspension", "rearSuspension"].map((section) =>
+                      Object.keys(dropdownOptions[section]).map(
+                        (item, index) => (
+                          <div
+                            className="col-12 col-md-4 px-md-2 px-0"
+                            key={index}
                             style={{
-                              border: "1px dashed #ccc",
-                              borderRadius: "8px",
-                              padding: "15px",
+                              marginBottom: "30px",
                             }}
                           >
-                            <legend className="legend">
-                              {item.split(/(?=[A-Z])/).join(" ")}
-                            </legend>
-
-                            <div
-                              className="rounded p-3 text-center"
+                            <fieldset
                               style={{
-                                height: "80px",
-                                backgroundColor: "#FFF6E0",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                border: "1px solid #FFCC00",
-                                borderRadius: "6px",
+                                border: "1px dashed #ccc",
+                                borderRadius: "8px",
+                                padding: "15px",
                               }}
                             >
-                              <input
-                                type="file"
-                                onChange={(e) => handleImageChange(e, section, item)}
-                                className="d-none"
-                                accept="image/*"
-                                id={`image-${item}`}
-                              />
-                              <label
-                                htmlFor={`image-${item}`}
-                                className="d-flex align-items-center justify-content-center gap-2 mb-0 cursor-pointer"
+                              <legend className="legend">
+                                {item.split(/(?=[A-Z])/).join(" ")}
+                              </legend>
+
+                              <div
+                                className="rounded p-3 text-center"
                                 style={{
-                                  color: "#FFCC00",
-                                  fontWeight: "600",
-                                  fontSize: "14px",
+                                  height: "80px",
+                                  backgroundColor: "#FFF6E0",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  border: "1px solid #FFCC00",
+                                  borderRadius: "6px",
                                 }}
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  style={{ marginRight: "5px" }}
+                                <input
+                                  type="file"
+                                  onChange={(e) =>
+                                    handleImageChange(e, section, item)
+                                  }
+                                  className="d-none"
+                                  accept="image/*"
+                                  id={`image-${item}`}
+                                />
+                                <label
+                                  htmlFor={`image-${item}`}
+                                  className="d-flex align-items-center justify-content-center gap-2 mb-0 cursor-pointer"
+                                  style={{
+                                    color: "#FFCC00",
+                                    fontWeight: "600",
+                                    fontSize: "14px",
+                                  }}
                                 >
-                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                  <circle cx="8.5" cy="8.5" r="1.5" />
-                                  <polyline points="21 15 16 10 5 21" />
-                                </svg>
-                                <span className="d-none d-md-inline">
-                                  {window.innerWidth >= 1025 && "Click to upload image (optional)"}
-                                </span>
-                              </label>
-                            </div>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    style={{ marginRight: "5px" }}
+                                  >
+                                    <rect
+                                      x="3"
+                                      y="3"
+                                      width="18"
+                                      height="18"
+                                      rx="2"
+                                      ry="2"
+                                    />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                    <polyline points="21 15 16 10 5 21" />
+                                  </svg>
+                                  <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
+                                    {window.innerWidth >= 1025 &&
+                                      "Click to upload image "}
+                                  </span>
+                                </label>
+                              </div>
 
-                            <select
-                              style={{
-                                height: "50px",
-                                backgroundColor: "#fff",
-                                marginTop: "15px",
-                                border: "1px solid #ccc",
-                                borderRadius: "6px",
-                                padding: "0 10px",
-                              }}
-                              onChange={(e) => handleValueChange(section, item, e.target.value, dropdownOptions[section][item])}
-                              className="form-select"
-                            >
-                              <option value="">Select</option>
-                              {dropdownOptions[section][item].map((option, i) => (
-                                <option key={i} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                          </fieldset>
-                        </div>
-                      ))
-                    ))}
+                              <select
+                                value={
+                                  suspensionData[section].imageValueChecks.find(check => check.name === item)?.data?.value ||
+                                  ""
+                                }
+                                style={{
+                                  height: "50px",
+                                  backgroundColor: "#fff",
+                                  marginTop: "15px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "6px",
+                                  padding: "0 10px",
+                                }}
+                                onChange={(e) =>
+                                  handleValueChange(
+                                    section,
+                                    item,
+                                    e.target.value,
+                                    dropdownOptions[section][item]
+                                  )
+                                }
+                                className="form-select"
+                              >
+                                <option value="">Select</option>
+                                {dropdownOptions[section][item].map(
+                                  (option, i) => (
+                                    <option key={i} value={option}>
+                                      {option}
+                                    </option>
+                                  )
+                                )}
+                              </select>
+                            </fieldset>
+                          </div>
+                        )
+                      )
+                    )}
                   </div>
                 </div>
 
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn">Back</button>
-                    <button onClick={changeStep} className="nextBtn">
+                    <button className="backBtn"
+                      onClick={() => {
+                        dispatch(changeStepSuccess(5));
+                      }}
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={!editMode ? changeStep : editHandler}
+                      className="nextBtn"
+                    >
                       Next
                     </button>
                   </div>

@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const ElectricalElectronics = () => {
+  const { fullDetaills, carDetailsId } = useSelector(
+    (state) => state.carDetailsId
+  );
+  const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
 
   const [electricalElectronicsData, setElectricalElectronicsData] = useState({
     computerCheckUp: {
@@ -59,30 +62,23 @@ const ElectricalElectronics = () => {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setElectricalElectronicsData((prev) => {
-        const newData = { ...prev };
-        const checks = [...(newData[section].imageValueChecks || [])];
-        const existingIndex = checks.findIndex((check) => check.name === name);
-
-        if (existingIndex >= 0) {
-          checks[existingIndex].data.image = {
-            url: base64WithPrefix,
-            public_id: "",
-          };
-        } else {
-          checks.push({
-            name,
-            data: {
-              image: { url: base64WithPrefix, public_id: "" },
-              value: "",
-              percentage: 0,
-            },
-          });
+      setElectricalElectronicsData((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          imageValueChecks: [
+            ...(prev[section].imageValueChecks || []).filter(check => check.name !== name),
+            {
+              name,
+              data: {
+                image: { url: base64WithPrefix, public_id: "" },
+                value: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.value || "",
+                percentage: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.percentage || 0
+              }
+            }
+          ]
         }
-
-        newData[section].imageValueChecks = checks;
-        return newData;
-      });
+      }));
     }
   };
 
@@ -92,51 +88,42 @@ const ElectricalElectronics = () => {
       optionsMapping[section][name] || []
     );
 
-    setElectricalElectronicsData((prev) => {
-      const newData = { ...prev };
-      const checks = [...(newData[section].imageValueChecks || [])];
-      const existingIndex = checks.findIndex((check) => check.name === name);
-
-      if (existingIndex >= 0) {
-        checks[existingIndex].data.value = value;
-        checks[existingIndex].data.percentage = percentage;
-      } else {
-        checks.push({
-          name,
-          data: {
-            image: { url: "", public_id: "" },
-            value,
-            percentage,
-          },
-        });
+    setElectricalElectronicsData((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        imageValueChecks: [
+          ...(prev[section].imageValueChecks || []).filter(check => check.name !== name),
+          {
+            name,
+            data: {
+              image: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.image || { url: "", public_id: "" },
+              value,
+              percentage
+            }
+          }
+        ]
       }
-
-      newData[section].imageValueChecks = checks;
-      return newData;
-    });
+    }));
   };
 
   const handleNumberChange = (section, name, value) => {
-    setElectricalElectronicsData((prev) => {
-      const newData = { ...prev };
-      const checks = [...(newData[section].imageValueChecks || [])];
-      const existingIndex = checks.findIndex((check) => check.name === name);
-
-      if (existingIndex >= 0) {
-        checks[existingIndex].data.value = value;
-      } else {
-        checks.push({
-          name,
-          data: {
-            image: { url: "", public_id: "" },
-            value,
-          },
-        });
+    setElectricalElectronicsData((prev) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        imageValueChecks: [
+          ...(prev[section].imageValueChecks || []).filter(check => check.name !== name),
+          {
+            name,
+            data: {
+              image: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.image || { url: "", public_id: "" },
+              value
+            }
+          }
+        ]
       }
-
-      newData[section].imageValueChecks = checks;
-      return newData;
-    });
+    }));
   };
 
   const changeStep = async () => {
@@ -160,6 +147,29 @@ const ElectricalElectronics = () => {
       }
     } catch (error) {
       console.error("Error submitting electrical electronics data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (fullDetaills.length > 8) {
+      setElectricalElectronicsData(fullDetaills[8]);
+      setEditMode(true);
+    }
+  }, [fullDetaills]);
+
+  const editHandler = async () => {
+    try {
+      const response = await api.put(`/electricalElectronics/update/${fullDetaills[8]._id}`, electricalElectronicsData);
+
+      if (response.data.success) {
+        toast("Electrical & Electronics Updated!", { style: { padding: "16px" } });
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.data));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating Electrical & Electronics data:", error);
     }
   };
 
@@ -244,8 +254,8 @@ const ElectricalElectronics = () => {
                                   <circle cx="8.5" cy="8.5" r="1.5" />
                                   <polyline points="21 15 16 10 5 21" />
                                 </svg>
-                                <span className="d-none d-md-inline">
-                                  {window.innerWidth >= 1025 && "Click to upload image (optional)"}
+                                <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
+                                  {window.innerWidth >= 1025 && "Click to upload image"}
                                 </span>
                               </label>
                             </div>
@@ -285,8 +295,14 @@ const ElectricalElectronics = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn">Back</button>
-                    <button onClick={changeStep} className="nextBtn">
+                    <button className="backBtn"
+                      onClick={() => {
+                        dispatch(changeStepSuccess(8));
+                      }}
+                    >
+                      Back
+                    </button>
+                    <button onClick={editMode ? editHandler : changeStep} className="nextBtn">
                       Next
                     </button>
                   </div>

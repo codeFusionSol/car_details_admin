@@ -3,11 +3,14 @@ import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useEffect, useState } from "react";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const Brakes = () => {
+  const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
+  const {carDetailsId, fullDetaills} = useSelector(
+    (state) => state.carDetailsId
+  );
 
   const [brakesData, setBrakesData] = useState({
     mechanicalCheck: {
@@ -37,7 +40,7 @@ const Brakes = () => {
           style: { padding: "16px" }
         });
         setTimeout(() => {
-          dispatch(addDataToCarDetailsSuccess(response?.data?.data));
+          dispatch(addDataToCarDetailsSuccess(response?.data?.brakes));
           dispatch(changeStepSuccess(5));
         }, 2000);
       }
@@ -62,15 +65,22 @@ const Brakes = () => {
       const existingIndex = newChecks.findIndex((check) => check.name === item);
 
       if (existingIndex >= 0) {
-        newChecks[existingIndex].data.value = value;
-        newChecks[existingIndex].data.percentage = percentage;
+        // Create a new object instead of modifying existing one
+        newChecks[existingIndex] = {
+          ...newChecks[existingIndex],
+          data: {
+            ...newChecks[existingIndex].data,
+            value,
+            percentage
+          }
+        };
       } else {
         newChecks.push({
           name: item,
           data: {
             image: { url: "", public_id: "" },
-            value: value,
-            percentage: percentage
+            value,
+            percentage
           }
         });
       }
@@ -96,7 +106,14 @@ const Brakes = () => {
         const existingIndex = newChecks.findIndex((check) => check.name === item);
 
         if (existingIndex >= 0) {
-          newChecks[existingIndex].data.image.url = base64WithPrefix;
+          // Create a new object instead of modifying existing one
+          newChecks[existingIndex] = {
+            ...newChecks[existingIndex],
+            data: {
+              ...newChecks[existingIndex].data,
+              image: { url: base64WithPrefix, public_id: "" }
+            }
+          };
         } else {
           newChecks.push({
             name: item,
@@ -128,8 +145,36 @@ const Brakes = () => {
   };
 
   useEffect(() => {
+    if (fullDetaills.length > 4) {
+      setBrakesData(fullDetaills[4]);
+      console.log(brakesData);
+      setEditMode(true);
+    }
+  }, [fullDetaills]);
+
+  useEffect(() => {
     console.log(brakesData);
   }, [brakesData]);
+
+  const editHandler = async () => {
+    try {
+      console.log(brakesData);
+      const response = await api.put(`/brakes/update/${fullDetaills[4]._id}`, {
+        mechanicalCheck: brakesData.mechanicalCheck,
+      });
+      if (response.data.success) {
+        toast("Brakes Updated!", {
+          style: { padding: "16px" }
+        });
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.brakes));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating brakes data:", error);
+    }
+  }
 
   return (
     <>
@@ -220,9 +265,9 @@ const Brakes = () => {
                                 <circle cx="8.5" cy="8.5" r="1.5" />
                                 <polyline points="21 15 16 10 5 21" />
                               </svg>
-                              <span className="d-none d-md-inline">
+                              <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
                                 {window.innerWidth >= 1025 &&
-                                  "Click to upload image (optional)"}
+                                  "Click to upload image "}
                               </span>
                             </label>
                           </div>
@@ -238,6 +283,7 @@ const Brakes = () => {
                             }}
                             onChange={(e) => handleOptionChange(e, item, dropdownOptions[item])}
                             className="form-select"
+                            value={brakesData.mechanicalCheck.imageValueChecks.find(check => check.name === item)?.data?.value || ''}
                           >
                             <option value="">Select</option>
                             {dropdownOptions[item].map((option, i) => (
@@ -254,8 +300,14 @@ const Brakes = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn">Back</button>
-                    <button onClick={changeStep} className="nextBtn">
+                    <button className="backBtn"
+                      onClick={() => {
+                        dispatch(changeStepSuccess(4));
+                      }}
+                    >
+                      Back
+                    </button>
+                    <button onClick={!editMode ? changeStep : editHandler} className="nextBtn">
                       Next
                     </button>
                   </div>

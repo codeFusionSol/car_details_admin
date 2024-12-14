@@ -23,11 +23,13 @@ const BodyFrameAccidentChecklist = () => {
   const [formData, setFormData] = useState({
     imageValueChecks: [],
   });
+
   useEffect(() => {
     console.log(formData);
   }, [formData]);
+
   const changeStep = () => {
-    dispatch(changeStepSuccess(4));
+    dispatch(changeStepSuccess(3));
   };
 
   const getBase64 = (file) => {
@@ -69,6 +71,7 @@ const BodyFrameAccidentChecklist = () => {
             data: {
               image: { url: base64WithPrefix, public_id: "" },
               value: false,
+              percentage: 100,
             },
           });
         }
@@ -86,7 +89,7 @@ const BodyFrameAccidentChecklist = () => {
       const requiredFields = [
         "radiatorCoreSupport",
         "rightStrutTowerApon",
-        "leftStrutTowerApon",
+        "leftStrutTowerApon", 
         "rightFrontRail",
         "leftFrontRail",
         "cowlPanelFirewall",
@@ -111,6 +114,7 @@ const BodyFrameAccidentChecklist = () => {
         alert(`Please fill in all fields: ${missingFields.join(", ")}`);
         return;
       }
+      console.log(formData.imageValueChecks);
 
       const response = await api.post("/bodyFrameAccidentChecklist/add", {
         imageValueChecks: formData.imageValueChecks,
@@ -135,9 +139,9 @@ const BodyFrameAccidentChecklist = () => {
   };
 
   useEffect(() => {
-    if (fullDetaills.length > 3) {
+    if (fullDetaills.length > 2) {
       setFormData({
-        imageValueChecks: fullDetaills[3]?.imageValueChecks || [],
+        imageValueChecks: fullDetaills[2]?.imageValueChecks || [],
       });
       setEditMode(true);
     }
@@ -146,7 +150,7 @@ const BodyFrameAccidentChecklist = () => {
   const handleHandler = async () => {
     try {
       const response = await api.put(
-        `/bodyFrameAccidentChecklist/update/${fullDetaills[3]._id}`,
+        `/bodyFrameAccidentChecklist/update/${fullDetaills[2]._id}`,
         {
           imageValueChecks: formData.imageValueChecks,
         }
@@ -161,7 +165,7 @@ const BodyFrameAccidentChecklist = () => {
 
         setTimeout(() => {
           dispatch(updateDataToCarDetailsSuccess(response.data.data));
-          changeStep();
+          dispatch(changeStepSuccess(fullDetaills.length));
         }, 2000);
       }
     } catch (error) {
@@ -279,9 +283,9 @@ const BodyFrameAccidentChecklist = () => {
                                 <circle cx="8.5" cy="8.5" r="1.5" />
                                 <polyline points="21 15 16 10 5 21" />
                               </svg>
-                              <span className="d-none d-md-inline">
+                              <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
                                 {window.innerWidth >= 1025 &&
-                                  "Click to upload image (optional)"}
+                                  "Click to upload image"}
                               </span>
                             </label>
                           </div>
@@ -297,6 +301,7 @@ const BodyFrameAccidentChecklist = () => {
                             }}
                             onChange={(e) => {
                               const value = e.target.value === "true";
+                              
                               const newChecks = [
                                 ...(formData.imageValueChecks || []),
                               ];
@@ -310,6 +315,7 @@ const BodyFrameAccidentChecklist = () => {
                                   data: {
                                     ...newChecks[existingIndex].data,
                                     value,
+                                    percentage: value ? 0 : 100,
                                   },
                                 };
                               } else {
@@ -318,6 +324,7 @@ const BodyFrameAccidentChecklist = () => {
                                   data: {
                                     image: { url: "", public_id: "" },
                                     value,
+                                    percentage: value ? 0 : 100,
                                   },
                                 });
                               }
@@ -346,7 +353,13 @@ const BodyFrameAccidentChecklist = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn">Back</button>
+                    <button className="backBtn"
+                      onClick={() => {
+                        dispatch(changeStepSuccess(2));
+                      }}
+                    >
+                      Back
+                    </button>
                     <button
                       onClick={!editMode ? handleSubmit : handleHandler}
                       className="nextBtn"

@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { useSelector, useDispatch } from "react-redux";
-import { changeSidebarState } from "../../redux/Slices/Sidebar";
+import { changeFormStateSuccess, changeSidebarState } from "../../redux/Slices/Sidebar";
 import SearchIcon from '@mui/icons-material/Search';
 
 
@@ -9,19 +9,27 @@ const Navbar = () => {
   const { formState } = useSelector((state) => state.sidebar);
   const { isOpen } = useSelector((state) => state.sidebar);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const divertToHome = () => {
+    navigate("/dashboard");
+    dispatch(changeFormStateSuccess());
+  }
 
   return (
     <>
       <header className="navbar p-0 m-0">
         <div className="d-flex justify-between align-items-center w-50 mb-0 px-5  p-0 mx-0  navleftSideDiv">
           <div className="navbar__logo d-flex justify-content-center align-items-center  px-1 py-3">
-            <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit" }}>
+            {/* <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit" }}> */}
             <img
+              onClick={divertToHome}
               src="/assets/logo.png"
               alt="Fame Wheels"
               width="200px"
               className="navbar__logo-image"
-            /></Link>
+            />
+            {/* </Link> */}
           </div>
           <div className="navbar__search ms-md-5 ">
             {!formState ? (

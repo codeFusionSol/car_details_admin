@@ -228,6 +228,9 @@ const VehicleInspectionReport = () => {
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
                     <button
+                      onClick={() => {
+                        dispatch(changeStepSuccess(1));
+                      }}
                       className="backBtn"
                       style={{
                         padding: "25px 7%",

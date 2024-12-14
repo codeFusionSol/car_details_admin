@@ -7,16 +7,61 @@ import Paper from "@mui/material/Paper";
 import api from "../../../utils/url.js";
 
 const columns = [
-  { field: "userName", headerName: "User Name", width: 300 },
-  { field: "email", headerName: "Email", width: 300 },
-  { field: "phone", headerName: "Phone", width: 300 },
-  { field: "address", headerName: "Address", width: 300 },
-  // { 
-  //   field: "createdAt", 
-  //   headerName: "Created At", 
-  //   width: 200,
-  //   valueGetter: (params) => new Date(params.row.createdAt).toLocaleString()
-  // }
+  { 
+    field: "userName", 
+    headerName: "User Name", 
+    flex: 1, 
+    minWidth: 150,
+    renderCell: (params) => (
+      <div style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+        {params.value}
+      </div>
+    )
+  },
+  { 
+    field: "email", 
+    headerName: "Email", 
+    flex: 1, 
+    minWidth: 150,
+    renderCell: (params) => (
+      <div style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+        {params.value}
+      </div>
+    )
+  },
+  { 
+    field: "phone", 
+    headerName: "Phone", 
+    flex: 1, 
+    minWidth: 120,
+    renderCell: (params) => (
+      <div style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+        {params.value}
+      </div>
+    )
+  },
+  { 
+    field: "address", 
+    headerName: "Address", 
+    flex: 1, 
+    minWidth: 150,
+    renderCell: (params) => (
+      <div style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+        {params.value}
+      </div>
+    )
+  },
+  { 
+    field: "role", 
+    headerName: "Role", 
+    flex: 1, 
+    minWidth: 100,
+    renderCell: (params) => (
+      <div style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+        {params.value}
+      </div>
+    )
+  },
 ];
 
 const Admins = () => {
@@ -39,7 +84,19 @@ const Admins = () => {
       <Navbar />
       <Sidebar />
       <div className="admins-container">
-        <Paper sx={{ height: 400, }}>
+        <Paper sx={{ 
+          width: '100%',
+          overflow: 'hidden',
+          '& .MuiDataGrid-root': {
+            '@media (max-width: 600px)': {
+              fontSize: '0.75rem',
+            },
+          },
+          '@media (max-width: 600px)': {
+            margin: '1rem',
+            width: 'calc(100% - 2rem)',
+          }
+        }}>
           <DataGrid
             rows={admins}
             columns={columns}
@@ -48,7 +105,27 @@ const Admins = () => {
             onPaginationModelChange={setPaginationModel}
             pageSizeOptions={[5, 10]}
             checkboxSelection
-            sx={{ border: 0 }}
+            sx={{ 
+              border: 0,
+              width: '100%',
+              '& .MuiDataGrid-cell': {
+                padding: '8px',
+                '@media (max-width: 600px)': {
+                  padding: '4px',
+                }
+              },
+              '& .MuiDataGrid-columnHeaders': {
+                '@media (max-width: 600px)': {
+                  padding: '4px',
+                }
+              },
+              '& .MuiDataGrid-virtualScroller': {
+                '@media (max-width: 600px)': {
+                  minHeight: '300px !important'
+                }
+              }
+            }}
+            autoHeight
           />
         </Paper>
       </div>

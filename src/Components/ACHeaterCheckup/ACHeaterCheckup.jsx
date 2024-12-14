@@ -1,13 +1,16 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
 
 const ACHeaterCheckup = () => {
+  const { fullDetaills, carDetailsId } = useSelector(
+    (state) => state.carDetailsId
+  );
+  const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-  const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);
 
   const [acHeaterData, setAcHeaterData] = useState({
     acHeaterCheckUp: {
@@ -43,30 +46,34 @@ const ACHeaterCheckup = () => {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setAcHeaterData((prev) => {
-        const newData = { ...prev };
-        const checks = [...newData.acHeaterCheckUp.imageValueChecks];
-        const existingIndex = checks.findIndex((check) => check.name === item);
-
-        if (existingIndex >= 0) {
-          checks[existingIndex].data.image = {
-            public_id: "",
-            url: base64WithPrefix,
-          };
-        } else {
-          checks.push({
-            name: item,
-            data: {
-              image: { public_id: "", url: base64WithPrefix },
-              value: "",
-              percentage: 0,
-            },
-          });
+      setAcHeaterData((prev) => ({
+        ...prev,
+        acHeaterCheckUp: {
+          ...prev.acHeaterCheckUp,
+          imageValueChecks: prev.acHeaterCheckUp.imageValueChecks.map(check => 
+            check.name === item 
+              ? {
+                  ...check,
+                  data: {
+                    ...check.data,
+                    image: { public_id: "", url: base64WithPrefix }
+                  }
+                }
+              : check
+          ).concat(
+            prev.acHeaterCheckUp.imageValueChecks.find(check => check.name === item)
+              ? []
+              : [{
+                  name: item,
+                  data: {
+                    image: { public_id: "", url: base64WithPrefix },
+                    value: "",
+                    percentage: 0
+                  }
+                }]
+          )
         }
-
-        newData.acHeaterCheckUp.imageValueChecks = checks;
-        return newData;
-      });
+      }));
     }
   };
 
@@ -74,28 +81,35 @@ const ACHeaterCheckup = () => {
     const value = e.target.value;
     const percentage = calculatePercentage(value, optionsMapping[item]);
 
-    setAcHeaterData((prev) => {
-      const newData = { ...prev };
-      const checks = [...newData.acHeaterCheckUp.imageValueChecks];
-      const existingIndex = checks.findIndex((check) => check.name === item);
-
-      if (existingIndex >= 0) {
-        checks[existingIndex].data.value = value;
-        checks[existingIndex].data.percentage = percentage;
-      } else {
-        checks.push({
-          name: item,
-          data: {
-            image: { public_id: "", url: "" },
-            value: value,
-            percentage: percentage,
-          },
-        });
+    setAcHeaterData((prev) => ({
+      ...prev,
+      acHeaterCheckUp: {
+        ...prev.acHeaterCheckUp,
+        imageValueChecks: prev.acHeaterCheckUp.imageValueChecks.map(check =>
+          check.name === item
+            ? {
+                ...check,
+                data: {
+                  ...check.data,
+                  value,
+                  percentage
+                }
+              }
+            : check
+        ).concat(
+          prev.acHeaterCheckUp.imageValueChecks.find(check => check.name === item)
+            ? []
+            : [{
+                name: item,
+                data: {
+                  image: { public_id: "", url: "" },
+                  value,
+                  percentage
+                }
+              }]
+        )
       }
-
-      newData.acHeaterCheckUp.imageValueChecks = checks;
-      return newData;
-    });
+    }));
   };
 
   const changeStep = () => {
@@ -119,13 +133,37 @@ const ACHeaterCheckup = () => {
           style: { padding: "16px" },
         });
         setTimeout(() => {
-          dispatch(addDataToCarDetailsSuccess(response.data.data));
+          dispatch(addDataToCarDetailsSuccess(response?.data?.data));
           changeStep();
         }, 2000);
       }
     } catch (error) {
       console.error("Error submitting AC/Heater data:", error);
       alert(error.response?.data?.message || "Error submitting data");
+    }
+  };
+
+  useEffect(() => {
+    if (fullDetaills.length > 7) {
+      setAcHeaterData(fullDetaills[7]);
+      setEditMode(true);
+      console.log(editMode);
+    }
+  }, [fullDetaills]);
+
+  const editHandler = async () => {
+    try {
+      const response = await api.put(`/acHeater/update/${fullDetaills[7]._id}`, acHeaterData);
+
+      if (response.data.success) {
+        toast("AC/Heater Updated!", { style: { padding: "16px" } });
+        setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.data));
+          dispatch(changeStepSuccess(fullDetaills.length));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error updating AC/Heater data:", error);
     }
   };
 
@@ -211,8 +249,8 @@ const ACHeaterCheckup = () => {
                                 <circle cx="8.5" cy="8.5" r="1.5" />
                                 <polyline points="21 15 16 10 5 21" />
                               </svg>
-                              <span className="d-none d-md-inline">
-                                {window.innerWidth >= 1025 && "Click to upload image (optional)"}
+                              <span className="d-none d-md-inline" style={{color:"var(--black-color)"}}>
+                                {window.innerWidth >= 1025 && "Click to upload image"}
                               </span>
                             </label>
                           </div>
@@ -249,8 +287,14 @@ const ACHeaterCheckup = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn">Back</button>
-                    <button onClick={handleSubmit} className="nextBtn">
+                    <button className="backBtn"
+                      onClick={() => {
+                        dispatch(changeStepSuccess(7));
+                      }}
+                    >
+                      Back
+                    </button>
+                    <button onClick={editMode ? editHandler : handleSubmit} className="nextBtn">
                       Next
                     </button>
                   </div>

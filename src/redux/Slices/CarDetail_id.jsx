@@ -48,6 +48,11 @@ const carDetailsIdSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+
+    resetCarDetailsId: (state) => {
+      state.carDetailsId = "";
+      state.fullDetaills = [];
+    },
   },
 });
 
@@ -63,6 +68,7 @@ export const {
   updateDataToCarDetailsStart,
   updateDataToCarDetailsSuccess,
   updateDataToCarDetailsFailure,
+  resetCarDetailsId,
 } = actions;
 
 export default carDetailsIdSlice.reducer;

@@ -21,7 +21,6 @@ const Sidebar = () => {
   const allSteps = [
     "Owner Details",
     "Car Detail",
-    "Exterior Condition",
     "Body Frame Accident Checklist",
     "Engine / Transmission / Clutch",
     "Brakes",
@@ -31,6 +30,8 @@ const Sidebar = () => {
     "Electrical & Electronics",
     "Exterior & Body",
     "Tyres",
+    "Test Drive",
+    "Exterior Condition",
     "Main – Vehicle Pictures",
   ];
 

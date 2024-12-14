@@ -1,20 +1,20 @@
 import { useDispatch, useSelector } from "react-redux";
-import { changeFormStateSuccess } from "../../redux/Slices/Sidebar";
+// import { changeFormStateSuccess } from "../../redux/Slices/Sidebar";
 import {
   changeStepStart,
   changeStepSuccess,
   changeStepFailure,
-} from "../../redux/Slices/FormsSteps";
+} from "../../redux/Slices/FormsSteps.jsx";
 import {
   changeCarDetailsIdStart,
   changeCarDetailsIdSuccess,
   changeCarDetailsIdFailure,
   addDataToCarDetailsSuccess,
   updateDataToCarDetailsSuccess,
-} from "../../redux/Slices/CarDetail_id";
+} from "../../redux/Slices/CarDetail_id.jsx";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { url } from "../../../utils/url";
+import { url } from "../../../utils/url.js";
 import "./CarDetails.css";
 import { Toaster, toast } from "sonner";
 
@@ -196,7 +196,7 @@ const CarDetails = () => {
           <div className="card border-0">
             <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
               <h4 className="text-center mb-0 carDetailsHeading">
-                CAR Details
+                Car Details
               </h4>
             </div>
 
@@ -608,6 +608,9 @@ const CarDetails = () => {
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
                     <button
+                      onClick={() => {
+                        dispatch(changeStepSuccess(0));
+                      }}
                       className="backBtn"
                       style={{
                         padding: "25px 7%",

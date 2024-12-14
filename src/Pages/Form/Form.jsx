@@ -20,13 +20,15 @@ import { useSelector } from "react-redux";
 import { useFetcher } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar.jsx";
 import Sidebar from "../../Components/Sidebar/Sidebar.jsx";
+import TestDrive from "../../Components/TestDrive/TestDrive.jsx";
+import ExtoriorCondition from "../../Components/ExtoriorCondition/ExtoriorCondition.jsx";
 
 const api = axios.create({
   baseURL: url,
 });
 
 const Form = () => {
-  const totalSteps = 13;
+  const totalSteps = 14;
   const { steps } = useSelector((state) => state.formsSteps);
   const dispatch = useDispatch();
   // useEffect(() => {
@@ -121,67 +123,73 @@ const Form = () => {
 
           {steps === 2 && (
             <div className="fade-in">
-              <VehicleInspectionReport />
+              <BodyFrameAccidentChecklist />
             </div>
           )}
 
           {steps === 3 && (
             <div className="fade-in">
-              <BodyFrameAccidentChecklist />
+              <EngineTransmissionClutch />
             </div>
           )}
 
           {steps === 4 && (
             <div className="fade-in">
-              <EngineTransmissionClutch
-              />
+              <Brakes />
             </div>
           )}
 
           {steps === 5 && (
             <div className="fade-in">
-              <Brakes />
+              <SuspensionSteering />
             </div>
           )}
 
           {steps === 6 && (
             <div className="fade-in">
-              <SuspensionSteering />
+              <Interior />
             </div>
           )}
 
           {steps === 7 && (
             <div className="fade-in">
-              <Interior />
+              <ACHeaterCheckup />
             </div>
           )}
 
           {steps === 8 && (
             <div className="fade-in">
-              <ACHeaterCheckup />
+              <ElectricalElectronics />
             </div>
           )}
 
           {steps === 9 && (
             <div className="fade-in">
-              <ElectricalElectronics
-              />
+              <ExteriorBody />
             </div>
           )}
 
           {steps === 10 && (
             <div className="fade-in">
-              <ExteriorBody />
-            </div>
-          )}
-
-          {steps === 11 && (
-            <div className="fade-in">
               <Tyres />
             </div>
           )}
 
+
+          {steps === 11 && (
+            <div className="fade-in">
+              <TestDrive />
+            </div>
+          )}
+
           {steps === 12 && (
+            <div className="fade-in">
+              <ExtoriorCondition />
+            </div>
+          )}
+
+
+          {steps === 13 && (
             <div className="fade-in">
               <AdditionalPictures />
             </div>

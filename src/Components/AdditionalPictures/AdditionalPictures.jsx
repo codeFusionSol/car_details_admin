@@ -6,7 +6,7 @@ import { useState } from "react";
 import axios from "axios";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import { addDataToCarDetailsSuccess, resetCarDetailsId } from "../../redux/Slices/CarDetail_id.jsx";
 
 const AdditionalPictures = () => {
   const dispatch = useDispatch();
@@ -99,10 +99,10 @@ const AdditionalPictures = () => {
              // Set desired padding here
           }})
           setTimeout(() => {
-            dispatch(addDataToCarDetailsSuccess(picturesResponse.data.data));
-            dispatch(addDataToCarDetailsSuccess(commentResponse.data.data));
-            dispatch(addDataToCarDetailsSuccess(disclaimerResponse.data.data));
-            changeStep(12);
+            dispatch(resetCarDetailsId());
+            changeStep(0);
+            navigate("/dashboard");
+            dispatch(changeFormStateSuccess());
           }, 2000);;
       }
     } catch (error) {
@@ -228,7 +228,13 @@ const AdditionalPictures = () => {
 
               <div className="col-12 ps-0">
                 <div className="d-flex justify-content-center gap-3">
-                  <button className="backBtn">Back</button>
+                  <button className="backBtn"
+                    onClick={() => {
+                      dispatch(changeStepSuccess(11));
+                    }}
+                  >
+                    Back
+                  </button>
                   <button onClick={handleSubmit} className="nextBtn">
                     Next
                   </button>
