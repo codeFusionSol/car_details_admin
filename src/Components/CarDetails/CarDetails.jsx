@@ -48,7 +48,6 @@ const CarDetails = () => {
     driveType: "FWD",
     registrationNo: "",
     colour: "",
-    userId: userId,
     ownerId: ownerId,
   });
 

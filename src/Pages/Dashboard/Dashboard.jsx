@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import StateBox from "../../Components/StateBox/StateBox.jsx";
 import Navbar from "../../Components/Navbar/Navbar.jsx";
 import Sidebar from "../../Components/Sidebar/Sidebar.jsx";
@@ -15,12 +15,13 @@ const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const pathName = useLocation();
 
   useEffect(() => {
     if(!user){
       navigate("/");
     }
-  }, [user]);
+  }, [user, pathName]);
   const changeFormState = () => {
     try {
       dispatch(changeFormStateStart());

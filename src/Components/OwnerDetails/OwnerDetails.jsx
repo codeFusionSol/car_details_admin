@@ -19,6 +19,7 @@ const api = axios.create({
 const OwnerDetails = () => {
   const dispatch = useDispatch();
   const userId = useSelector((state) => state?.auth?.user?._id);
+  console.log(userId);
   const [editMode, setEditMode] = useState(false);
   const [ownerDetails, setOwnerDetails] = useState({
     name: "",
@@ -26,9 +27,10 @@ const OwnerDetails = () => {
     cnicNumber: "",
     contactNumber: "",
     userId: userId,
+    carId: null // Initialize carId as null instead of empty string
   });
 
-  const  fullCarDetails = useSelector((state) => state?.carDetailsId?.fullDetaills);
+  const fullCarDetails = useSelector((state) => state?.carDetailsId?.fullDetaills);
   console.log(fullCarDetails);
 
   const handleInputChange = (e) => {
@@ -72,7 +74,13 @@ const OwnerDetails = () => {
 
       dispatch(changeStepStart());
 
-      const response = await api.post("/ownerDetails/add", ownerDetails);
+      // Remove carId if it's null before sending to API
+      const ownerDetailsToSend = { ...ownerDetails, userId: userId };
+      if (!ownerDetailsToSend.carId) {
+        delete ownerDetailsToSend.carId;
+      }
+
+      const response = await api.post("/ownerDetails/add", ownerDetailsToSend);
 
       if (response.data.success) {
         toast("Owner Details Added!", {
@@ -96,9 +104,15 @@ const OwnerDetails = () => {
 
   const updateStep = async () => {
     try {
+      // Remove carId if it's null before sending to API
+      const ownerDetailsToSend = { ...ownerDetails };
+      if (!ownerDetailsToSend.carId) {
+        delete ownerDetailsToSend.carId;
+      }
+
       const response = await api.post(
         `/ownerDetails/update/${ownerDetails?._id}`,
-        ownerDetails
+        ownerDetailsToSend
       );
 
       if (response.data.success) {
