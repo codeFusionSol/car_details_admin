@@ -114,14 +114,7 @@ const Sidebar = () => {
               { title: "Dashboard", path: "/dashboard" },
               { title: "Admins", path: "/admins" },
               { title: "Cars", path: "/cars" },
-              {
-                title: "Logout",
-                path: "/",
-                onClick: () => {
-                  localStorage.removeItem("token");
-                  window.location.reload();
-                },
-              },
+             
             ].map((item, index) => (
               <Link
                 key={index}

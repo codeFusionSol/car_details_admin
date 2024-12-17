@@ -139,8 +139,8 @@ const OwnerDetails = () => {
       <div className="container-fluid min-vh-100 pb-md-5 py-3 px-0">
         <div className="container p-0">
           <div className="card border-0">
-            <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
-              <h4 className="text-center mb-0 carDetailsHeading">
+            <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 pb-3 ps-0">
+              <h4 className="text-center  carDetailsHeading">
                 Owner Details
               </h4>
             </div>
@@ -150,7 +150,7 @@ const OwnerDetails = () => {
               style={{ backgroundColor: "#f8f9fa" }}
             >
               <div className="row g-4 ps-0">
-                <div className="col-12 ps-0">
+                <div className="col-12 pe-0 ">
                   <div className="row gx-4">
                     <div className="col-12 col-md-6 px-md-2 px-0 mb-3">
                       <label htmlFor="name" className="form-label">
@@ -241,11 +241,6 @@ const OwnerDetails = () => {
                 <div className="col-12 ps-0">
                   <div className="d-flex justify-content-center gap-3">
                     <button
-                      style={{
-                        padding: "25px 7%",
-                        fontSize: "1.2rem",
-                        borderRadius: "40px",
-                      }}
                       onClick={!editMode ? changeStep : updateStep}
                       className="nextBtn"
                     >

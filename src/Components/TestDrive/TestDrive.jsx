@@ -173,26 +173,16 @@ const TestDrive = () => {
                 ))}
 
                 <div className="col-12 ps-0">
-                  <div className="d-flex justify-content-center gap-3">
+                  <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
                     <button
                       onClick={() => {
                         dispatch(changeStepSuccess(0));
                       }}
                       className="backBtn"
-                      style={{
-                        padding: "25px 7%",
-                        fontSize: "1.2rem",
-                        borderRadius: "40px",
-                      }}
                     >
                       Back
                     </button>
                     <button
-                      style={{
-                        padding: "25px 7%",
-                        fontSize: "1.2rem",
-                        borderRadius: "40px",
-                      }}
                       onClick={() => {
                         if (editMode) {
                           editHandler();

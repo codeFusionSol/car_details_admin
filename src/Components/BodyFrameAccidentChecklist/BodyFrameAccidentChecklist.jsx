@@ -89,7 +89,7 @@ const BodyFrameAccidentChecklist = () => {
       const requiredFields = [
         "radiatorCoreSupport",
         "rightStrutTowerApon",
-        "leftStrutTowerApon", 
+        "leftStrutTowerApon",
         "rightFrontRail",
         "leftFrontRail",
         "cowlPanelFirewall",
@@ -180,13 +180,18 @@ const BodyFrameAccidentChecklist = () => {
         <div className="container p-0">
           <div className="card border-0">
             <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
-              <h4 className="text-center mb-0 carDetailsHeading">
+              <h4
+                className="text-center mb-0 carDetailsHeading"
+                style={{
+                  lineHeight: "2rem !important",
+                }}
+              >
                 Body Frame & Accident Checklist
               </h4>
             </div>
 
             <div
-              className="card-body d-flex flex-column justify-content-center align-items-center p-lg-4 p-1"
+              className="card-body d-flex flex-column justify-content-center align-items-center p-lg-4 p-0"
               style={{ backgroundColor: "#f8f9fa" }}
             >
               <div className="row g-4 px-0">
@@ -224,10 +229,7 @@ const BodyFrameAccidentChecklist = () => {
                             padding: "15px",
                           }}
                         >
-                          <legend
-                          className="legend"
-                            
-                          >
+                          <legend className="legend">
                             {item.split(/(?=[A-Z])/).join(" ")}
                           </legend>
 
@@ -283,7 +285,12 @@ const BodyFrameAccidentChecklist = () => {
                                 <circle cx="8.5" cy="8.5" r="1.5" />
                                 <polyline points="21 15 16 10 5 21" />
                               </svg>
-                              <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
+                              <span
+                                className="d-none d-md-inline"
+                                style={{
+                                  color: "var(--black-color) !important",
+                                }}
+                              >
                                 {window.innerWidth >= 1025 &&
                                   "Click to upload image"}
                               </span>
@@ -301,7 +308,7 @@ const BodyFrameAccidentChecklist = () => {
                             }}
                             onChange={(e) => {
                               const value = e.target.value === "true";
-                              
+
                               const newChecks = [
                                 ...(formData.imageValueChecks || []),
                               ];
@@ -352,8 +359,9 @@ const BodyFrameAccidentChecklist = () => {
                 </div>
 
                 <div className="col-12 ps-0">
-                  <div className="d-flex justify-content-center gap-3">
-                    <button className="backBtn"
+                  <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
+                    <button
+                      className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(2));
                       }}

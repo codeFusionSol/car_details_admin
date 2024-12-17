@@ -342,7 +342,7 @@ const SuspensionSteering = () => {
                 </div>
 
                 <div className="col-12 ps-0">
-                  <div className="d-flex justify-content-center gap-3">
+                  <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
                     <button className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(5));

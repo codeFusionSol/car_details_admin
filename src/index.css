@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -147,7 +151,8 @@ button:disabled {
 
 .nextBtn {
   background-color: var(--primary-color) !important;
-  color: var(--white-color) !important;
+  color: var(--black-color) !important;
+  font-weight: 500;
   transition: all 0.3s ease-in-out;
   border-radius: 40px;
   padding: 18px 114px;
@@ -158,6 +163,7 @@ button:disabled {
   background-color: transparent !important;
   transition: all 0.3s ease-in-out;
   color: var(--black-color) !important;
+  font-weight: 500;
   border: 1px solid var(--primary-color) !important;
   padding: 14px 114px;
   font-size: 1.2rem;
@@ -177,24 +183,56 @@ button:disabled {
 
 .legend {
   font-size: 14px;
+  text-transform: capitalize;
   font-weight: bold;
   padding: 0 10px;
   color: #333;
 }
 
 @media (max-width: 1024px) {
-  .legend {
-    font-size: 11px;
-    padding: 0;
-  }
   select option {
     font-size: 11px;
   }
 }
 
 @media (max-width: 768px) {
-  .backBtn,.nextBtn {
-    padding: 14px 50px;
+  .backBtn,
+  .nextBtn {
+    /* padding: 14px 50px; */
     font-size: 1rem;
   }
+}
+
+select {
+  height: 60px !important;
+  padding: 0 15px;
+  border: 1px solid var(--primary-light-color);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--black-color);
+  background-color: var(--white-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+select:hover {
+  border-color: var(--primary-color);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+}
+
+select option {
+  padding: 12px;
+  font-size: 14px;
+  height: 60px !important;
+  color: var(--black-color);
+  background-color: var(--white-color);
+}
+
+select option:hover {
+  background-color: var(--primary-light-color);
 }

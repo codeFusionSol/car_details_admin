@@ -262,13 +262,15 @@ const EngineTransmissionClutch = () => {
         <div className="container p-0">
           <div className="card border-0">
             <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
-              <h4 className="text-center mb-0 carDetailsHeading">
-                Engine Transmission & Clutch
+              <h4
+                className="text-center mb-0 carDetailsHeading"
+              >
+                Engine Transmission Clutch
               </h4>
             </div>
 
             <div
-              className="card-body d-flex flex-column justify-content-center align-items-center p-lg-4 p-1"
+              className="card-body d-flex flex-column justify-content-center align-items-center p-lg-4 p-0"
               style={{ backgroundColor: "#f8f9fa" }}
             >
               <div className="row g-4 px-0">
@@ -397,7 +399,7 @@ const EngineTransmissionClutch = () => {
                 </div>
 
                 <div className="col-12 ps-0">
-                  <div className="d-flex justify-content-center gap-3">
+                  <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
                     <button
                       className="backBtn"
                       onClick={() => {

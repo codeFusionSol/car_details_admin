@@ -148,22 +148,27 @@ const ExtoriorCondition = () => {
 
   const renderCheckboxes = (viewType, itemIndex, selectedValues) => {
     return checkboxOptions.map((option, idx) => (
-      <div key={idx} className="form-check">
+      <div key={idx} className="form-check d-flex justify-content-start align-items-center">
         <input
           type="checkbox"
           className="form-check-input "
+          style={{width: "2rem" , height: "2rem"}}
           checked={selectedValues.includes(option.value)}
           onChange={() =>
             handleCheckboxChange(viewType, itemIndex, option.value)
           }
           id={`${viewType}-${itemIndex}-${option.value}`}
         />
-        <label
+       &nbsp; &nbsp; <label
+       style={{lineHeight: "2rem" , fontWeight: "normal"}}
           className="form-check-label"
           htmlFor={`${viewType}-${itemIndex}-${option.value}`}
         >
           {option.label}
         </label>
+        <br />
+        <br />
+        <br />
       </div>
     ));
   };
@@ -193,14 +198,15 @@ const ExtoriorCondition = () => {
   };
   return (
     <>
-      <div className="container">
+      <div className="container p-0">
         <div className="row">
           <div className="col-md-4">
-          <h3>Right View</h3>
+            <br />
+          <h3 className="carDetailsHeading">Right View</h3>
           <br />
           {rightView.map((item, index) => (
             <div key={index} className="mb-4">
-              <h5>{item.name}</h5>
+              <h5 style={{fontSize: "1.2rem" , fontWeight: "500"}}>{item.name}</h5>
               <br />
               {renderCheckboxes("right", index, item.value)}
             </div>
@@ -208,11 +214,11 @@ const ExtoriorCondition = () => {
         </div>
 
         <div className="col-md-4">
-          <h3>Top View</h3>
+          <h3 className="carDetailsHeading">Top View</h3>
           <br />
           {topView.map((item, index) => (
             <div key={index} className="mb-4">
-              <h5>{item.name}</h5>
+              <h5 style={{fontSize: "1.2rem" , fontWeight: "500"}}>{item.name}</h5>
               <br />
               {renderCheckboxes("top", index, item.value)}
             </div>
@@ -220,11 +226,11 @@ const ExtoriorCondition = () => {
         </div>
 
         <div className="col-md-4">
-          <h3>Left View</h3>
+          <h3 className="carDetailsHeading">Left View</h3>
           <br />
           {leftView.map((item, index) => (
             <div key={index} className="mb-4">
-              <h5>{item.name}</h5>
+              <h5 style={{fontSize: "1.2rem" , fontWeight: "500"}}>{item.name}</h5>
               <br />
               {renderCheckboxes("left", index, item.value)}
             </div>
@@ -234,12 +240,22 @@ const ExtoriorCondition = () => {
 
       <div className="row mt-4">
         <div className="col-12 text-center">
+          <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3"> 
+          <button
+            className="backBtn"
+            onClick={() => {
+              dispatch(changeStepSuccess(11));
+            }}
+          >
+            Back
+          </button>
           <button
             className="nextBtn"
             onClick={!editMode ? handleSubmit : handleEdit}
           >
             {editMode ? "Update" : "Next"}
           </button>
+          </div>
         </div>
       </div>
     </div>

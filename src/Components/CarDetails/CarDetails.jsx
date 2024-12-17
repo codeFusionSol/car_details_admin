@@ -194,17 +194,15 @@ const CarDetails = () => {
         <div className="container p-0">
           <div className="card border-0">
             <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
-              <h4 className="text-center mb-0 carDetailsHeading">
-                Car Details
-              </h4>
+              <h4 className="text-center  carDetailsHeading">Car Details</h4>
             </div>
 
             <div
-              className="card-body d-flex flex-column justify-content-center align-items-center p-md-4 p-1"
+              className="card-body d-flex flex-column justify-content-center align-items-center p-md-4 p-0"
               style={{ backgroundColor: "#f8f9fa" }}
             >
               <div className="row g-4 ps-0">
-                <div className="col-12 ps-0">
+                <div className="col-12 pe-0">
                   <div className="row  gx-4 ">
                     <div
                       className="col-12 col-md-4  px-md-2 px-0 "
@@ -217,7 +215,7 @@ const CarDetails = () => {
                         className="form-label"
                         style={{ marginBottom: "8px" }}
                       >
-                        Car Image
+                        Upload Car Image
                       </label>
                       <div
                         className=" rounded p-3 text-center"
@@ -373,7 +371,7 @@ const CarDetails = () => {
                       </label>
                       <select
                         style={{
-                          height: "60px",
+                          height: "60px !important",
                           backgroundColor: "transparent",
                         }}
                         name="transmissionType"
@@ -383,7 +381,9 @@ const CarDetails = () => {
                         id="transmissionType"
                         required
                       >
-                        <option value="">Select transmission</option>
+                        <option value="" style={{ height: "60px" }}>
+                          Select transmission
+                        </option>
                         <option value="Manual">Manual</option>
                         <option value="Automatic">Automatic</option>
                         <option value="CVT">CVT</option>
@@ -579,7 +579,7 @@ const CarDetails = () => {
                       />
                     </div>
 
-                    <div className="col-md-4 my-auto ">
+                    <div className="col-md-4 my-auto px-0 ">
                       <div className="d-flex align-items-center ">
                         <input
                           style={{
@@ -605,26 +605,16 @@ const CarDetails = () => {
                 </div>
 
                 <div className="col-12 ps-0">
-                  <div className="d-flex justify-content-center gap-3">
+                  <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-2">
                     <button
                       onClick={() => {
                         dispatch(changeStepSuccess(0));
                       }}
                       className="backBtn"
-                      style={{
-                        padding: "25px 7%",
-                        fontSize: "1.2rem",
-                        borderRadius: "40px",
-                      }}
                     >
                       Back
                     </button>
                     <button
-                      style={{
-                        padding: "25px 7%",
-                        fontSize: "1.2rem",
-                        borderRadius: "40px",
-                      }}
                       onClick={() => {
                         if (editMode) {
                           editHandler();

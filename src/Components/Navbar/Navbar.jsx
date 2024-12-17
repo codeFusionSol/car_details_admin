@@ -18,7 +18,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="navbar p-0 m-0">
+      <header className="navbar p-0 m-0" style={{ overflow: "hidden" }}>
         <div className="d-flex justify-between align-items-center w-50 mb-0 px-5  p-0 mx-0  navleftSideDiv">
           <div className="navbar__logo d-flex justify-content-center align-items-center  px-1 py-3">
             {/* <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit" }}> */}
