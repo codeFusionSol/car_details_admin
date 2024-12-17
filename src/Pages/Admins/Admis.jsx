@@ -194,6 +194,17 @@ const Admins = () => {
                   >
                     Role
                   </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "18px 15px",
+                      color: "var(--black-color)",
+                      fontWeight: "700",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -298,6 +309,24 @@ const Admins = () => {
                           ? "Admin"
                           : "Inspection Officer"}
                       </span>
+                    </td>
+                    <td>
+                      <div className="d-flex gap-2 p-1">
+                        <img
+                          src="/assets/icons/delete.png"
+                          width={20}
+                          alt="delete"
+                      />
+                      <img
+                        src="/assets/icons/edit.png"
+                        width={20}
+                        alt="edit"
+                      />
+                      <img
+                        src="/assets/icons/view.png"
+                        width={20}
+                        alt="view"
+                      /></div>
                     </td>
                   </tr>
                 ))}
