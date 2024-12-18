@@ -2,104 +2,70 @@ import "./Cars.css";
 import Navbar from "../../Components/Navbar/Navbar";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import * as React from "react";
-import { DataGrid } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import api from "../../../utils/url.js";
-
-const columns = [
-  {
-    field: "carName",
-    headerName: "Car Name",
-    flex: 1,
-    minWidth: 150,
-    renderCell: (params) => (
-      <div style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-        {params.value}
-      </div>
-    ),
-  },
-  {
-    field: "model",
-    headerName: "Model",
-    flex: 1,
-    minWidth: 120,
-    renderCell: (params) => (
-      <div style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-        {params.value}
-      </div>
-    ),
-  },
-  {
-    field: "price",
-    headerName: "Price",
-    flex: 1,
-    minWidth: 120,
-    renderCell: (params) => (
-      <div style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-        {params.value}
-      </div>
-    ),
-  },
-  {
-    field: "year",
-    headerName: "Year",
-    flex: 1,
-    minWidth: 100,
-    renderCell: (params) => (
-      <div style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-        {params.value}
-      </div>
-    ),
-  },
-  {
-    field: "mileage",
-    headerName: "Mileage",
-    flex: 1,
-    minWidth: 120,
-    renderCell: (params) => (
-      <div style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-        {params.value}
-      </div>
-    ),
-  },
-  {
-    field: "transmission",
-    headerName: "Transmission",
-    flex: 1,
-    minWidth: 150,
-    renderCell: (params) => (
-      <div style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-        {params.value}
-      </div>
-    ),
-  },
-  {
-    field: "fuelType",
-    headerName: "Fuel Type",
-    flex: 1,
-    minWidth: 120,
-    renderCell: (params) => (
-      <div style={{ wordBreak: "break-word", whiteSpace: "normal" }}>
-        {params.value}
-      </div>
-    ),
-  }
-];
+import { useState } from "react";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Pagination from "@mui/material/Pagination";
 
 const Cars = () => {
   const [cars, setCars] = React.useState([]);
-  const [paginationModel, setPaginationModel] = React.useState({
-    page: 0,
-    pageSize: 5,
-  });
+  const [selectedCar, setSelectedCar] = useState(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
 
   React.useEffect(() => {
-    api.get("/ownerDetails/get-all-owner-details").then((res) => {
+    fetchCars();
+  }, []);
+
+  const fetchCars = async () => {
+    try {
+      const res = await api.get("/ownerDetails/get-all-owner-details");
       if (res.data.success) {
         setCars(res.data.data);
       }
-    });
-  }, []);
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+    }
+  };
+
+  const handleDelete = async (car) => {
+    try {
+      return
+      const res = await api.delete(`/ownerDetails/delete/${car._id}`);
+      if (res.data.success) {
+        fetchCars();
+      }
+    } catch (error) {
+      console.error("Error deleting car:", error);
+    }
+  };
+
+  const handleEdit = (car) => {
+    setSelectedCar(car);
+  };
+
+  const handleView = async (car) => {
+    try {
+      const response = await api.get(`/ownerDetails/get-all-forms/${car._id}`);
+      if (response.data.success) {
+        setSelectedCar(response.data.data);
+        setViewModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Error viewing car details:", error);
+    }
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = cars.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <>
@@ -133,126 +99,283 @@ const Cars = () => {
                     background: `linear-gradient(45deg, var(--primary-color), var(--primary-light-color))`,
                   }}
                 >
-                  <th style={{
-                    textAlign: "left",
-                    padding: "18px 15px",
-                    color: "var(--black-color)",
-                    fontWeight: "700",
-                    fontSize: "15px",
-                  }}>Car Name</th>
-                  <th style={{
-                    textAlign: "left",
-                    padding: "18px 15px",
-                    color: "var(--black-color)",
-                    fontWeight: "700",
-                    fontSize: "15px",
-                  }}>Model</th>
-                  <th style={{
-                    textAlign: "left",
-                    padding: "18px 15px",
-                    color: "var(--black-color)",
-                    fontWeight: "700",
-                    fontSize: "15px",
-                  }}>City</th>
-                  <th style={{
-                    textAlign: "left",
-                    padding: "18px 15px",
-                    color: "var(--black-color)",
-                    fontWeight: "700",
-                    fontSize: "15px",
-                  }}>Colour</th>
-                  <th style={{
-                    textAlign: "left",
-                    padding: "18px 15px",
-                    color: "var(--black-color)",
-                    fontWeight: "700",
-                    fontSize: "15px",
-                  }}>Mileage</th>
-                  <th style={{
-                    textAlign: "left",
-                    padding: "18px 15px",
-                    color: "var(--black-color)",
-                    fontWeight: "700",
-                    fontSize: "15px",
-                  }}>Transmission</th>
-                  <th style={{
-                    textAlign: "left",
-                    padding: "18px 15px",
-                    color: "var(--black-color)",
-                    fontWeight: "700",
-                    fontSize: "15px",
-                  }}>Action</th>
-                  
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "18px 15px",
+                      color: "var(--black-color)",
+                      fontWeight: "700",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Car Name
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left", 
+                      padding: "18px 15px",
+                      color: "var(--black-color)",
+                      fontWeight: "700",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Model
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "18px 15px", 
+                      color: "var(--black-color)",
+                      fontWeight: "700",
+                      fontSize: "15px",
+                    }}
+                  >
+                    City
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "18px 15px",
+                      color: "var(--black-color)", 
+                      fontWeight: "700",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Colour
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "18px 15px",
+                      color: "var(--black-color)",
+                      fontWeight: "700", 
+                      fontSize: "15px",
+                    }}
+                  >
+                    Mileage
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "18px 15px",
+                      color: "var(--black-color)",
+                      fontWeight: "700",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Transmission
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "18px 15px",
+                      color: "var(--black-color)",
+                      fontWeight: "700",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {cars.map((car, index) => (
+                {currentItems.map((car, index) => (
                   <tr
                     key={index}
                     style={{
-                      backgroundColor: index % 2 === 0 ? "var(--white-color)" : "#f8f9fa",
+                      backgroundColor:
+                        index % 2 === 0 ? "var(--white-color)" : "#f8f9fa",
                       transition: "all 0.3s ease",
                       cursor: "pointer",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--primary-light-color)";
+                      e.currentTarget.style.backgroundColor =
+                        "var(--primary-light-color)";
                       e.currentTarget.style.transform = "scale(1.005)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = index % 2 === 0 ? "var(--white-color)" : "#f8f9fa";
+                      e.currentTarget.style.backgroundColor =
+                        index % 2 === 0 ? "var(--white-color)" : "#f8f9fa";
                       e.currentTarget.style.transform = "scale(1)";
                     }}
                   >
-                    <td style={{
-                      textAlign: "left",
-                      padding: "15px",
-                      color: "var(--black-color)",
-                      fontWeight: "500",
-                    }}>{car?.carId?.name}</td>
-                    <td style={{
-                      textAlign: "left",
-                      padding: "15px",
-                      color: "var(--black-color)",
-                      fontWeight: "500",
-                    }}>{car?.carId?.registeredYear}</td>
-                    <td style={{
-                      textAlign: "left",
-                      padding: "15px",
-                      color: "var(--black-color)",
-                      fontWeight: "500",
-                    }}>{car?.carId?.registeredCity}</td>
-                    <td style={{
-                      textAlign: "left",
-                      padding: "15px",
-                      color: "var(--black-color)",
-                      fontWeight: "500",
-                    }}>{car?.carId?.colour  }</td>
-                    <td style={{
-                      textAlign: "left",
-                      padding: "15px",
-                      color: "var(--black-color)",
-                      fontWeight: "500",
-                    }}>{car?.carId?.mileage}</td>
-                    <td style={{
-                      textAlign: "left",
-                      padding: "15px",
-                      color: "var(--black-color)",
-                      fontWeight: "500",
-                    }}>{car?.carId?.transmissionType}</td>
-                    <td style={{
-                      textAlign: "left",
-                      padding: "15px",
-                      color: "var(--black-color)",
-                      fontWeight: "500",
-                    }}></td>
-                   
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "15px",
+                        color: "var(--black-color)",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {car?.carId?.name}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "15px",
+                        color: "var(--black-color)",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {car?.carId?.registeredYear}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "15px",
+                        color: "var(--black-color)",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {car?.carId?.registeredCity}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "15px",
+                        color: "var(--black-color)",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {car?.carId?.colour}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "15px",
+                        color: "var(--black-color)",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {car?.carId?.mileage}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "15px",
+                        color: "var(--black-color)",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {car?.carId?.transmissionType}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: "left",
+                        padding: "0px",
+                        color: "var(--black-color)",
+                        fontWeight: "500",
+                      }}
+                    >
+                      <div className="d-flex gap-0 p-0">
+                        <img
+                          onClick={() => handleDelete(car)}
+                          src="/assets/icons/delete.png"
+                          width={20}
+                          alt="delete"
+                          style={{ cursor: "pointer", marginRight: "10px" }}
+                        />
+                        <img
+                          onClick={() => handleEdit(car)}
+                          src="/assets/icons/edit.png"
+                          width={20}
+                          alt="edit"
+                          style={{ cursor: "pointer", marginRight: "10px" }}
+                        />
+                        <img
+                          onClick={() => handleView(car)}
+                          src="/assets/icons/view.png"
+                          width={20}
+                          alt="view"
+                          style={{ cursor: "pointer" }}
+                        />
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+              <Pagination
+                count={Math.ceil(cars.length / itemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </div>
           </div>
         </Paper>
       </div>
+
+      <Modal
+        open={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        aria-labelledby="view-car-modal"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "80%",
+            maxHeight: "90vh",
+            bgcolor: "background.paper",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+            borderRadius: 4,
+            p: 0,
+            overflow: "auto",
+          }}
+        >
+          <div
+            style={{
+              background:
+                "linear-gradient(45deg, var(--primary-color), var(--primary-light-color))",
+              padding: "20px 30px",
+              borderTopLeftRadius: "16px",
+              borderTopRightRadius: "16px",
+            }}
+          >
+            <h2 style={{ color: "white", margin: 0, fontSize: "24px" }}>
+              Car Details
+            </h2>
+          </div>
+
+          <div style={{ padding: "30px" }}>
+            {selectedCar && (
+              <div>
+                <h3>Owner Details</h3>
+                <div style={{ marginBottom: "20px" }}>
+                  <p><strong>Name:</strong> {selectedCar.name}</p>
+                  <p><strong>Contact:</strong> {selectedCar.contactNumber}</p>
+                  <p><strong>City:</strong> {selectedCar.city}</p>
+                </div>
+
+                <h3>Car Information</h3>
+                <div style={{ marginBottom: "20px" }}>
+                  <p><strong>Name:</strong> {selectedCar.carId?.name}</p>
+                  <p><strong>Model:</strong> {selectedCar.carId?.registeredYear}</p>
+                  <p><strong>Color:</strong> {selectedCar.carId?.colour}</p>
+                  <p><strong>Mileage:</strong> {selectedCar.carId?.mileage}</p>
+                  <p><strong>Transmission:</strong> {selectedCar.carId?.transmissionType}</p>
+                </div>
+
+                <h3>Inspection Forms</h3>
+                {selectedCar.AllFormsData?.map((form, index) => (
+                  <div key={index} style={{ marginBottom: "20px" }}>
+                    <h4>{form.name}</h4>
+                    {form.data && Object.entries(form.data).map(([key, value]) => (
+                      <div key={key}>
+                        <p><strong>{key}:</strong> {JSON.stringify(value)}</p>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Box>
+      </Modal>
     </>
   );
 };
