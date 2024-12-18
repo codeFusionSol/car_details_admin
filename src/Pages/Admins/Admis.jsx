@@ -316,17 +316,18 @@ const Admins = () => {
                           src="/assets/icons/delete.png"
                           width={20}
                           alt="delete"
-                      />
-                      <img
-                        src="/assets/icons/edit.png"
-                        width={20}
-                        alt="edit"
-                      />
-                      <img
-                        src="/assets/icons/view.png"
-                        width={20}
-                        alt="view"
-                      /></div>
+                        />
+                        <img
+                          src="/assets/icons/edit.png"
+                          width={20}
+                          alt="edit"
+                        />
+                        <img
+                          src="/assets/icons/view.png"
+                          width={20}
+                          alt="view"
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}
