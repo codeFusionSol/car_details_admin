@@ -47,26 +47,6 @@ const Cars = () => {
     setSelectedCar(car);
   };
 
-  const handleView = async (car) => {
-    try {
-      const response = await api.get(`/ownerDetails/get-all-forms/${car._id}`);
-      if (response.data.success) {
-        setSelectedCar(response.data.data);
-        setViewModalOpen(true);
-      }
-    } catch (error) {
-      console.error("Error viewing car details:", error);
-    }
-  };
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
-  };
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = cars.slice(indexOfFirstItem, indexOfLastItem);
-
   return (
     <>
       <Navbar />
@@ -163,7 +143,7 @@ const Cars = () => {
                       fontSize: "15px",
                     }}
                   >
-                    Transmission
+                    Report Link
                   </th>
                   <th
                     style={{
@@ -179,7 +159,7 @@ const Cars = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentItems.map((car, index) => (
+                {cars.map((car, index) => (
                   <tr
                     key={index}
                     style={{
@@ -257,7 +237,8 @@ const Cars = () => {
                         fontWeight: "500",
                       }}
                     >
-                      {car?.carId?.transmissionType}
+                      {/* {car?.carId?.transmissionType} */}
+                      https://car-details-frontend.vercel.app/{car?._id}
                     </td>
                     <td
                       style={{
@@ -283,7 +264,7 @@ const Cars = () => {
                           style={{ cursor: "pointer", marginRight: "10px" }}
                         />
                         <img
-                          onClick={() => handleView(car)}
+                          // onClick={() => handleView(car)}
                           src="/assets/icons/view.png"
                           width={20}
                           alt="view"
@@ -295,14 +276,7 @@ const Cars = () => {
                 ))}
               </tbody>
             </table>
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-              <Pagination
-                count={Math.ceil(cars.length / itemsPerPage)}
-                page={currentPage}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </div>
+            
           </div>
         </Paper>
       </div>
