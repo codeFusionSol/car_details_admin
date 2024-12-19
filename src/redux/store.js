@@ -5,6 +5,7 @@ import formsStepsReducer from "./Slices/FormsSteps.jsx";
 import carDetailsIdReducer from "./Slices/CarDetail_id.jsx";
 import ownerIdReducer from "./Slices/Owner_id.jsx";
 import authReducer from "./Slices/Auth.jsx";
+import carsReducer from "./Slices/carsSlice.jsx";
 const store = configureStore(
   {
     reducer: {
@@ -12,6 +13,7 @@ const store = configureStore(
       formsSteps: formsStepsReducer,
       carDetailsId: carDetailsIdReducer,
       ownerId: ownerIdReducer,
+      cars: carsReducer,
       auth: authReducer,
     },
   },

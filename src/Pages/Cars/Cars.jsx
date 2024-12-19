@@ -8,28 +8,18 @@ import { useState } from "react";
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Pagination from "@mui/material/Pagination";
+import { useSelector } from "react-redux";
 
 const Cars = () => {
-  const [cars, setCars] = React.useState([]);
+  // const [cars, setCars] = React.useState([]);
   const [selectedCar, setSelectedCar] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
+  const { cars } = useSelector((state) => state.cars);
 
-  React.useEffect(() => {
-    fetchCars();
-  }, []);
 
-  const fetchCars = async () => {
-    try {
-      const res = await api.get("/ownerDetails/get-all-owner-details");
-      if (res.data.success) {
-        setCars(res.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching cars:", error);
-    }
-  };
+
 
   const handleDelete = async (car) => {
     try {
