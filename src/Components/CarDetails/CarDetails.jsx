@@ -36,7 +36,7 @@ const CarDetails = () => {
   const [carDetails, setCarDetails] = useState({
     image: { url: "", public_id: "" },
     name: "",
-    mileage: 0,
+    mileage: "",
     inspectionDate: "",
     engineNo: "",
     transmissionType: "Manual",
@@ -302,11 +302,11 @@ const CarDetails = () => {
                           style={{ height: "60px" }}
                           type="number"
                           name="mileage"
+                          placeholder="1200"
                           value={carDetails.mileage}
                           onChange={handleInputChange}
                           className="form-control my-0"
                           id="mileage"
-                          placeholder="Enter mileage"
                           required
                         />
                       </div>
