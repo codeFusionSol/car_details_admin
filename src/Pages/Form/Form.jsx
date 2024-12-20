@@ -23,7 +23,11 @@ import Sidebar from "../../Components/Sidebar/Sidebar.jsx";
 import TestDrive from "../../Components/TestDrive/TestDrive.jsx";
 import ExtoriorCondition from "../../Components/ExtoriorCondition/ExtoriorCondition.jsx";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
-import { addDataToCarDetailsSuccess, changeCarDetailsIdSuccess, setDataToCarDetails } from "../../redux/Slices/CarDetail_id.jsx";
+import {
+  addDataToCarDetailsSuccess,
+  changeCarDetailsIdSuccess,
+  setDataToCarDetails,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const api = axios.create({
   baseURL: url,
@@ -47,7 +51,10 @@ const Form = () => {
       dispatch(setDataToCarDetails(fullDetaills));
     } else {
       dispatch(setDataToCarDetails([]));
-      const setDetailsArray = localStorage.setItem("fullDetaills", JSON.stringify([]));
+      const setDetailsArray = localStorage.setItem(
+        "fullDetaills",
+        JSON.stringify([])
+      );
       console.log(setDetailsArray);
     }
   }, []);

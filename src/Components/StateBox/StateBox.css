@@ -38,13 +38,13 @@
 
 @media (max-width: 426px) {
   .card-container {
-    width: 350px !important;
+    width: 400px !important;
   }
 }
 
 @media (max-width: 376px) {
   .card-container {
-    width: 300px !important;
+    width: 350px !important;
     padding: 10px 25px;
   }
   .label {
@@ -57,7 +57,7 @@
 
 @media (max-width: 325px) {
   .card-container {
-    width: 250px !important;
+    width: 295px !important;
   }
   
 }

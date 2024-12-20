@@ -3,7 +3,10 @@ import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useEffect, useState } from "react";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import {
+  addDataToCarDetailsSuccess,
+  updateDataToCarDetailsSuccess,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const SuspensionSteering = () => {
   const [editMode, setEditMode] = useState(false);
@@ -48,17 +51,25 @@ const SuspensionSteering = () => {
         [section]: {
           ...prev[section],
           imageValueChecks: [
-            ...prev[section].imageValueChecks.filter(check => check.name !== item),
+            ...prev[section].imageValueChecks.filter(
+              (check) => check.name !== item
+            ),
             {
               name: item,
               data: {
                 image: { url: base64WithPrefix, public_id: "" },
-                value: prev[section].imageValueChecks.find(check => check.name === item)?.data?.value || "",
-                percentage: prev[section].imageValueChecks.find(check => check.name === item)?.data?.percentage || "",
-              }
-            }
-          ]
-        }
+                value:
+                  prev[section].imageValueChecks.find(
+                    (check) => check.name === item
+                  )?.data?.value || "",
+                percentage:
+                  prev[section].imageValueChecks.find(
+                    (check) => check.name === item
+                  )?.data?.percentage || "",
+              },
+            },
+          ],
+        },
       }));
     }
   };
@@ -71,17 +82,21 @@ const SuspensionSteering = () => {
       [section]: {
         ...prev[section],
         imageValueChecks: [
-          ...prev[section].imageValueChecks.filter(check => check.name !== item),
+          ...prev[section].imageValueChecks.filter(
+            (check) => check.name !== item
+          ),
           {
             name: item,
             data: {
-              image: prev[section].imageValueChecks.find(check => check.name === item)?.data?.image || { url: "", public_id: "" },
+              image: prev[section].imageValueChecks.find(
+                (check) => check.name === item
+              )?.data?.image || { url: "", public_id: "" },
               value,
-              percentage
-            }
-          }
-        ]
-      }
+              percentage,
+            },
+          },
+        ],
+      },
     }));
   };
 
@@ -279,8 +294,27 @@ const SuspensionSteering = () => {
                                     fontSize: "14px",
                                   }}
                                 >
-                                  {suspensionData[section].imageValueChecks.find(check => check.name === item)?.data?.image?.url ? (
-                                    <img src={suspensionData[section].imageValueChecks.find(check => check.name === item).data.image.url} width={50} alt="" />
+                                  {suspensionData[
+                                    section
+                                  ].imageValueChecks.find(
+                                    (check) => check.name === item
+                                  )?.data?.image?.url ? (
+                                    <img
+                                      src={
+                                        suspensionData[
+                                          section
+                                        ].imageValueChecks.find(
+                                          (check) => check.name === item
+                                        ).data.image.url
+                                      }
+                                      style={{
+                                        objectFit: "cover",
+                                        borderRadius: "5px",
+                                        maxWidth: "50px",
+                                        maxHeight: "50px",
+                                      }}
+                                      alt=""
+                                    />
                                   ) : (
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -306,17 +340,29 @@ const SuspensionSteering = () => {
                                       <polyline points="21 15 16 10 5 21" />
                                     </svg>
                                   )}
-                                  <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
+                                  <span
+                                    className="d-none d-md-inline"
+                                    style={{
+                                      color: "var(--black-color) !important",
+                                    }}
+                                  >
                                     {window.innerWidth >= 1025 &&
-                                      (suspensionData[section].imageValueChecks.find(check => check.name === item)?.data?.image?.url ? "Change Image" : "Upload Image")}
+                                      (suspensionData[
+                                        section
+                                      ].imageValueChecks.find(
+                                        (check) => check.name === item
+                                      )?.data?.image?.url
+                                        ? "Change Image"
+                                        : "Upload Image")}
                                   </span>
                                 </label>
                               </div>
 
                               <select
                                 value={
-                                  suspensionData[section].imageValueChecks.find(check => check.name === item)?.data?.value ||
-                                  ""
+                                  suspensionData[section].imageValueChecks.find(
+                                    (check) => check.name === item
+                                  )?.data?.value || ""
                                 }
                                 style={{
                                   height: "50px",
@@ -355,7 +401,8 @@ const SuspensionSteering = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
-                    <button className="backBtn"
+                    <button
+                      className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(5));
                       }}

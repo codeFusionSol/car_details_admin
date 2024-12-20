@@ -1,20 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { useSelector, useDispatch } from "react-redux";
-import { changeFormStateSuccess, changeSidebarState } from "../../redux/Slices/Sidebar";
-import SearchIcon from '@mui/icons-material/Search';
-
+import {
+  changeFormStateSuccess,
+  changeSidebarState,
+} from "../../redux/Slices/Sidebar";
+import SearchIcon from "@mui/icons-material/Search";
 
 const Navbar = () => {
   const { formState } = useSelector((state) => state.sidebar);
   const { isOpen } = useSelector((state) => state.sidebar);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const divertToHome = () => {
-    navigate("/dashboard");
-    dispatch(changeFormStateSuccess());
-  }
 
   return (
     <>
@@ -23,7 +20,7 @@ const Navbar = () => {
           <div className="navbar__logo d-flex justify-content-center align-items-center  px-1 py-3">
             {/* <Link to="/dashboard" style={{ textDecoration: "none", color: "inherit" }}> */}
             <img
-              onClick={divertToHome}
+              onClick={() => window.location.reload()}
               src="/assets/logo.png"
               alt="Fame Wheels"
               width="200px"
@@ -54,7 +51,10 @@ const Navbar = () => {
                 </h2>
               </>
             )}
-            <div className="hamburger" onClick={() => dispatch(changeSidebarState())}>
+            <div
+              className="hamburger"
+              onClick={() => dispatch(changeSidebarState())}
+            >
               <div className="hamburger-line"></div>
               <div className="hamburger-line"></div>
               <div className="hamburger-line"></div>

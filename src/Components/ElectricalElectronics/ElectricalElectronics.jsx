@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import {
+  addDataToCarDetailsSuccess,
+  updateDataToCarDetailsSuccess,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const ElectricalElectronics = () => {
   const { fullDetaills, carDetailsId } = useSelector(
@@ -67,17 +70,25 @@ const ElectricalElectronics = () => {
         [section]: {
           ...prev[section],
           imageValueChecks: [
-            ...(prev[section].imageValueChecks || []).filter(check => check.name !== name),
+            ...(prev[section].imageValueChecks || []).filter(
+              (check) => check.name !== name
+            ),
             {
               name,
               data: {
                 image: { url: base64WithPrefix, public_id: "" },
-                value: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.value || "",
-                percentage: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.percentage || 0
-              }
-            }
-          ]
-        }
+                value:
+                  prev[section].imageValueChecks?.find(
+                    (check) => check.name === name
+                  )?.data?.value || "",
+                percentage:
+                  prev[section].imageValueChecks?.find(
+                    (check) => check.name === name
+                  )?.data?.percentage || 0,
+              },
+            },
+          ],
+        },
       }));
     }
   };
@@ -93,17 +104,21 @@ const ElectricalElectronics = () => {
       [section]: {
         ...prev[section],
         imageValueChecks: [
-          ...(prev[section].imageValueChecks || []).filter(check => check.name !== name),
+          ...(prev[section].imageValueChecks || []).filter(
+            (check) => check.name !== name
+          ),
           {
             name,
             data: {
-              image: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.image || { url: "", public_id: "" },
+              image: prev[section].imageValueChecks?.find(
+                (check) => check.name === name
+              )?.data?.image || { url: "", public_id: "" },
               value,
-              percentage
-            }
-          }
-        ]
-      }
+              percentage,
+            },
+          },
+        ],
+      },
     }));
   };
 
@@ -113,16 +128,20 @@ const ElectricalElectronics = () => {
       [section]: {
         ...prev[section],
         imageValueChecks: [
-          ...(prev[section].imageValueChecks || []).filter(check => check.name !== name),
+          ...(prev[section].imageValueChecks || []).filter(
+            (check) => check.name !== name
+          ),
           {
             name,
             data: {
-              image: prev[section].imageValueChecks?.find(check => check.name === name)?.data?.image || { url: "", public_id: "" },
-              value
-            }
-          }
-        ]
-      }
+              image: prev[section].imageValueChecks?.find(
+                (check) => check.name === name
+              )?.data?.image || { url: "", public_id: "" },
+              value,
+            },
+          },
+        ],
+      },
     }));
   };
 
@@ -167,10 +186,15 @@ const ElectricalElectronics = () => {
 
   const editHandler = async () => {
     try {
-      const response = await api.put(`/electricalElectronics/update/${fullDetaills[8]._id}`, electricalElectronicsData);
+      const response = await api.put(
+        `/electricalElectronics/update/${fullDetaills[8]._id}`,
+        electricalElectronicsData
+      );
 
       if (response.data.success) {
-        toast("Electrical & Electronics Updated!", { style: { padding: "16px" } });
+        toast("Electrical & Electronics Updated!", {
+          style: { padding: "16px" },
+        });
         setTimeout(() => {
           dispatch(updateDataToCarDetailsSuccess(response?.data?.data));
           dispatch(changeStepSuccess(fullDetaills.length));
@@ -199,123 +223,173 @@ const ElectricalElectronics = () => {
               <div className="row g-4 px-0">
                 <div className="col-12 px-0">
                   <div className="row gx-4">
-                    {Object.entries(optionsMapping).flatMap(([section, checks]) =>
-                      Object.entries(checks).map(([name, options], index) => (
-                        <div
-                          className="col-12 col-md-4 px-md-2 px-0"
-                          key={index}
-                          style={{
-                            marginBottom: "30px",
-                          }}
-                        >
-                          <fieldset
+                    {Object.entries(optionsMapping).flatMap(
+                      ([section, checks]) =>
+                        Object.entries(checks).map(([name, options], index) => (
+                          <div
+                            className="col-12 col-md-4 px-md-2 px-0"
+                            key={index}
                             style={{
-                              border: "1px dashed #ccc",
-                              borderRadius: "8px",
-                              padding: "15px",
+                              marginBottom: "30px",
                             }}
                           >
-                            <legend className="legend">
-                              {name.split(/(?=[A-Z])/).join(" ")}
-                            </legend>
-
-                            <div
-                              className="rounded p-3 text-center"
+                            <fieldset
                               style={{
-                                height: "80px",
-                                backgroundColor: "#FFF6E0",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                border: "1px solid #FFCC00",
-                                borderRadius: "6px",
+                                border: "1px dashed #ccc",
+                                borderRadius: "8px",
+                                padding: "15px",
                               }}
                             >
-                              <input
-                                type="file"
-                                onChange={(e) => handleImageChange(e, section, name)}
-                                className="d-none"
-                                accept="image/*"
-                                id={`image-${name}`}
-                              />
-                              <label
-                                htmlFor={`image-${name}`}
-                                className="d-flex align-items-center justify-content-center gap-2 mb-0 cursor-pointer"
+                              <legend className="legend">
+                                {name.split(/(?=[A-Z])/).join(" ")}
+                              </legend>
+
+                              <div
+                                className="rounded p-3 text-center"
                                 style={{
-                                  color: "#FFCC00",
-                                  fontWeight: "600",
-                                  fontSize: "14px",
+                                  height: "80px",
+                                  backgroundColor: "#FFF6E0",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  border: "1px solid #FFCC00",
+                                  borderRadius: "6px",
                                 }}
                               >
-                                {electricalElectronicsData[section]?.imageValueChecks?.find(check => check.name === name)?.data?.image?.url ? (
-                                  <img src={electricalElectronicsData[section].imageValueChecks.find(check => check.name === name).data.image.url} width={50} alt="" />
-                                ) : (
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
+                                <input
+                                  type="file"
+                                  onChange={(e) =>
+                                    handleImageChange(e, section, name)
+                                  }
+                                  className="d-none"
+                                  accept="image/*"
+                                  id={`image-${name}`}
+                                />
+                                <label
+                                  htmlFor={`image-${name}`}
+                                  className="d-flex align-items-center justify-content-center gap-2 mb-0 cursor-pointer"
+                                  style={{
+                                    color: "#FFCC00",
+                                    fontWeight: "600",
+                                    fontSize: "14px",
+                                  }}
+                                >
+                                  {electricalElectronicsData[
+                                    section
+                                  ]?.imageValueChecks?.find(
+                                    (check) => check.name === name
+                                  )?.data?.image?.url ? (
+                                    <img
+                                      src={
+                                        electricalElectronicsData[
+                                          section
+                                        ].imageValueChecks.find(
+                                          (check) => check.name === name
+                                        ).data.image.url
+                                      }
+                                      style={{
+                                        objectFit: "cover",
+                                        borderRadius: "5px",
+                                        maxWidth: "50px",
+                                        maxHeight: "50px",
+                                      }}
+                                      alt=""
+                                    />
+                                  ) : (
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <rect
+                                        x="3"
+                                        y="3"
+                                        width="18"
+                                        height="18"
+                                        rx="2"
+                                        ry="2"
+                                      />
+                                      <circle cx="8.5" cy="8.5" r="1.5" />
+                                      <polyline points="21 15 16 10 5 21" />
+                                    </svg>
+                                  )}
+                                  <span
+                                    className="d-none d-md-inline"
+                                    style={{
+                                      color: "var(--black-color) !important",
+                                    }}
                                   >
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                    <circle cx="8.5" cy="8.5" r="1.5" />
-                                    <polyline points="21 15 16 10 5 21" />
-                                  </svg>
-                                )}
-                                <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
-                                  {window.innerWidth >= 1025 && 
-                                    electricalElectronicsData[section]?.imageValueChecks?.find(check => check.name === name)?.data?.image?.url ? "Change Image" : "Upload Image"}
-                                </span>
-                              </label>
-                            </div>
+                                    {window.innerWidth >= 1025 &&
+                                    electricalElectronicsData[
+                                      section
+                                    ]?.imageValueChecks?.find(
+                                      (check) => check.name === name
+                                    )?.data?.image?.url
+                                      ? "Change Image"
+                                      : "Upload Image"}
+                                  </span>
+                                </label>
+                              </div>
 
-                            <select
-                              style={{
-                                height: "50px",
-                                backgroundColor: "#fff",
-                                marginTop: "15px",
-                                border: "1px solid #ccc",
-                                borderRadius: "6px",
-                                padding: "0 10px",
-                              }}
-                              className="form-select"
-                              value={
-                                electricalElectronicsData[section].imageValueChecks.find(
-                                  (check) => check.name === name
-                                )?.data?.value || ""
-                              }
-                              onChange={(e) =>
-                                handleValueChange(section, name, e.target.value)
-                              }
-                            >
-                              <option value="">Select Status</option>
-                              {options.map((option, idx) => (
-                                <option key={idx} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                          </fieldset>
-                        </div>
-                      ))
+                              <select
+                                style={{
+                                  height: "50px",
+                                  backgroundColor: "#fff",
+                                  marginTop: "15px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "6px",
+                                  padding: "0 10px",
+                                }}
+                                className="form-select"
+                                value={
+                                  electricalElectronicsData[
+                                    section
+                                  ].imageValueChecks.find(
+                                    (check) => check.name === name
+                                  )?.data?.value || ""
+                                }
+                                onChange={(e) =>
+                                  handleValueChange(
+                                    section,
+                                    name,
+                                    e.target.value
+                                  )
+                                }
+                              >
+                                <option value="">Select Status</option>
+                                {options.map((option, idx) => (
+                                  <option key={idx} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </fieldset>
+                          </div>
+                        ))
                     )}
                   </div>
                 </div>
 
                 <div className="col-12 ps-0">
                   <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
-                    <button className="backBtn"
+                    <button
+                      className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(8));
                       }}
                     >
                       Back
                     </button>
-                    <button onClick={editMode ? editHandler : changeStep} className="nextBtn">
+                    <button
+                      onClick={editMode ? editHandler : changeStep}
+                      className="nextBtn"
+                    >
                       Next
                     </button>
                   </div>

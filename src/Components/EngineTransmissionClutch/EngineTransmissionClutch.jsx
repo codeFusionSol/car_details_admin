@@ -271,9 +271,7 @@ const EngineTransmissionClutch = () => {
         <div className="container p-0">
           <div className="card border-0">
             <div className="card-header align-items-center d-flex justify-content-center bg-opacity-25 border-0 py-3 ps-0">
-              <h4
-                className="text-center mb-0 carDetailsHeading"
-              >
+              <h4 className="text-center mb-0 carDetailsHeading">
                 Engine Transmission Clutch
               </h4>
             </div>
@@ -339,7 +337,16 @@ const EngineTransmissionClutch = () => {
                                     }}
                                   >
                                     {item?.data?.image?.url ? (
-                                      <img src={item.data.image.url} width={50} alt="" />
+                                      <img
+                                        src={item.data.image.url}
+                                        style={{
+                                          objectFit: "cover",
+                                          borderRadius: "5px",
+                                          maxWidth: "50px",
+                                          maxHeight: "50px",
+                                        }}
+                                        alt=""
+                                      />
                                     ) : (
                                       <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -372,7 +379,9 @@ const EngineTransmissionClutch = () => {
                                       }}
                                     >
                                       {window.innerWidth >= 1025 &&
-                                        (item?.data?.image?.url ? "Change Image" : "Upload Image")}
+                                        (item?.data?.image?.url
+                                          ? "Change Image"
+                                          : "Upload Image")}
                                     </span>
                                   </label>
                                 </div>

@@ -186,7 +186,7 @@ const Interior = () => {
     try {
       const response = await api.post("/interior/add", {
         ...interiorData,
-        carDetailsId: carDetailsId 
+        carDetailsId: carDetailsId,
       });
       toast("Interior Added!", { style: { padding: "16px" } });
       setTimeout(() => {
@@ -311,7 +311,16 @@ const Interior = () => {
                                   }}
                                 >
                                   {imageValueCheck?.data?.image?.url ? (
-                                    <img src={imageValueCheck.data.image.url} width={50} alt="" />
+                                    <img
+                                      src={imageValueCheck.data.image.url}
+                                      style={{
+                                        objectFit: "cover",
+                                        borderRadius: "5px",
+                                        maxWidth: "50px",
+                                        maxHeight: "50px",
+                                      }}
+                                      alt=""
+                                    />
                                   ) : (
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -337,8 +346,16 @@ const Interior = () => {
                                       <polyline points="21 15 16 10 5 21" />
                                     </svg>
                                   )}
-                                  <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
-                                    {window.innerWidth >= 1025 && imageValueCheck?.data?.image?.url ? "Change Image" : "Upload Image"}
+                                  <span
+                                    className="d-none d-md-inline"
+                                    style={{
+                                      color: "var(--black-color) !important",
+                                    }}
+                                  >
+                                    {window.innerWidth >= 1025 &&
+                                    imageValueCheck?.data?.image?.url
+                                      ? "Change Image"
+                                      : "Upload Image"}
                                   </span>
                                 </label>
                               </div>
@@ -385,7 +402,8 @@ const Interior = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
-                    <button className="backBtn"
+                    <button
+                      className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(6));
                       }}

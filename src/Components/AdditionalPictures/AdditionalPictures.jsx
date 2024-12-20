@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useNavigate } from "react-router-dom";
-import { changeFormStateSuccess } from "../../redux/Slices/Sidebar.jsx";
+import { changeFormStateSuccess, changeSidebarState } from "../../redux/Slices/Sidebar.jsx";
 import { useState } from "react";
 import axios from "axios";
 import api from "../../../utils/url.js";
@@ -117,6 +117,7 @@ const AdditionalPictures = () => {
           dispatch(resetCarDetailsId());
           changeStep(0);
           navigate("/dashboard");
+          dispatch(changeSidebarState());
           dispatch(changeFormStateSuccess());
         }, 2000);
       }
@@ -274,7 +275,7 @@ const AdditionalPictures = () => {
                     >
                       Back
                     </button>
-                    <button onClick={handleSubmit} className="nextBtn" style={{fontSize: "0.8rem"}}>
+                    <button onClick={handleSubmit} className="nextBtn" style={{fontSize: "0.7rem"}}>
                       Submit
                     </button>
                   </div>

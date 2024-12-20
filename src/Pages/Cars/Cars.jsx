@@ -43,6 +43,10 @@ const Cars = () => {
     setSelectedCar(car);
   };
 
+  const copytheUrl = (url) => {
+    navigator.clipboard.writeText(url);
+  };
+
   return (
     <>
       <Navbar />
@@ -234,7 +238,27 @@ const Cars = () => {
                       }}
                     >
                       {/* {car?.carId?.transmissionType} */}
-                      https://car-details-frontend.vercel.app/{car?._id}
+                      <span>
+                        https://car-details-frontend.vercel.app/{car?._id}
+                      </span>&nbsp;
+                      <button
+                        style={{
+                          fontSize: "12px",
+                          backgroundColor: "var(--primary-color)",
+                          color: "var(--black-color)",
+                          borderRadius: "5px",
+                          padding: "5px 10px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() =>
+                          copytheUrl(
+                            "https://car-details-frontend.vercel.app/" +
+                              car?._id
+                          )
+                        }
+                      >
+                        Copy
+                      </button>
                     </td>
                     <td
                       style={{

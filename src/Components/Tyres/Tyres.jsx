@@ -4,21 +4,26 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { url } from "../../../utils/url";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import {
+  addDataToCarDetailsSuccess,
+  updateDataToCarDetailsSuccess,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const api = axios.create({
   baseURL: url,
 });
 
 const Tyres = () => {
-  const { carDetailsId, fullDetaills } = useSelector((state) => state.carDetailsId);
+  const { carDetailsId, fullDetaills } = useSelector(
+    (state) => state.carDetailsId
+  );
   const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
 
   const [tyresData, setTyresData] = useState({
     tyres: {
-      imageValueChecks: []
-    }
+      imageValueChecks: [],
+    },
   });
 
   useEffect(() => {
@@ -29,7 +34,7 @@ const Tyres = () => {
       setEditMode(true);
     }
   }, [fullDetaills]);
-  
+
   useEffect(() => {
     const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
     if (fullDetaills.length > 10) {
@@ -60,30 +65,30 @@ const Tyres = () => {
       const base64 = await getBase64(file);
       const base64WithPrefix = `data:image/png;base64,${base64.split(",")[1]}`;
 
-      setTyresData(prev => {
+      setTyresData((prev) => {
         // Create deep copy of previous state
         const newData = JSON.parse(JSON.stringify(prev));
         if (!newData.tyres) {
           newData.tyres = { imageValueChecks: [] };
         }
         const checks = newData.tyres.imageValueChecks;
-        const existingIndex = checks.findIndex(check => check.name === item);
+        const existingIndex = checks.findIndex((check) => check.name === item);
 
         if (existingIndex >= 0) {
           checks[existingIndex] = {
             ...checks[existingIndex],
             data: {
               ...checks[existingIndex].data,
-              image: { url: base64WithPrefix, public_id: "" }
-            }
+              image: { url: base64WithPrefix, public_id: "" },
+            },
           };
         } else {
           checks.push({
             name: item,
             data: {
               image: { url: base64WithPrefix, public_id: "" },
-              value: ""
-            }
+              value: "",
+            },
           });
         }
         return newData;
@@ -92,30 +97,30 @@ const Tyres = () => {
   };
 
   const handleValueChange = (item, value) => {
-    setTyresData(prev => {
+    setTyresData((prev) => {
       // Create deep copy of previous state
       const newData = JSON.parse(JSON.stringify(prev));
       if (!newData.tyres) {
         newData.tyres = { imageValueChecks: [] };
       }
       const checks = newData.tyres.imageValueChecks;
-      const existingIndex = checks.findIndex(check => check.name === item);
+      const existingIndex = checks.findIndex((check) => check.name === item);
 
       if (existingIndex >= 0) {
         checks[existingIndex] = {
           ...checks[existingIndex],
           data: {
             ...checks[existingIndex].data,
-            value: value
-          }
+            value: value,
+          },
         };
       } else {
         checks.push({
           name: item,
           data: {
             image: { url: "", public_id: "" },
-            value: value
-          }
+            value: value,
+          },
         });
       }
       return newData;
@@ -126,14 +131,14 @@ const Tyres = () => {
     try {
       const response = await api.post("/tyres/add", {
         ...tyresData,
-        carDetailsId: carDetailsId || "674d962b622d3809925855fe"
+        carDetailsId: carDetailsId || "674d962b622d3809925855fe",
       });
 
       if (response.data.success) {
         toast("Tyres Added!", {
           style: {
             padding: "16px",
-          }
+          },
         });
         setTimeout(() => {
           dispatch(addDataToCarDetailsSuccess(response?.data?.tyres));
@@ -148,7 +153,10 @@ const Tyres = () => {
 
   const editHandler = async () => {
     try {
-      const response = await api.put(`/tyres/update/${fullDetaills[10]._id}`, tyresData);
+      const response = await api.put(
+        `/tyres/update/${fullDetaills[10]._id}`,
+        tyresData
+      );
 
       if (response.data.success) {
         toast("Tyres Updated!", { style: { padding: "16px" } });
@@ -195,7 +203,7 @@ const Tyres = () => {
                       "rearRightTyreBrand",
                       "rearLeftTyreBrand",
                       "tyreSize",
-                      "rims"
+                      "rims",
                     ].map((item, index) => (
                       <div
                         className="col-12 col-md-4 px-md-2 px-0"
@@ -244,8 +252,23 @@ const Tyres = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              {tyresData?.tyres?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? (
-                                <img src={tyresData.tyres.imageValueChecks.find(check => check.name === item).data.image.url} width={50} alt="" />
+                              {tyresData?.tyres?.imageValueChecks?.find(
+                                (check) => check.name === item
+                              )?.data?.image?.url ? (
+                                <img
+                                  src={
+                                    tyresData.tyres.imageValueChecks.find(
+                                      (check) => check.name === item
+                                    ).data.image.url
+                                  }
+                                  style={{
+                                    objectFit: "cover",
+                                    borderRadius: "5px",
+                                    maxWidth: "50px",
+                                    maxHeight: "50px",
+                                  }}
+                                  alt=""
+                                />
                               ) : (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -259,14 +282,30 @@ const Tyres = () => {
                                   strokeLinejoin="round"
                                   style={{ marginRight: "5px" }}
                                 >
-                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                  <rect
+                                    x="3"
+                                    y="3"
+                                    width="18"
+                                    height="18"
+                                    rx="2"
+                                    ry="2"
+                                  />
                                   <circle cx="8.5" cy="8.5" r="1.5" />
                                   <polyline points="21 15 16 10 5 21" />
                                 </svg>
                               )}
-                              <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
-                                {window.innerWidth >= 1025 && 
-                                  tyresData?.tyres?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? "Change Image" : "Upload Image"}
+                              <span
+                                className="d-none d-md-inline"
+                                style={{
+                                  color: "var(--black-color) !important",
+                                }}
+                              >
+                                {window.innerWidth >= 1025 &&
+                                tyresData?.tyres?.imageValueChecks?.find(
+                                  (check) => check.name === item
+                                )?.data?.image?.url
+                                  ? "Change Image"
+                                  : "Upload Image"}
                               </span>
                             </label>
                           </div>
@@ -282,10 +321,14 @@ const Tyres = () => {
                               padding: "0 10px",
                             }}
                             className="form-control"
-                            value={tyresData?.tyres?.imageValueChecks?.find(
-                              (check) => check.name === item
-                            )?.data?.value || ""}
-                            onChange={(e) => handleValueChange(item, e.target.value)}
+                            value={
+                              tyresData?.tyres?.imageValueChecks?.find(
+                                (check) => check.name === item
+                              )?.data?.value || ""
+                            }
+                            onChange={(e) =>
+                              handleValueChange(item, e.target.value)
+                            }
                             placeholder="Enter value"
                           />
                         </fieldset>
@@ -296,14 +339,18 @@ const Tyres = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
-                    <button className="backBtn"
+                    <button
+                      className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(10));
                       }}
                     >
                       Back
                     </button>
-                    <button onClick={editMode ? editHandler : handleSubmit} className="nextBtn">
+                    <button
+                      onClick={editMode ? editHandler : handleSubmit}
+                      className="nextBtn"
+                    >
                       Next
                     </button>
                   </div>
@@ -314,7 +361,9 @@ const Tyres = () => {
         </div>
       </div>
       <div className="p-4">
-        <Toaster position={window.innerWidth <= 768 ? 'bottom-right' : 'top-right'} />
+        <Toaster
+          position={window.innerWidth <= 768 ? "bottom-right" : "top-right"}
+        />
       </div>
     </>
   );

@@ -271,8 +271,23 @@ const BodyFrameAccidentChecklist = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              {formData?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? (
-                                <img src={formData.imageValueChecks.find(check => check.name === item).data.image.url} width={50} alt="" />
+                              {formData?.imageValueChecks?.find(
+                                (check) => check.name === item
+                              )?.data?.image?.url ? (
+                                <img
+                                  src={
+                                    formData.imageValueChecks.find(
+                                      (check) => check.name === item
+                                    ).data.image.url
+                                  }
+                                  style={{
+                                    objectFit: "cover",
+                                    borderRadius: "5px",
+                                    maxWidth: "50px",
+                                    maxHeight: "50px",
+                                  }}
+                                  alt=""
+                                />
                               ) : (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -305,7 +320,11 @@ const BodyFrameAccidentChecklist = () => {
                                 }}
                               >
                                 {window.innerWidth >= 1025 &&
-                                  formData?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? "Change Image" : "Upload Image"}
+                                formData?.imageValueChecks?.find(
+                                  (check) => check.name === item
+                                )?.data?.image?.url
+                                  ? "Change Image"
+                                  : "Upload Image"}
                               </span>
                             </label>
                           </div>

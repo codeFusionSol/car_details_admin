@@ -1,8 +1,9 @@
 import "./Sidebar.css";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps";
+import { changeSidebarState } from "../../redux/Slices/Sidebar";
 
 const Sidebar = () => {
   const [active, setActive] = useState("Dashboard");
@@ -45,11 +46,17 @@ const Sidebar = () => {
 
   const handleStepClick = (index) => {
     if (index <= fullDetaills.length) {
-      dispatch(changeStepSuccess(index)); // Dispatching the new step index
+      dispatch(changeStepSuccess(index));
     } else {
-      alert("Cannot proceed to this step!"); // Optional alert for the condition
+      alert("Cannot proceed to this step!");
     }
   };
+
+  const closeSidebar = () => {
+    dispatch(changeSidebarState());
+  };
+
+  const navigate = useNavigate();
 
   return (
     <div
@@ -78,7 +85,7 @@ const Sidebar = () => {
         </>
       )}
       {formState ? (
-        <div className="timeline-container">
+        <div className="timeline-container" style={{display: isOpen?"flex":window.innerWidth<=768?"none":"flex"}}>
           {allSteps.map((step, index) => (
             <div
               key={index}
@@ -86,12 +93,12 @@ const Sidebar = () => {
               style={{
                 display:
                   window.innerWidth <= 768
-                    ? !isOpen
-                      ? "none"
-                      : "flex"
-                    : "flex",
+                    ? isOpen
+                      ? "flex"
+                      : "none"
+                    : "none",
               }}
-              onClick={() => handleStepClick(index)} // Click handler for step
+              onClick={() => handleStepClick(index)}
             >
               <div className="timeline-circle"></div>
               <span className="timeline-label">{step}</span>
@@ -114,13 +121,12 @@ const Sidebar = () => {
               { title: "Dashboard", path: "/dashboard" },
               { title: "Admins", path: "/admins" },
               { title: "Cars", path: "/cars" },
-             
             ].map((item, index) => (
               <Link
                 key={index}
                 to={item.path}
                 style={{ textDecoration: "none", color: "inherit" }}
-                onClick={item.onClick}
+                onClick={() => closeSidebar()}
               >
                 <div
                   className={`sidebar-item ${
@@ -131,6 +137,17 @@ const Sidebar = () => {
                 </div>
               </Link>
             ))}
+            <Link style={{ textDecoration: "none", color: "inherit" }}>
+              <div
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  window.location.reload();
+                }}
+                className={`sidebar-item`}
+              >
+                Logout
+              </div>
+            </Link>
           </div>
         </div>
       )}

@@ -90,7 +90,28 @@ const Dashboard = () => {
               <StateBox title="Total Vehicles" value={cars?.length} />
               <StateBox title="Total Users" value={admins?.length} />
               <div onClick={() => changeFormState()}>
-                <StateBox title="Add new " subtile="car inspection" />
+                <div
+                  className="card-container justify-content-center align-items-center"
+                  style={{
+                    backgroundColor: "var(--primary-color)",
+                    color: "var(--black-color)",
+                  }}
+                >
+                  <div className="d-flex flex-column justify-content-center align-items-center ">
+                    <span
+                      className="label"
+                      style={{ color: "var(--black-color)" }}
+                    >
+                      Add new
+                    </span>
+                    <span
+                      style={{ color: "var(--black-color)" }}
+                      className="subtile"
+                    >
+                      car inspection
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

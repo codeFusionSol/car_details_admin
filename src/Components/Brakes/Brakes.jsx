@@ -3,19 +3,22 @@ import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useEffect, useState } from "react";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import {
+  addDataToCarDetailsSuccess,
+  updateDataToCarDetailsSuccess,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const Brakes = () => {
   const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
-  const {carDetailsId, fullDetaills} = useSelector(
+  const { carDetailsId, fullDetaills } = useSelector(
     (state) => state.carDetailsId
   );
 
   const [brakesData, setBrakesData] = useState({
     mechanicalCheck: {
-      imageValueChecks: []
-    }
+      imageValueChecks: [],
+    },
   });
 
   const getBase64 = (file) => {
@@ -32,12 +35,12 @@ const Brakes = () => {
     try {
       const response = await api.post("/brakes/add", {
         mechanicalCheck: brakesData.mechanicalCheck,
-        carDetailsId: carDetailsId || "674d962b622d3809925855fe"
+        carDetailsId: carDetailsId || "674d962b622d3809925855fe",
       });
 
       if (response.data.success) {
         toast("Brakes Added!", {
-          style: { padding: "16px" }
+          style: { padding: "16px" },
         });
         setTimeout(() => {
           dispatch(addDataToCarDetailsSuccess(response?.data?.brakes));
@@ -53,7 +56,9 @@ const Brakes = () => {
   const calculatePercentage = (selectedValue, totalOptions) => {
     const index = totalOptions.indexOf(selectedValue);
     if (index === -1) return "";
-    return Math.round(((totalOptions.length - index) / totalOptions.length) * 100);
+    return Math.round(
+      ((totalOptions.length - index) / totalOptions.length) * 100
+    );
   };
 
   const handleOptionChange = (e, item, options) => {
@@ -71,8 +76,8 @@ const Brakes = () => {
           data: {
             ...newChecks[existingIndex].data,
             value,
-            percentage
-          }
+            percentage,
+          },
         };
       } else {
         newChecks.push({
@@ -80,8 +85,8 @@ const Brakes = () => {
           data: {
             image: { url: "", public_id: "" },
             value,
-            percentage
-          }
+            percentage,
+          },
         });
       }
 
@@ -89,8 +94,8 @@ const Brakes = () => {
         ...prev,
         mechanicalCheck: {
           ...prev.mechanicalCheck,
-          imageValueChecks: newChecks
-        }
+          imageValueChecks: newChecks,
+        },
       };
     });
   };
@@ -103,7 +108,9 @@ const Brakes = () => {
 
       setBrakesData((prev) => {
         const newChecks = [...prev.mechanicalCheck.imageValueChecks];
-        const existingIndex = newChecks.findIndex((check) => check.name === item);
+        const existingIndex = newChecks.findIndex(
+          (check) => check.name === item
+        );
 
         if (existingIndex >= 0) {
           // Create a new object instead of modifying existing one
@@ -111,8 +118,8 @@ const Brakes = () => {
             ...newChecks[existingIndex],
             data: {
               ...newChecks[existingIndex].data,
-              image: { url: base64WithPrefix, public_id: "" }
-            }
+              image: { url: base64WithPrefix, public_id: "" },
+            },
           };
         } else {
           newChecks.push({
@@ -120,8 +127,8 @@ const Brakes = () => {
             data: {
               image: { url: base64WithPrefix, public_id: "" },
               value: "",
-              percentage: ""
-            }
+              percentage: "",
+            },
           });
         }
 
@@ -129,19 +136,31 @@ const Brakes = () => {
           ...prev,
           mechanicalCheck: {
             ...prev.mechanicalCheck,
-            imageValueChecks: newChecks
-          }
+            imageValueChecks: newChecks,
+          },
         };
       });
     }
   };
 
   const dropdownOptions = {
-    frontRightDisc: ["Ok", "Scratch Marks", "Thin", "Scratched & Thin", "Rear Disc"],
-    frontLeftDisc: ["Ok", "Scratch Marks", "Thin", "Scratched & Thin", "Rear Disc"],
+    frontRightDisc: [
+      "Ok",
+      "Scratch Marks",
+      "Thin",
+      "Scratched & Thin",
+      "Rear Disc",
+    ],
+    frontLeftDisc: [
+      "Ok",
+      "Scratch Marks",
+      "Thin",
+      "Scratched & Thin",
+      "Rear Disc",
+    ],
     frontRightBrakePad: ["Ok", "Brake Noice"],
     frontLeftBrakePad: ["Ok", "Brake Noice"],
-    parkingHandBrake: ["Working Properly", "Not Working Properly"]
+    parkingHandBrake: ["Working Properly", "Not Working Properly"],
   };
 
   useEffect(() => {
@@ -173,7 +192,7 @@ const Brakes = () => {
       });
       if (response.data.success) {
         toast("Brakes Updated!", {
-          style: { padding: "16px" }
+          style: { padding: "16px" },
         });
         setTimeout(() => {
           dispatch(updateDataToCarDetailsSuccess(response?.data?.brakes));
@@ -183,7 +202,7 @@ const Brakes = () => {
     } catch (error) {
       console.error("Error updating brakes data:", error);
     }
-  }
+  };
 
   return (
     <>
@@ -251,8 +270,23 @@ const Brakes = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              {brakesData?.mechanicalCheck?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? (
-                                <img src={brakesData.mechanicalCheck.imageValueChecks.find(check => check.name === item).data.image.url} width={50} alt="" />
+                              {brakesData?.mechanicalCheck?.imageValueChecks?.find(
+                                (check) => check.name === item
+                              )?.data?.image?.url ? (
+                                <img
+                                  src={
+                                    brakesData.mechanicalCheck.imageValueChecks.find(
+                                      (check) => check.name === item
+                                    ).data.image.url
+                                  }
+                                  style={{
+                                    objectFit: "cover",
+                                    borderRadius: "5px",
+                                    maxWidth: "50px",
+                                    maxHeight: "50px",
+                                  }}
+                                  alt=""
+                                />
                               ) : (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -278,9 +312,18 @@ const Brakes = () => {
                                   <polyline points="21 15 16 10 5 21" />
                                 </svg>
                               )}
-                              <span className="d-none d-md-inline" style={{color:"var(--black-color) !important"}}>
+                              <span
+                                className="d-none d-md-inline"
+                                style={{
+                                  color: "var(--black-color) !important",
+                                }}
+                              >
                                 {window.innerWidth >= 1025 &&
-                                  brakesData?.mechanicalCheck?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? "Change Image" : "Upload Image"}
+                                brakesData?.mechanicalCheck?.imageValueChecks?.find(
+                                  (check) => check.name === item
+                                )?.data?.image?.url
+                                  ? "Change Image"
+                                  : "Upload Image"}
                               </span>
                             </label>
                           </div>
@@ -294,9 +337,15 @@ const Brakes = () => {
                               borderRadius: "6px",
                               padding: "0 10px",
                             }}
-                            onChange={(e) => handleOptionChange(e, item, dropdownOptions[item])}
+                            onChange={(e) =>
+                              handleOptionChange(e, item, dropdownOptions[item])
+                            }
                             className="form-select"
-                            value={brakesData.mechanicalCheck.imageValueChecks.find(check => check.name === item)?.data?.value || ''}
+                            value={
+                              brakesData.mechanicalCheck.imageValueChecks.find(
+                                (check) => check.name === item
+                              )?.data?.value || ""
+                            }
                           >
                             <option value="">Select</option>
                             {dropdownOptions[item].map((option, i) => (
@@ -313,14 +362,18 @@ const Brakes = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
-                    <button className="backBtn"
+                    <button
+                      className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(4));
                       }}
                     >
                       Back
                     </button>
-                    <button onClick={!editMode ? changeStep : editHandler} className="nextBtn">
+                    <button
+                      onClick={!editMode ? changeStep : editHandler}
+                      className="nextBtn"
+                    >
                       Next
                     </button>
                   </div>
@@ -330,7 +383,9 @@ const Brakes = () => {
           </div>
         </div>
       </div>
-      <Toaster position={window.innerWidth <= 768 ? "bottom-right" : "top-right"} />
+      <Toaster
+        position={window.innerWidth <= 768 ? "bottom-right" : "top-right"}
+      />
     </>
   );
 };

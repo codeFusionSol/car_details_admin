@@ -244,7 +244,16 @@ const CarDetails = () => {
                           htmlFor="carImage"
                           className="d-flex align-items-center mt-0 pt-0 justify-content-center gap-2 mb-0 cursor-pointer"
                         >
-                          <img src={carDetails?.image?.url} width={50} alt="" />
+                          <img
+                            src={carDetails?.image?.url}
+                            style={{
+                              objectFit: "cover",
+                              borderRadius: "5px",
+                              maxWidth: "50px",
+                              maxHeight: "50px",
+                            }}
+                            alt=""
+                          />
                           {!carDetails?.image?.url && (
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

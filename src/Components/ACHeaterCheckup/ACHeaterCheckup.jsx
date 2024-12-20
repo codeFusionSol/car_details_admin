@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id.jsx";
+import {
+  addDataToCarDetailsSuccess,
+  updateDataToCarDetailsSuccess,
+} from "../../redux/Slices/CarDetail_id.jsx";
 
 const ACHeaterCheckup = () => {
   const { fullDetaills, carDetailsId } = useSelector(
@@ -50,29 +53,35 @@ const ACHeaterCheckup = () => {
         ...prev,
         acHeaterCheckUp: {
           ...prev.acHeaterCheckUp,
-          imageValueChecks: prev.acHeaterCheckUp.imageValueChecks.map(check => 
-            check.name === item 
-              ? {
-                  ...check,
-                  data: {
-                    ...check.data,
-                    image: { public_id: "", url: base64WithPrefix }
+          imageValueChecks: prev.acHeaterCheckUp.imageValueChecks
+            .map((check) =>
+              check.name === item
+                ? {
+                    ...check,
+                    data: {
+                      ...check.data,
+                      image: { public_id: "", url: base64WithPrefix },
+                    },
                   }
-                }
-              : check
-          ).concat(
-            prev.acHeaterCheckUp.imageValueChecks.find(check => check.name === item)
-              ? []
-              : [{
-                  name: item,
-                  data: {
-                    image: { public_id: "", url: base64WithPrefix },
-                    value: "",
-                    percentage: 0
-                  }
-                }]
-          )
-        }
+                : check
+            )
+            .concat(
+              prev.acHeaterCheckUp.imageValueChecks.find(
+                (check) => check.name === item
+              )
+                ? []
+                : [
+                    {
+                      name: item,
+                      data: {
+                        image: { public_id: "", url: base64WithPrefix },
+                        value: "",
+                        percentage: 0,
+                      },
+                    },
+                  ]
+            ),
+        },
       }));
     }
   };
@@ -85,30 +94,36 @@ const ACHeaterCheckup = () => {
       ...prev,
       acHeaterCheckUp: {
         ...prev.acHeaterCheckUp,
-        imageValueChecks: prev.acHeaterCheckUp.imageValueChecks.map(check =>
-          check.name === item
-            ? {
-                ...check,
-                data: {
-                  ...check.data,
-                  value,
-                  percentage
+        imageValueChecks: prev.acHeaterCheckUp.imageValueChecks
+          .map((check) =>
+            check.name === item
+              ? {
+                  ...check,
+                  data: {
+                    ...check.data,
+                    value,
+                    percentage,
+                  },
                 }
-              }
-            : check
-        ).concat(
-          prev.acHeaterCheckUp.imageValueChecks.find(check => check.name === item)
-            ? []
-            : [{
-                name: item,
-                data: {
-                  image: { public_id: "", url: "" },
-                  value,
-                  percentage
-                }
-              }]
-        )
-      }
+              : check
+          )
+          .concat(
+            prev.acHeaterCheckUp.imageValueChecks.find(
+              (check) => check.name === item
+            )
+              ? []
+              : [
+                  {
+                    name: item,
+                    data: {
+                      image: { public_id: "", url: "" },
+                      value,
+                      percentage,
+                    },
+                  },
+                ]
+          ),
+      },
     }));
   };
 
@@ -127,7 +142,7 @@ const ACHeaterCheckup = () => {
         ...acHeaterData,
         carDetailsId: carDetailsId || "674d962b622d3809925855fe",
       });
-      
+
       if (response.data.success) {
         toast("AC & Heater Added!", {
           style: { padding: "16px" },
@@ -162,7 +177,10 @@ const ACHeaterCheckup = () => {
 
   const editHandler = async () => {
     try {
-      const response = await api.put(`/acHeater/update/${fullDetaills[7]._id}`, acHeaterData);
+      const response = await api.put(
+        `/acHeater/update/${fullDetaills[7]._id}`,
+        acHeaterData
+      );
 
       if (response.data.success) {
         toast("AC/Heater Updated!", { style: { padding: "16px" } });
@@ -242,8 +260,23 @@ const ACHeaterCheckup = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              {acHeaterData?.acHeaterCheckUp?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? (
-                                <img src={acHeaterData.acHeaterCheckUp.imageValueChecks.find(check => check.name === item).data.image.url} width={50} alt="" />
+                              {acHeaterData?.acHeaterCheckUp?.imageValueChecks?.find(
+                                (check) => check.name === item
+                              )?.data?.image?.url ? (
+                                <img
+                                  src={
+                                    acHeaterData.acHeaterCheckUp.imageValueChecks.find(
+                                      (check) => check.name === item
+                                    ).data.image.url
+                                  }
+                                  style={{
+                                    objectFit: "cover",
+                                    borderRadius: "5px",
+                                    maxWidth: "50px",
+                                    maxHeight: "50px",
+                                  }}
+                                  alt=""
+                                />
                               ) : (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -257,14 +290,28 @@ const ACHeaterCheckup = () => {
                                   strokeLinejoin="round"
                                   style={{ marginRight: "5px" }}
                                 >
-                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                  <rect
+                                    x="3"
+                                    y="3"
+                                    width="18"
+                                    height="18"
+                                    rx="2"
+                                    ry="2"
+                                  />
                                   <circle cx="8.5" cy="8.5" r="1.5" />
                                   <polyline points="21 15 16 10 5 21" />
                                 </svg>
                               )}
-                              <span className="d-none d-md-inline" style={{color:"var(--black-color)"}}>
-                                {window.innerWidth >= 1025 && 
-                                  acHeaterData?.acHeaterCheckUp?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? "Change Image" : "Upload Image"}
+                              <span
+                                className="d-none d-md-inline"
+                                style={{ color: "var(--black-color)" }}
+                              >
+                                {window.innerWidth >= 1025 &&
+                                acHeaterData?.acHeaterCheckUp?.imageValueChecks?.find(
+                                  (check) => check.name === item
+                                )?.data?.image?.url
+                                  ? "Change Image"
+                                  : "Upload Image"}
                               </span>
                             </label>
                           </div>
@@ -301,14 +348,18 @@ const ACHeaterCheckup = () => {
 
                 <div className="col-12 ps-0">
                   <div className="d-flex align-items-center flex-md-row flex-column-reverse justify-content-center gap-3">
-                    <button className="backBtn"
+                    <button
+                      className="backBtn"
                       onClick={() => {
                         dispatch(changeStepSuccess(7));
                       }}
                     >
                       Back
                     </button>
-                    <button onClick={editMode ? editHandler : handleSubmit} className="nextBtn">
+                    <button
+                      onClick={editMode ? editHandler : handleSubmit}
+                      className="nextBtn"
+                    >
                       Next
                     </button>
                   </div>
