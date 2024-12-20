@@ -249,8 +249,8 @@ const CarDetails = () => {
                             style={{
                               objectFit: "cover",
                               borderRadius: "5px",
-                              maxWidth: "50px",
-                              maxHeight: "50px",
+                              maxWidth: "30px",
+                              maxHeight: "30px",
                             }}
                             alt=""
                           />

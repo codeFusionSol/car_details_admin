@@ -342,8 +342,8 @@ const EngineTransmissionClutch = () => {
                                         style={{
                                           objectFit: "cover",
                                           borderRadius: "5px",
-                                          maxWidth: "40px",
-                                          maxHeight: "40px",
+                                          maxWidth: "30px",
+                                          maxHeight: "30px",
                                         }}
                                         alt=""
                                       />
