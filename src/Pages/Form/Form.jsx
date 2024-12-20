@@ -17,22 +17,44 @@ import Tyres from "../../Components/Tyres/Tyres.jsx";
 import AdditionalPictures from "../../Components/AdditionalPictures/AdditionalPictures.jsx";
 import OwnerDetails from "../../Components/OwnerDetails/OwnerDetails.jsx";
 import { useSelector } from "react-redux";
-import { useFetcher } from "react-router-dom";
+import { useFetcher, useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Navbar/Navbar.jsx";
 import Sidebar from "../../Components/Sidebar/Sidebar.jsx";
 import TestDrive from "../../Components/TestDrive/TestDrive.jsx";
 import ExtoriorCondition from "../../Components/ExtoriorCondition/ExtoriorCondition.jsx";
+import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
+import { addDataToCarDetailsSuccess, changeCarDetailsIdSuccess, setDataToCarDetails } from "../../redux/Slices/CarDetail_id.jsx";
 
 const api = axios.create({
   baseURL: url,
 });
 
 const Form = () => {
-  const totalSteps = 14;
+  const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
+  console.log(user);
+  React.useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user]);
   const { steps } = useSelector((state) => state.formsSteps);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
+    if (fullDetaills) {
+      dispatch(setDataToCarDetails(fullDetaills));
+    } else {
+      dispatch(setDataToCarDetails([]));
+      const setDetailsArray = localStorage.setItem("fullDetaills", JSON.stringify([]));
+      console.log(setDetailsArray);
+    }
+  }, []);
+
   // useEffect(() => {
   //   console.log(steps);
+
   // }, [steps]);
 
   const handleSubmit = async (e) => {
@@ -97,6 +119,20 @@ const Form = () => {
   // useEffect(() => {
   //   console.log(formData);
   // }, [formData]);
+
+  useEffect(() => {
+    const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
+    const carDetailsId = JSON.parse(localStorage.getItem("carDetailsId"));
+    if (fullDetaills?.length > 0) {
+      dispatch(setDataToCarDetails(fullDetaills));
+      dispatch(changeStepSuccess(fullDetaills.length));
+    }
+    if (carDetailsId) {
+      dispatch(changeCarDetailsIdSuccess(carDetailsId));
+    }
+    console.log(fullDetaills);
+    console.log(carDetailsId);
+  }, []);
 
   return (
     <>
@@ -175,7 +211,6 @@ const Form = () => {
             </div>
           )}
 
-
           {steps === 11 && (
             <div className="fade-in">
               <TestDrive />
@@ -187,7 +222,6 @@ const Form = () => {
               <ExtoriorCondition />
             </div>
           )}
-
 
           {steps === 13 && (
             <div className="fade-in">

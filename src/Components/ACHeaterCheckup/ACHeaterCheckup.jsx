@@ -147,9 +147,18 @@ const ACHeaterCheckup = () => {
     if (fullDetaills.length > 7) {
       setAcHeaterData(fullDetaills[7]);
       setEditMode(true);
-      console.log(editMode);
+      // console.log(editMode);
     }
   }, [fullDetaills]);
+
+  useEffect(() => {
+    const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
+    if (fullDetaills.length > 7) {
+      setAcHeaterData(fullDetaills[7]);
+      setEditMode(true);
+      // console.log(editMode);
+    }
+  }, []);
 
   const editHandler = async () => {
     try {
@@ -233,24 +242,29 @@ const ACHeaterCheckup = () => {
                                 fontSize: "14px",
                               }}
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                style={{ marginRight: "5px" }}
-                              >
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                <circle cx="8.5" cy="8.5" r="1.5" />
-                                <polyline points="21 15 16 10 5 21" />
-                              </svg>
+                              {acHeaterData?.acHeaterCheckUp?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? (
+                                <img src={acHeaterData.acHeaterCheckUp.imageValueChecks.find(check => check.name === item).data.image.url} width={50} alt="" />
+                              ) : (
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  style={{ marginRight: "5px" }}
+                                >
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                  <circle cx="8.5" cy="8.5" r="1.5" />
+                                  <polyline points="21 15 16 10 5 21" />
+                                </svg>
+                              )}
                               <span className="d-none d-md-inline" style={{color:"var(--black-color)"}}>
-                                {window.innerWidth >= 1025 && "Click to upload image"}
+                                {window.innerWidth >= 1025 && 
+                                  acHeaterData?.acHeaterCheckUp?.imageValueChecks?.find(check => check.name === item)?.data?.image?.url ? "Change Image" : "Upload Image"}
                               </span>
                             </label>
                           </div>

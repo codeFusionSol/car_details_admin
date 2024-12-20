@@ -24,6 +24,17 @@ const ExtoriorCondition = () => {
     }
   }, [fullDetaills]);
 
+
+  useEffect(() => {
+    const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
+    if (fullDetaills?.length > 12) {
+      setRightView(fullDetaills[12].rightView);
+      setTopView(fullDetaills[12].topView);
+      setLeftView(fullDetaills[12].leftView);
+      setEditMode(true);
+    }
+  }, []);
+
   const [rightView, setRightView] = useState([
     { name: "Front Right Fender", value: [] },
     { name: "Right Foot Board", value: [] },

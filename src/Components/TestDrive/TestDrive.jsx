@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { url } from "../../../utils/url";
 import { Toaster, toast } from "sonner";
-import { addDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id";
+import { addDataToCarDetailsSuccess, updateDataToCarDetailsSuccess } from "../../redux/Slices/CarDetail_id";
 
 const api = axios.create({
   baseURL: url,
@@ -66,6 +66,14 @@ const TestDrive = () => {
       setEditMode(true);
     }
   }, [fullDetaills]);
+
+  useEffect(() => {
+    const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
+    if (fullDetaills?.length > 11) {
+      setTestDriveDetails(fullDetaills[11]);
+      setEditMode(true);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -124,6 +132,7 @@ const TestDrive = () => {
         });
 
         setTimeout(() => {
+          dispatch(updateDataToCarDetailsSuccess(response?.data?.data));
           dispatch(changeStepSuccess(fullDetaills.length));
         }, 2000);
       } else {

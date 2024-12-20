@@ -59,6 +59,14 @@ const CarDetails = () => {
   }, [fullDetaills]);
 
   useEffect(() => {
+    const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
+    if (fullDetaills && fullDetaills.length > 1) {
+      setCarDetails(fullDetaills[1]);
+      setEditMode(true);
+    }
+  }, []);
+
+  useEffect(() => {
     console.log(carDetails);
   }, [carDetails]);
 
@@ -236,30 +244,33 @@ const CarDetails = () => {
                           htmlFor="carImage"
                           className="d-flex align-items-center mt-0 pt-0 justify-content-center gap-2 mb-0 cursor-pointer"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="32"
-                            height="32"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <rect
-                              x="3"
-                              y="3"
-                              width="18"
-                              height="18"
-                              rx="2"
-                              ry="2"
-                            />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <polyline points="21 15 16 10 5 21" />
-                          </svg>
+                          <img src={carDetails?.image?.url} width={50} alt="" />
+                          {!carDetails?.image?.url && (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="32"
+                              height="32"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect
+                                x="3"
+                                y="3"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"
+                              />
+                              <circle cx="8.5" cy="8.5" r="1.5" />
+                              <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                          )}
                           {window.innerWidth > 1024 &&
-                            (carDetails.image.url
+                            (carDetails?.image?.url
                               ? "Change Image"
                               : "Upload Image")}
                         </label>

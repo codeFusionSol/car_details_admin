@@ -9,8 +9,17 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Pagination from "@mui/material/Pagination";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Cars = () => {
+  const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
+  console.log(user);
+  React.useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user]);
   // const [cars, setCars] = React.useState([]);
   const [selectedCar, setSelectedCar] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -18,12 +27,9 @@ const Cars = () => {
   const [itemsPerPage] = useState(5);
   const { cars } = useSelector((state) => state.cars);
 
-
-
-
   const handleDelete = async (car) => {
     try {
-      return
+      return;
       const res = await api.delete(`/ownerDetails/delete/${car._id}`);
       if (res.data.success) {
         fetchCars();
@@ -82,7 +88,7 @@ const Cars = () => {
                   </th>
                   <th
                     style={{
-                      textAlign: "left", 
+                      textAlign: "left",
                       padding: "18px 15px",
                       color: "var(--black-color)",
                       fontWeight: "700",
@@ -94,7 +100,7 @@ const Cars = () => {
                   <th
                     style={{
                       textAlign: "left",
-                      padding: "18px 15px", 
+                      padding: "18px 15px",
                       color: "var(--black-color)",
                       fontWeight: "700",
                       fontSize: "15px",
@@ -106,7 +112,7 @@ const Cars = () => {
                     style={{
                       textAlign: "left",
                       padding: "18px 15px",
-                      color: "var(--black-color)", 
+                      color: "var(--black-color)",
                       fontWeight: "700",
                       fontSize: "15px",
                     }}
@@ -118,7 +124,7 @@ const Cars = () => {
                       textAlign: "left",
                       padding: "18px 15px",
                       color: "var(--black-color)",
-                      fontWeight: "700", 
+                      fontWeight: "700",
                       fontSize: "15px",
                     }}
                   >
@@ -266,7 +272,6 @@ const Cars = () => {
                 ))}
               </tbody>
             </table>
-            
           </div>
         </Paper>
       </div>
@@ -310,29 +315,49 @@ const Cars = () => {
               <div>
                 <h3>Owner Details</h3>
                 <div style={{ marginBottom: "20px" }}>
-                  <p><strong>Name:</strong> {selectedCar.name}</p>
-                  <p><strong>Contact:</strong> {selectedCar.contactNumber}</p>
-                  <p><strong>City:</strong> {selectedCar.city}</p>
+                  <p>
+                    <strong>Name:</strong> {selectedCar.name}
+                  </p>
+                  <p>
+                    <strong>Contact:</strong> {selectedCar.contactNumber}
+                  </p>
+                  <p>
+                    <strong>City:</strong> {selectedCar.city}
+                  </p>
                 </div>
 
                 <h3>Car Information</h3>
                 <div style={{ marginBottom: "20px" }}>
-                  <p><strong>Name:</strong> {selectedCar.carId?.name}</p>
-                  <p><strong>Model:</strong> {selectedCar.carId?.registeredYear}</p>
-                  <p><strong>Color:</strong> {selectedCar.carId?.colour}</p>
-                  <p><strong>Mileage:</strong> {selectedCar.carId?.mileage}</p>
-                  <p><strong>Transmission:</strong> {selectedCar.carId?.transmissionType}</p>
+                  <p>
+                    <strong>Name:</strong> {selectedCar.carId?.name}
+                  </p>
+                  <p>
+                    <strong>Model:</strong> {selectedCar.carId?.registeredYear}
+                  </p>
+                  <p>
+                    <strong>Color:</strong> {selectedCar.carId?.colour}
+                  </p>
+                  <p>
+                    <strong>Mileage:</strong> {selectedCar.carId?.mileage}
+                  </p>
+                  <p>
+                    <strong>Transmission:</strong>{" "}
+                    {selectedCar.carId?.transmissionType}
+                  </p>
                 </div>
 
                 <h3>Inspection Forms</h3>
                 {selectedCar.AllFormsData?.map((form, index) => (
                   <div key={index} style={{ marginBottom: "20px" }}>
                     <h4>{form.name}</h4>
-                    {form.data && Object.entries(form.data).map(([key, value]) => (
-                      <div key={key}>
-                        <p><strong>{key}:</strong> {JSON.stringify(value)}</p>
-                      </div>
-                    ))}
+                    {form.data &&
+                      Object.entries(form.data).map(([key, value]) => (
+                        <div key={key}>
+                          <p>
+                            <strong>{key}:</strong> {JSON.stringify(value)}
+                          </p>
+                        </div>
+                      ))}
                   </div>
                 ))}
               </div>

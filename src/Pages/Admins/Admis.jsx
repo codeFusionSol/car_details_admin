@@ -10,8 +10,18 @@ import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Admins = () => {
+  const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
+  console.log(user);
+  React.useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user]);
   const [admins, setAdmins] = React.useState([]);
   const [paginationModel, setPaginationModel] = React.useState({
     page: 0,

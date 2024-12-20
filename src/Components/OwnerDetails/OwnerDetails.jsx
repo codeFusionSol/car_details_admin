@@ -48,6 +48,17 @@ const OwnerDetails = () => {
     }
   }, [fullCarDetails]);
 
+
+  useEffect(() => {
+    const fullDetaills = JSON.parse(localStorage.getItem("fullDetaills"));
+    console.log(fullDetaills);
+    if (fullDetaills && fullDetaills.length > 0) {
+      setOwnerDetails(fullCarDetails[0]);
+      console.log(fullCarDetails[0]);
+      setEditMode(true);
+    }
+  }, []);
+
   const changeStep = async () => {
     try {
       // Validate required fields
@@ -90,6 +101,7 @@ const OwnerDetails = () => {
         });
         dispatch(changeOwnerIdSuccess(response.data.data._id));
         dispatch(addDataToCarDetailsSuccess(response.data?.data));
+        // save the data in local storage
         setTimeout(() => {
           dispatch(changeStepSuccess(1));
         }, 2000);
@@ -160,7 +172,7 @@ const OwnerDetails = () => {
                         style={{ height: "60px" }}
                         type="text"
                         name="name"
-                        value={ownerDetails.name}
+                        value={ownerDetails?.name}
                         onChange={handleInputChange}
                         className="form-control my-0"
                         id="name"

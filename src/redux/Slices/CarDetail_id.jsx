@@ -17,6 +17,8 @@ const carDetailsIdSlice = createSlice({
     changeCarDetailsIdSuccess: (state, action) => {
       state.loading = false;
       state.carDetailsId = action.payload;
+      // save the data in local storage
+      localStorage.setItem("carDetailsId", JSON.stringify(state.carDetailsId));
     },
     changeCarDetailsIdFailure: (state, action) => {
       state.loading = false;
@@ -29,6 +31,10 @@ const carDetailsIdSlice = createSlice({
     addDataToCarDetailsSuccess: (state, action) => {
       state.loading = false;
       state.fullDetaills = [...state.fullDetaills, action.payload];
+      // save the data in local storage
+      let details = JSON.parse(localStorage.getItem("fullDetaills")) || [];
+      details = [...details, action.payload];
+      localStorage.setItem("fullDetaills", JSON.stringify(details));
     },
     addDataToCarDetailsFailure: (state, action) => {
       state.loading = false;
@@ -43,10 +49,20 @@ const carDetailsIdSlice = createSlice({
       state.fullDetaills = state.fullDetaills.map(detail => 
         detail._id === action.payload._id ? action.payload : detail
       );
+      // save the data in local storage
+      let details = JSON.parse(localStorage.getItem("fullDetaills")) || [];
+      details = details.map(detail =>
+        detail._id === action.payload._id ? action.payload : detail
+      );
+      localStorage.setItem("fullDetaills", JSON.stringify(details));
     },
     updateDataToCarDetailsFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
+    },
+
+    setDataToCarDetails: (state, action) => {
+      state.fullDetaills = action.payload;
     },
 
     resetCarDetailsId: (state) => {
@@ -68,6 +84,7 @@ export const {
   updateDataToCarDetailsStart,
   updateDataToCarDetailsSuccess,
   updateDataToCarDetailsFailure,
+  setDataToCarDetails,
   resetCarDetailsId,
 } = actions;
 

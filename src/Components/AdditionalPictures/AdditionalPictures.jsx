@@ -110,6 +110,9 @@ const AdditionalPictures = () => {
             // Set desired padding here
           },
         });
+        // remove the car details id from the local storage
+        localStorage.removeItem("carDetailsId");
+        localStorage.removeItem("fullDetaills");
         setTimeout(() => {
           dispatch(resetCarDetailsId());
           changeStep(0);
@@ -192,7 +195,11 @@ const AdditionalPictures = () => {
                         <circle cx="8.5" cy="8.5" r="1.5" />
                         <polyline points="21 15 16 10 5 21" />
                       </svg>
-                      <span className="d-none d-md-inline">
+                      <span className="d-none d-md-inline" style={{
+                        color: "var(--black-color)",
+                        fontWeight: "600",
+                        fontSize: "14px",
+                      }}>
                         {window.innerWidth >= 1025 &&
                           "Click to upload additional car photos"}
                       </span>
