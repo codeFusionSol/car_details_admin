@@ -117,8 +117,8 @@ const AdditionalPictures = () => {
           dispatch(resetCarDetailsId());
           changeStep(0);
           navigate("/dashboard");
-          dispatch(changeSidebarState());
           dispatch(changeFormStateSuccess());
+          window.location.reload();
         }, 2000);
       }
     } catch (error) {
