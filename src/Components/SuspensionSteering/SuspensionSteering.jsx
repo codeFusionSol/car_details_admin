@@ -310,8 +310,8 @@ const SuspensionSteering = () => {
                                       style={{
                                         objectFit: "cover",
                                         borderRadius: "5px",
-                                        maxWidth: "50px",
-                                        maxHeight: "50px",
+                                        maxWidth: "40px",
+                                        maxHeight: "40px",
                                       }}
                                       alt=""
                                     />
