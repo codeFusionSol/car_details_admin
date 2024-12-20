@@ -9,6 +9,9 @@ import {
 } from "../../redux/Slices/CarDetail_id.jsx";
 
 const Interior = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const { fullDetaills, carDetailsId } = useSelector(
     (state) => state.carDetailsId
   );

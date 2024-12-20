@@ -25,6 +25,9 @@ const api = axios.create({
 });
 
 const CarDetails = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const dispatch = useDispatch();
   const userId = useSelector((state) => state?.auth?.user?._id);
   const ownerId = useSelector((state) => state?.ownerId?.ownerId);

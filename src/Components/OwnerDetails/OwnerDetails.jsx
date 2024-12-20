@@ -17,6 +17,9 @@ const api = axios.create({
 });
 
 const OwnerDetails = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const dispatch = useDispatch();
   const userId = useSelector((state) => state?.auth?.user?._id);
   console.log(userId);

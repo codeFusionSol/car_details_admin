@@ -14,6 +14,9 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const Admins = () => {
+  React.useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   console.log(user);

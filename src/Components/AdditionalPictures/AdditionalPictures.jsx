@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeStepSuccess } from "../../redux/Slices/FormsSteps.jsx";
 import { useNavigate } from "react-router-dom";
 import { changeFormStateSuccess, changeSidebarState } from "../../redux/Slices/Sidebar.jsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import api from "../../../utils/url.js";
 import { Toaster, toast } from "sonner";
@@ -12,6 +12,9 @@ import {
 } from "../../redux/Slices/CarDetail_id.jsx";
 
 const AdditionalPictures = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const carDetailsId = useSelector((state) => state.carDetailsId.carDetailsId);

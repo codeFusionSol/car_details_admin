@@ -16,6 +16,9 @@ const api = axios.create({
 });
 
 const TestDrive = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const dispatch = useDispatch();
   const { fullDetaills, carDetailsId } = useSelector((state) => state.carDetailsId);
   const [editMode, setEditMode] = useState(false);

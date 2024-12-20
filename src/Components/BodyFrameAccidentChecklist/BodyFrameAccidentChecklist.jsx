@@ -14,6 +14,9 @@ const api = axios.create({
 });
 
 const BodyFrameAccidentChecklist = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const [editMode, setEditMode] = useState(false);
   const { fullDetaills } = useSelector((state) => state.carDetailsId);
   const dispatch = useDispatch();

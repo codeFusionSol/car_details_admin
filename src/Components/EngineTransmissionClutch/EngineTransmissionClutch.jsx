@@ -9,6 +9,9 @@ import {
 } from "../../redux/Slices/CarDetail_id.jsx";
 
 const EngineTransmissionClutch = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const [editMode, setEditMode] = useState(false);
   const dispatch = useDispatch();
   const { carDetailsId, fullDetaills } = useSelector(
@@ -26,40 +29,41 @@ const EngineTransmissionClutch = () => {
   const options = {
     fluidsFiltersCheck: {
       engineOilLevel: [
+        "Select the value",
         "complete and clean",
         "dirty oil",
         "below the lower mark",
       ],
-      engineOilLeakage: ["No Leakage", "Minor leakage", "Major leakage"],
-      transmissionOilLeakage: ["No Leakage", "Minor leakage", "Major leakage"],
-      coolantLeakage: ["No Leakage", "Minor leakage", "Major leakage"],
-      brakeOilLeakage: ["No Leakage", "Minor leakage", "Major leakage"],
+      engineOilLeakage: ["Select the value", "No Leakage", "Minor leakage", "Major leakage"],
+      transmissionOilLeakage: ["Select the value", "No Leakage", "Minor leakage", "Major leakage"],
+      coolantLeakage: ["Select the value", "No Leakage", "Minor leakage", "Major leakage"],
+      brakeOilLeakage: ["Select the value", "No Leakage", "Minor leakage", "Major leakage"],
     },
     mechanicalCheck: {
-      wires: ["Ok", "Brake"],
-      engineBlow: ["Not Present", "Present"],
-      engineNoise: ["No Noise", "Noise"],
-      engineVibration: ["No Vibration", "Minor Vibration", "Major Vibration"],
-      engineMounts: ["Ok", "Brake"],
-      hoses: ["Ok", "Brake"],
+      wires: ["Select the value", "Ok", "Brake"],
+      engineBlow: ["Select the value", "Not Present", "Present"],
+      engineNoise: ["Select the value", "No Noise", "Noise"],
+      engineVibration: ["Select the value", "No Vibration", "Minor Vibration", "Major Vibration"],
+      engineMounts: ["Select the value", "Ok", "Brake"],
+      hoses: ["Select the value", "Ok", "Brake"],
     },
     exhaustCheck: {
-      exhaustSound: ["Sound", "No Sound"],
+      exhaustSound: ["Select the value", "Sound", "No Sound"],
     },
     engineCoolingSystem: {
-      radiator: ["Ok", "Rusted", "Choke"],
-      suctionFan: ["Working Properly", "Working Slow", "Not Working"],
+      radiator: ["Select the value", "Ok", "Rusted", "Choke"],
+      suctionFan: ["Select the value", "Working Properly", "Working Slow", "Not Working"],
     },
     transmissionCheck: {
-      starterOperation: ["Ok", "Not Ok"],
+      starterOperation: ["Select the value", "Ok", "Not Ok"],
     },
   };
 
   const calculatePercentage = (selectedValue, fieldOptions) => {
     const index = fieldOptions.indexOf(selectedValue);
-    if (index === -1) return ""; // Default value if no valid option is selected
+    if (index === -1 || index === 0) return ""; // Default value if no valid option is selected or if "Select the value" is chosen
     return Math.round(
-      ((fieldOptions.length - index) / fieldOptions.length) * 100
+      ((fieldOptions.length - index) / (fieldOptions.length - 1)) * 100
     );
   };
 
@@ -399,12 +403,8 @@ const EngineTransmissionClutch = () => {
                                   onChange={(e) =>
                                     handleInputChange(e, section, item.name)
                                   }
-                                  value={
-                                    item.data?.value ||
-                                    options[section][item.name][0]
-                                  }
+                                  value={item.data?.value || ""}
                                 >
-                                  <option value="">Select the value</option>
                                   {options[section][item.name].map(
                                     (option, index) => (
                                       <option key={index} value={option}>

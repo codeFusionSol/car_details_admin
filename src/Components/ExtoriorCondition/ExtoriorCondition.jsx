@@ -11,6 +11,9 @@ import { Toaster, toast } from "sonner";
 
 
 const ExtoriorCondition = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to the top of the page
+  }, []);
   const dispatch = useDispatch();
   const [editMode, setEditMode] = useState(false);
   const { carDetailsId , fullDetaills } = useSelector((state) => state.carDetailsId);
@@ -214,7 +217,7 @@ const ExtoriorCondition = () => {
           <div className="col-md-4">
             <br />
           <h3 className="carDetailsHeading">Right View</h3>
-          <br />
+          {/* <br /> */}
           {rightView.map((item, index) => (
             <div key={index} className="mb-4">
               <h5 style={{fontSize: "1.2rem" , fontWeight: "500"}}>{item.name}</h5>

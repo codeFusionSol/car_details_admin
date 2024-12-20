@@ -10,8 +10,15 @@ import Box from "@mui/material/Box";
 import Pagination from "@mui/material/Pagination";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 
 const Cars = () => {
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   console.log(user);
@@ -20,12 +27,45 @@ const Cars = () => {
       navigate("/");
     }
   }, [user]);
-  // const [cars, setCars] = React.useState([]);
+
   const [selectedCar, setSelectedCar] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
+  const [filterDuration, setFilterDuration] = useState("last6days");
   const { cars } = useSelector((state) => state.cars);
+
+  const filterAndSortCars = () => {
+    const currentDate = new Date();
+
+    const filtered = cars.filter((car) => {
+      const carDate = new Date(car.createdAt || car.localTime);
+      const diffTime = Math.abs(currentDate - carDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      switch (filterDuration) {
+        case "last6days":
+          return diffDays <= 6;
+        case "lastMonth":
+          return diffDays <= 30;
+        case "last6Months":
+          return diffDays <= 180;
+        case "all":
+          return true;
+        default:
+          return true;
+      }
+    });
+
+    // Sort by most recent first
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.localTime);
+      const dateB = new Date(b.createdAt || b.localTime);
+      return dateB - dateA; // Most recent first
+    });
+  };
+
+  const filteredAndSortedCars = filterAndSortCars();
 
   const handleDelete = async (car) => {
     try {
@@ -61,6 +101,32 @@ const Cars = () => {
             boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
           }}
         >
+          <div style={{ marginBottom: "20px" }}>
+            <FormControl
+              variant="outlined"
+              style={{
+                minWidth: 200,
+                backgroundColor: "var(--white-color)",
+              }}
+            >
+              <InputLabel>Filter Duration</InputLabel>
+              <Select
+                value={filterDuration}
+                onChange={(e) => setFilterDuration(e.target.value)}
+                label="Filter Duration"
+                style={{
+                  borderRadius: "8px",
+                  color: "var(--black-color)",
+                }}
+              >
+                <MenuItem value="last6days">Last 6 Days</MenuItem>
+                <MenuItem value="lastMonth">Last Month</MenuItem>
+                <MenuItem value="last6Months">Last 6 Months</MenuItem>
+                <MenuItem value="all">All Time</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+
           <div style={{ overflow: "auto" }}>
             <table
               style={{
@@ -159,7 +225,7 @@ const Cars = () => {
                 </tr>
               </thead>
               <tbody>
-                {cars.map((car, index) => (
+                {filteredAndSortedCars.map((car, index) => (
                   <tr
                     key={index}
                     style={{
@@ -237,10 +303,10 @@ const Cars = () => {
                         fontWeight: "500",
                       }}
                     >
-                      {/* {car?.carId?.transmissionType} */}
                       <span>
                         https://car-details-frontend.vercel.app/{car?._id}
-                      </span>&nbsp;
+                      </span>
+                      &nbsp;
                       <button
                         style={{
                           fontSize: "12px",
@@ -284,7 +350,6 @@ const Cars = () => {
                           style={{ cursor: "pointer", marginRight: "10px" }}
                         />
                         <img
-                          // onClick={() => handleView(car)}
                           src="/assets/icons/view.png"
                           width={20}
                           alt="view"
